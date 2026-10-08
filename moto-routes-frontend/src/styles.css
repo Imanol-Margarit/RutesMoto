@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  /* Paleta personalizada: https://paletadecolores.org/crear-paleta.html?c=EFF8F9-CCF0E8-D0E9DA-C0E2C3-BCD9AE */
+  --color-frost: #eff8f9;   /* fondo de la página */
+  --color-mint: #ccf0e8;    /* barra de navegación */
+  --color-seafoam: #d0e9da; /* hover de los enlaces */
+  --color-leaf: #c0e2c3;    /* enlace activo */
+  --color-sage: #bcd9ae;    /* bordes */
+}
+
+@layer base {
+  html {
+    font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: var(--color-frost);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    color: #0f172a;
+    background: transparent;
+  }
+}

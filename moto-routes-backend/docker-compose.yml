@@ -1,0 +1,18 @@
+services:
+  moto-routes-db:
+    image: postgres:16-alpine
+    container_name: moto-routes-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: moto_routes
+    ports:
+      # Puerto distinto al 5432 para no chocar con el Postgres
+      # que ya usas para la API de Airbnb (airbnb-api_v4).
+      - "5433:5432"
+    volumes:
+      - moto_routes_data:/var/lib/postgresql/data
+
+volumes:
+  moto_routes_data:

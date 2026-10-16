@@ -1,205 +1,95 @@
-import { randomUUID } from "node:crypto";
 import { pool } from "../config/db.js";
+import { routeModel } from "../models/route.model.js";
+import { toColumns } from "../utils/sql.util.js";
 
-const columns = `
-  id,
-  title,
-  region,
-  "distanceKm",
-  difficulty,
-  description,
-  slug,
-  status,
-  "isActive",
-  "createdAt",
-  "updatedAt",
-  "deletedAt"
-`;
+// Las columnas se leen con alias camelCase: la API no cambia.
+const SELECT_ROUTE = `
+  SELECT t.id AS "_id", t.title, t.distance_km AS "distanceKm", t.difficulty, t.description,
+         t.slug, t.surface, t.start_point AS "startPoint",
+         t.estimated_minutes AS "estimatedMinutes", t.status, t.is_active AS "isActive",
+         t.host_id AS "hostId", t.category_id AS "categoryId", t.location_id AS "locationId",
+         t.created_at AS "createdAt", t.updated_at AS "updatedAt", t.deleted_at AS "deletedAt"
+  FROM ${routeModel.table} AS t`;
 
-function mapRow(row) {
-  if (!row) return null;
-  return {
-    _id: row.id,
-    title: row.title,
-    region: row.region,
-    distanceKm: Number(row.distanceKm),
-    difficulty: row.difficulty,
-    description: row.description,
-    slug: row.slug,
-    status: row.status,
-    isActive: row.isActive,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-    deletedAt: row.deletedAt
-  };
-}
+// NUMERIC llega de PostgreSQL como texto: lo convertimos en número.
+const toRoute = (row) => (row ? { ...row, distanceKm: Number(row.distanceKm) } : null);
 
 export const routeRepository = {
-  /**
-   * Lista las rutas no borradas (deletedAt IS NULL).
-   * - findAll()                    -> todas (activas e inactivas)
-   * - findAll({ isActive: true })  -> solo activas
-   * - findAll({ isActive: false }) -> solo inactivas
-   */
   async findAll({ isActive } = {}) {
-    const conditions = [`"deletedAt" IS NULL`];
-    const values = [];
-
+    const params = [];
+    let where = "t.deleted_at IS NULL";
     if (typeof isActive === "boolean") {
-      values.push(isActive);
-      conditions.push(`"isActive" = $${values.length}`);
+      params.push(isActive);
+      where += " AND t.is_active = $1";
     }
-
-    const { rows } = await pool.query(
-      `SELECT ${columns} FROM routes
-       WHERE ${conditions.join(" AND ")}
-       ORDER BY "createdAt" DESC`,
-      values
-    );
-    return rows.map(mapRow);
+    const { rows } = await pool.query(`${SELECT_ROUTE} WHERE ${where} ORDER BY t.created_at DESC`, params);
+    return rows.map(toRoute);
   },
 
-  /** Lista solo las rutas con soft delete (deletedAt IS NOT NULL), la más reciente primero. */
   async findDeleted() {
     const { rows } = await pool.query(
-      `SELECT ${columns} FROM routes
-       WHERE "deletedAt" IS NOT NULL
-       ORDER BY "deletedAt" DESC`
+      `${SELECT_ROUTE} WHERE t.deleted_at IS NOT NULL ORDER BY t.deleted_at DESC`
     );
-    return rows.map(mapRow);
+    return rows.map(toRoute);
   },
 
   async findById(id) {
-    const { rows } = await pool.query(
-      `SELECT ${columns} FROM routes WHERE id = $1 AND "deletedAt" IS NULL`,
-      [id]
-    );
-    return mapRow(rows[0]);
+    const { rows } = await pool.query(`${SELECT_ROUTE} WHERE t.id = $1 AND t.deleted_at IS NULL`, [id]);
+    return toRoute(rows[0]);
+  },
+
+  async findAnyById(id) {
+    const { rows } = await pool.query(`${SELECT_ROUTE} WHERE t.id = $1`, [id]);
+    return toRoute(rows[0]);
   },
 
   async findBySlug(slug) {
-    const { rows } = await pool.query(
-      `SELECT ${columns} FROM routes WHERE slug = $1 AND "deletedAt" IS NULL`,
-      [slug]
-    );
-    return mapRow(rows[0]);
+    const { rows } = await pool.query(`${SELECT_ROUTE} WHERE t.slug = $1 AND t.deleted_at IS NULL`, [slug]);
+    return toRoute(rows[0]);
   },
 
-  /** Igual que findById, pero también encuentra rutas con soft-delete (para restaurar). */
-  async findDeletedById(id) {
-    const { rows } = await pool.query(
-      `SELECT ${columns} FROM routes WHERE id = $1 AND "deletedAt" IS NOT NULL`,
-      [id]
-    );
-    return mapRow(rows[0]);
-  },
-
+  // Incluye las borradas: el slug de una ruta borrada sigue ocupado.
   async slugExists(slug, excludeId = null) {
-    const { rows } = excludeId
-      ? await pool.query(`SELECT 1 FROM routes WHERE slug = $1 AND id <> $2 LIMIT 1`, [
-          slug,
-          excludeId
-        ])
-      : await pool.query(`SELECT 1 FROM routes WHERE slug = $1 LIMIT 1`, [slug]);
-    return rows.length > 0;
+    const { rowCount } = excludeId
+      ? await pool.query("SELECT 1 FROM rutas WHERE slug = $1 AND id <> $2 LIMIT 1", [slug, excludeId])
+      : await pool.query("SELECT 1 FROM rutas WHERE slug = $1 LIMIT 1", [slug]);
+    return rowCount > 0;
   },
 
   async create(data) {
-    const id = randomUUID();
+    const { names, values } = toColumns(routeModel.columns, data);
     const { rows } = await pool.query(
-      `INSERT INTO routes
-        (id, title, region, "distanceKm", difficulty, description, slug, status, "isActive")
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-       RETURNING ${columns}`,
-      [
-        id,
-        data.title,
-        data.region,
-        data.distanceKm,
-        data.difficulty,
-        data.description ?? null,
-        data.slug,
-        data.status,
-        data.isActive
-      ]
-    );
-    return mapRow(rows[0]);
-  },
-
-  async updateById(id, data) {
-    const fields = [];
-    const values = [];
-    let index = 1;
-
-    // El slug se actualiza cuando cambia el título (lo calcula el service).
-    const columnByField = {
-      title: "title",
-      region: "region",
-      distanceKm: '"distanceKm"',
-      difficulty: "difficulty",
-      description: "description",
-      slug: "slug",
-      status: "status",
-      isActive: '"isActive"'
-    };
-
-    for (const key of Object.keys(columnByField)) {
-      if (Object.prototype.hasOwnProperty.call(data, key)) {
-        fields.push(`${columnByField[key]} = $${index++}`);
-        values.push(data[key]);
-      }
-    }
-
-    if (fields.length === 0) {
-      return this.findById(id);
-    }
-
-    fields.push(`"updatedAt" = NOW()`);
-    values.push(id);
-
-    const { rows } = await pool.query(
-      `UPDATE routes
-       SET ${fields.join(", ")}
-       WHERE id = $${index} AND "deletedAt" IS NULL
-       RETURNING ${columns}`,
+      `INSERT INTO rutas (${names.join(", ")}) VALUES (${names.map((_, i) => `$${i + 1}`).join(", ")}) RETURNING id`,
       values
     );
-    return mapRow(rows[0]);
+    return routeRepository.findAnyById(rows[0].id);
   },
 
-  /** Activa o desactiva una ruta (solo si no está borrada). */
-  async setActiveById(id, isActive) {
-    const { rows } = await pool.query(
-      `UPDATE routes
-       SET "isActive" = $1, "updatedAt" = NOW()
-       WHERE id = $2 AND "deletedAt" IS NULL
-       RETURNING ${columns}`,
-      [isActive, id]
+  async update(id, data) {
+    const { names, values } = toColumns(routeModel.columns, data);
+    if (names.length === 0) return routeRepository.findById(id);
+
+    const sets = names.map((name, i) => `${name} = $${i + 1}`).join(", ");
+    const { rowCount } = await pool.query(
+      `UPDATE rutas SET ${sets}, updated_at = NOW() WHERE id = $${names.length + 1} AND deleted_at IS NULL`,
+      [...values, id]
     );
-    return mapRow(rows[0]);
+    return rowCount ? routeRepository.findAnyById(id) : null;
   },
 
-  /** Soft delete: marca la fila como borrada en vez de eliminarla físicamente. */
-  async softDeleteById(id) {
-    const { rows } = await pool.query(
-      `UPDATE routes
-       SET "deletedAt" = NOW(), "updatedAt" = NOW()
-       WHERE id = $1 AND "deletedAt" IS NULL
-       RETURNING id`,
+  async softDelete(id) {
+    const { rowCount } = await pool.query(
+      "UPDATE rutas SET deleted_at = NOW(), updated_at = NOW() WHERE id = $1 AND deleted_at IS NULL",
       [id]
     );
-    return rows[0] ?? null;
+    return rowCount ? routeRepository.findAnyById(id) : null;
   },
 
-  /** Deshace un soft delete. */
-  async restoreById(id) {
-    const { rows } = await pool.query(
-      `UPDATE routes
-       SET "deletedAt" = NULL, "updatedAt" = NOW()
-       WHERE id = $1 AND "deletedAt" IS NOT NULL
-       RETURNING ${columns}`,
+  async restore(id) {
+    const { rowCount } = await pool.query(
+      "UPDATE rutas SET deleted_at = NULL, updated_at = NOW() WHERE id = $1 AND deleted_at IS NOT NULL",
       [id]
     );
-    return mapRow(rows[0]);
+    return rowCount ? routeRepository.findAnyById(id) : null;
   }
 };

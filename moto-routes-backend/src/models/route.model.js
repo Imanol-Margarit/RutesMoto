@@ -1,19 +1,22 @@
-// PostgreSQL table shape and validation are defined here for reference.
-// Data access is implemented with parameterized SQL in the repository.
+// Tabla: rutas. La API usa camelCase; la base de datos usa snake_case.
 export const routeModel = {
-  tableName: "routes",
-  fields: {
-    id: "UUID",
-    title: "VARCHAR(120) NOT NULL",
-    region: "VARCHAR(80) NOT NULL",
-    distanceKm: "NUMERIC(6, 2) NOT NULL CHECK (distanceKm >= 0)",
-    difficulty: "VARCHAR(20) NOT NULL CHECK (difficulty IN ('facil', 'media', 'dificil'))",
-    description: "VARCHAR(500)",
-    slug: "VARCHAR(160) UNIQUE (generado a partir de title; se regenera si cambia el title)",
-    status: "VARCHAR(20) NOT NULL DEFAULT 'publicada' ('borrador' | 'publicada' | 'archivada')",
-    isActive: "BOOLEAN NOT NULL DEFAULT true",
-    createdAt: "TIMESTAMPTZ NOT NULL",
-    updatedAt: "TIMESTAMPTZ NOT NULL",
-    deletedAt: "TIMESTAMPTZ NULL (NULL = viva, con fecha = soft-deleted)"
-  }
+  table: "rutas",
+  columns: {
+    title: "title",
+    distanceKm: "distance_km",
+    difficulty: "difficulty",
+    description: "description",
+    slug: "slug",
+    surface: "surface",
+    startPoint: "start_point",
+    estimatedMinutes: "estimated_minutes",
+    status: "status",
+    isActive: "is_active",
+    hostId: "host_id",
+    categoryId: "category_id",
+    locationId: "location_id"
+  },
+  numeric: ["distanceKm"],
+  // Imágenes: tabla rutas_images (ruta_id). Pendiente de endpoints.
+  images: { table: "rutas_images", foreignKey: "ruta_id" }
 };

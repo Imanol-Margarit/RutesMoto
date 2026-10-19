@@ -9,11 +9,11 @@ import { Loader } from '../../shared/components/loader/loader';
   template: `
     <div class="min-h-screen bg-frost">
       <app-navbar />
-      <app-loader />
-      <main>
+      <main class="pb-12">
         <router-outlet />
       </main>
     </div>
   `
 })
-export class MainLayout {}
+export class MainLayout {
+}

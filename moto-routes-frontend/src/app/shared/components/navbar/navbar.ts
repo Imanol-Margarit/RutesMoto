@@ -8,13 +8,27 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
     <nav class="sticky top-0 z-50 border-b border-sage bg-mint/90 backdrop-blur">
       <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <a routerLink="/routes" class="flex items-center gap-2">
-          <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-teal-700 text-sm font-bold text-white">MR</span>
+          <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-teal-700 text-sm font-bold text-white">
+            MR
+          </span>
           <span class="text-sm font-semibold tracking-wide text-slate-800">Moto Routes Admin</span>
         </a>
 
         <div class="flex items-center gap-2 text-sm">
-          <a routerLink="/routes" routerLinkActive="bg-leaf text-slate-900"
-             class="rounded-lg px-3 py-2 text-slate-700 hover:bg-seafoam hover:text-slate-900">Routes</a>
+          <a
+            routerLink="/routes"
+            routerLinkActive="bg-leaf text-slate-900"
+            class="rounded-lg px-3 py-2 text-slate-700 hover:bg-seafoam hover:text-slate-900"
+          >
+            Rutas
+          </a>
+          <a
+            routerLink="/departures"
+            routerLinkActive="bg-leaf text-slate-900"
+            class="rounded-lg px-3 py-2 text-slate-700 hover:bg-seafoam hover:text-slate-900"
+          >
+            Salidas
+          </a>
         </div>
       </div>
     </nav>

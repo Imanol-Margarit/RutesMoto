@@ -10,11 +10,7 @@ export const ROUTES_ROUTES: Routes = [
     loadComponent: () => import('./pages/route-create/route-create').then((m) => m.RouteCreate)
   },
   {
-    path: ':slug/edit',
+    path: ':id/edit',
     loadComponent: () => import('./pages/route-edit/route-edit').then((m) => m.RouteEdit)
-  },
-  {
-    path: ':slug',
-    loadComponent: () => import('./pages/route-detail/route-detail').then((m) => m.RouteDetail)
   }
 ];

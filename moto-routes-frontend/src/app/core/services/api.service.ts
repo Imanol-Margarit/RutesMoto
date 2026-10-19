@@ -1,86 +1,41 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { firstValueFrom, Observable, timeout } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { QueryParams } from '../models/api.model';
 
+type QueryParams = Record<string, string | number | boolean>;
+
+/**
+ * Único punto de acceso a HttpClient. Cada método devuelve una Promise,
+ * así los servicios y componentes usan async/await.
+ */
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiUrl;
-  private readonly requestTimeout = environment.apiTimeoutMs;
 
-  private headers(): HttpHeaders {
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      Accept: 'application/json'
-    });
-  }
-
-  async get<T>(endpoint: string, params?: QueryParams): Promise<T> {
-    return this.handle(
-      this.http
-        .get<T>(this.buildUrl(endpoint), {
-          headers: this.headers(),
-          params: this.buildParams(params)
-        })
-        .pipe(timeout(this.requestTimeout))
+  get<T>(path: string, params?: QueryParams): Promise<T> {
+    return firstValueFrom(
+      this.http.get<T>(this.url(path), { params }).pipe(timeout(environment.apiTimeoutMs))
     );
   }
 
-  async post<T>(endpoint: string, body: unknown): Promise<T> {
-    return this.handle(
-      this.http
-        .post<T>(this.buildUrl(endpoint), body, { headers: this.headers() })
-        .pipe(timeout(this.requestTimeout))
+  post<T>(path: string, body: unknown): Promise<T> {
+    return firstValueFrom(
+      this.http.post<T>(this.url(path), body).pipe(timeout(environment.apiTimeoutMs))
     );
   }
 
-  async patch<T>(endpoint: string, body: unknown): Promise<T> {
-    return this.handle(
-      this.http
-        .patch<T>(this.buildUrl(endpoint), body, { headers: this.headers() })
-        .pipe(timeout(this.requestTimeout))
+  patch<T>(path: string, body: unknown): Promise<T> {
+    return firstValueFrom(
+      this.http.patch<T>(this.url(path), body).pipe(timeout(environment.apiTimeoutMs))
     );
   }
 
-  async put<T>(endpoint: string, body: unknown): Promise<T> {
-    return this.handle(
-      this.http
-        .put<T>(this.buildUrl(endpoint), body, { headers: this.headers() })
-        .pipe(timeout(this.requestTimeout))
-    );
+  delete<T>(path: string): Promise<T> {
+    return firstValueFrom(this.http.delete<T>(this.url(path)).pipe(timeout(environment.apiTimeoutMs)));
   }
 
-  async delete<T>(endpoint: string): Promise<T> {
-    return this.handle(
-      this.http
-        .delete<T>(this.buildUrl(endpoint), { headers: this.headers() })
-        .pipe(timeout(this.requestTimeout))
-    );
-  }
-
-  private buildUrl(endpoint: string): string {
-    return `${this.baseUrl}/${endpoint.replace(/^\/+/, '')}`;
-  }
-
-  private buildParams(params?: QueryParams): HttpParams | undefined {
-    if (!params) {
-      return undefined;
-    }
-
-    let httpParams = new HttpParams();
-
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== null && typeof value !== 'undefined') {
-        httpParams = httpParams.set(key, String(value));
-      }
-    });
-
-    return httpParams;
-  }
-
-  private async handle<T>(request$: Observable<T>): Promise<T> {
-    return firstValueFrom(request$);
+  private url(path: string): string {
+    return `${environment.apiUrl}/${path.replace(/^\/+/, '')}`;
   }
 }

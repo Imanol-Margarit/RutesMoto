@@ -98,6 +98,38 @@ const notBlank: ValidatorFn = (control: AbstractControl): ValidationErrors | nul
         </div>
       </div>
 
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div>
+          <label for="hostId" class="mb-1 block text-sm font-medium text-slate-700">Guía</label>
+          <select id="hostId" formControlName="hostId" class="input">
+            <option [ngValue]="null">Sin guía</option>
+            @for (host of hosts(); track host._id) {
+              <option [ngValue]="host._id">{{ host.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label for="categoryId" class="mb-1 block text-sm font-medium text-slate-700">Categoría</label>
+          <select id="categoryId" formControlName="categoryId" class="input">
+            <option [ngValue]="null">Sin categoría</option>
+            @for (category of categories(); track category._id) {
+              <option [ngValue]="category._id">{{ category.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label for="locationId" class="mb-1 block text-sm font-medium text-slate-700">Localización</label>
+          <select id="locationId" formControlName="locationId" class="input">
+            <option [ngValue]="null">Sin localización</option>
+            @for (location of locations(); track location._id) {
+              <option [ngValue]="location._id">{{ location.city }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
       @if (isEditing()) {
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
@@ -128,6 +160,12 @@ const notBlank: ValidatorFn = (control: AbstractControl): ValidationErrors | nul
 export class RouteForm {
   route = input<MotoRoute | null>(null);
   isSaving = input(false);
+
+  // Listas para los selects. Por ahora llegan vacías: sin endpoints, solo aparece "Sin …".
+  hosts = input<{ _id: string; name: string }[]>([]);
+  categories = input<{ _id: string; name: string }[]>([]);
+  locations = input<{ _id: string; city: string }[]>([]);
+
   submitted = output<RoutePayload>();
   cancelled = output<void>();
 
@@ -147,6 +185,9 @@ export class RouteForm {
     description: ['', Validators.maxLength(500)],
     startPoint: ['', Validators.maxLength(200)],
     estimatedMinutes: new FormControl<number | null>(null, Validators.min(1)),
+    hostId: new FormControl<string | null>(null),
+    categoryId: new FormControl<string | null>(null),
+    locationId: new FormControl<string | null>(null),
     status: ['publicada' as RouteStatus],
     isActive: [true]
   });
@@ -163,6 +204,9 @@ export class RouteForm {
           description: route.description ?? '',
           startPoint: route.startPoint ?? '',
           estimatedMinutes: route.estimatedMinutes,
+          hostId: route.hostId,
+          categoryId: route.categoryId,
+          locationId: route.locationId,
           status: route.status,
           isActive: route.isActive
         });
@@ -200,7 +244,10 @@ export class RouteForm {
       surface: raw.surface,
       description: raw.description.trim() || null,
       startPoint: raw.startPoint.trim() || null,
-      estimatedMinutes: raw.estimatedMinutes
+      estimatedMinutes: raw.estimatedMinutes,
+      hostId: raw.hostId,
+      categoryId: raw.categoryId,
+      locationId: raw.locationId
     };
 
     if (this.isEditing()) {

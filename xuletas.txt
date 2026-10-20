@@ -1,0 +1,32 @@
+ async update(id, payload) {
+    //validateID
+    //findbyId
+
+    //stock, capacity, feches
+
+    const data = { ...payload };
+    // Solo cambia el slug si cambia el título.
+    if (payload.title !== undefined) {
+      data.slug = await uniqueSlug(payload.title, id);
+    }
+----------------------------------------------------------------------
+    falta endpoints en RoutesService idem Routesctrl server
+
+form routes
+          <select id="surface" formControlName="surface" class="input">
+            @for (option of surfaces; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+          hostId: string | null;
+  categoryId: string | null;
+  locationId: string | null;
+
+  RouteEdit
+  RouteCreate
+  save anar tb al store
+
+  labels
+
+
+falta tambe en algun que tinga async await ara ns quin es

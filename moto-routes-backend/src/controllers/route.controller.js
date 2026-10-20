@@ -76,7 +76,7 @@ export const routeController = {
 
   async setStatus(req, res, next) {
     try {
-      const data = await routeService.update(req.params.id, { status: req.body.status });
+      const data = await routeService.setStatus(req.params.id, req.body.status);
       return respond(res, 200, "Estado de la ruta actualizado correctamente", data);
     } catch (error) {
       return next(error);

@@ -51,11 +51,26 @@ export const routeService = {
   },
 
   async update(id, payload) {
+    //validateID
+    if (typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+      throw new AppError("El id debe ser un UUID válido", 400);
+    }
+    //findbyId
+    const current = await routeRepository.findById(id);
+    if (!current) throw notFound();
+    
+    //validar los atriburos necesarios
+    const merged = { ...current, ...payload };
+    if (merged.status === "publicada" && !merged.startPoint) {
+      throw new AppError("Una ruta publicada necesita un punto de salida", 400);
+    }
+
     const data = { ...payload };
     // Solo cambia el slug si cambia el título.
     if (payload.title !== undefined) {
       data.slug = await uniqueSlug(payload.title, id);
     }
+
     const updated = await routeRepository.update(id, data);
     if (!updated) throw notFound();
     return updated;
@@ -77,5 +92,17 @@ export const routeService = {
     const restored = await routeRepository.restore(id);
     if (!restored) throw new AppError("Ruta eliminada no encontrada", 404);
     return restored;
+  },
+
+  async setStatus(id, status) {
+    // 1. Validar el id
+    if (typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+      throw new AppError("El id debe ser un UUID válido", 400);
+    }
+
+    // 2. Guardar el nuevo estado
+    const updated = await routeRepository.update(id, { status });
+    if (!updated) throw notFound();
+    return updated;
   }
 };

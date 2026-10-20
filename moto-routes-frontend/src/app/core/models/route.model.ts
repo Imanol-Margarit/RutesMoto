@@ -73,6 +73,9 @@ export interface RoutePayload {
   surface: RouteSurface;
   startPoint: string | null;
   estimatedMinutes: number | null;
+  hostId?: string | null;
+  categoryId?: string | null;
+  locationId?: string | null;
   status?: RouteStatus;
   isActive?: boolean;
 }

@@ -31,4 +31,24 @@ export class DeparturesService {
   remove(id: string): Promise<ApiResponse<Departure>> {
     return this.api.delete<ApiResponse<Departure>>(`departures/${id}`);
   }
+
+  getActive(): Promise<ApiResponse<Departure[]>> {
+    return this.api.get<ApiResponse<Departure[]>>('departures/active');
+  }
+
+  getInactive(): Promise<ApiResponse<Departure[]>> {
+    return this.api.get<ApiResponse<Departure[]>>('departures/inactive');
+  }
+
+  getDeleted(): Promise<ApiResponse<Departure[]>> {
+    return this.api.get<ApiResponse<Departure[]>>('departures/deleted');
+  }
+
+  getBySlug(slug: string): Promise<ApiResponse<Departure>> {
+    return this.api.get<ApiResponse<Departure>>(`departures/slug/${encodeURIComponent(slug)}`);
+  }
+
+  restore(id: string): Promise<ApiResponse<Departure>> {
+    return this.api.patch<ApiResponse<Departure>>(`departures/${id}/restore`, {});
+  }
 }

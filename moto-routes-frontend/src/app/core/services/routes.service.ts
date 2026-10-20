@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { ApiResponse } from '../models/api.model';
-import { MotoRoute, RoutePayload } from '../models/route.model';
+import { MotoRoute, RoutePayload, RouteStatus } from '../models/route.model';
 
 @Injectable({ providedIn: 'root' })
 export class RoutesService {
@@ -30,5 +30,29 @@ export class RoutesService {
 
   remove(id: string): Promise<ApiResponse<MotoRoute>> {
     return this.api.delete<ApiResponse<MotoRoute>>(`routes/${id}`);
+  }
+  
+  getActive(): Promise<ApiResponse<MotoRoute[]>> {
+    return this.api.get<ApiResponse<MotoRoute[]>>('routes/active');
+  }
+
+  getInactive(): Promise<ApiResponse<MotoRoute[]>> {
+    return this.api.get<ApiResponse<MotoRoute[]>>('routes/inactive');
+  }
+
+  getDeleted(): Promise<ApiResponse<MotoRoute[]>> {
+    return this.api.get<ApiResponse<MotoRoute[]>>('routes/deleted');
+  }
+
+  getBySlug(slug: string): Promise<ApiResponse<MotoRoute>> {
+    return this.api.get<ApiResponse<MotoRoute>>(`routes/slug/${encodeURIComponent(slug)}`);
+  }
+
+  setStatus(id: string, status: RouteStatus): Promise<ApiResponse<MotoRoute>> {
+    return this.api.patch<ApiResponse<MotoRoute>>(`routes/${id}/status`, { status });
+  }
+
+  restore(id: string): Promise<ApiResponse<MotoRoute>> {
+    return this.api.patch<ApiResponse<MotoRoute>>(`routes/${id}/restore`, {});
   }
 }

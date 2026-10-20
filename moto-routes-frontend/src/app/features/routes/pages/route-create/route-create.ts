@@ -4,6 +4,7 @@ import { RoutePayload } from '../../../../core/models/route.model';
 import { AlertService } from '../../../../core/services/alert.service';
 import { RoutesService } from '../../../../core/services/routes.service';
 import { RouteForm } from '../../components/route-form/route-form';
+import { RoutesStore } from '../../../../core/stores/routes.store';
 
 @Component({
   selector: 'app-route-create',
@@ -28,6 +29,7 @@ export class RouteCreate {
   private readonly routesService = inject(RoutesService);
   private readonly alert = inject(AlertService);
   private readonly router = inject(Router);
+  private readonly store = inject(RoutesStore);
 
   readonly saving = signal(false);
 
@@ -35,6 +37,7 @@ export class RouteCreate {
     this.saving.set(true);
     try {
       const response = await this.routesService.create(payload);
+      this.store.upsert(response.data);
       await this.alert.toast('Ruta creada', response.data.title);
       await this.router.navigate(['/routes']);
     } catch {

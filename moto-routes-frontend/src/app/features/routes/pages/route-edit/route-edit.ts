@@ -7,6 +7,7 @@ import { ErrorState } from '../../../../shared/components/error-state/error-stat
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { RouteForm } from '../../components/route-form/route-form';
 import { RouteImages } from '../../components/route-images/route-images';
+import { RoutesStore } from '../../../../core/stores/routes.store';
 
 @Component({
   selector: 'app-route-edit',
@@ -44,6 +45,7 @@ export class RouteEdit implements OnInit {
   private readonly routesService = inject(RoutesService);
   private readonly alert = inject(AlertService);
   private readonly router = inject(Router);
+  private readonly store = inject(RoutesStore);
 
   readonly route = signal<MotoRoute | null>(null);
   readonly loading = signal(false);
@@ -68,9 +70,13 @@ export class RouteEdit implements OnInit {
   }
 
   async save(payload: RoutePayload): Promise<void> {
+    const current = this.route();
+    if (!current) return;
+
     this.saving.set(true);
     try {
       const response = await this.routesService.update(this.id(), payload);
+      this.store.upsert(response.data);
       await this.alert.toast('Ruta actualizada', response.data.title);
       await this.router.navigate(['/routes']);
     } catch {

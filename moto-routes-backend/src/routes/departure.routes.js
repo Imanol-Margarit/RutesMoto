@@ -2,7 +2,7 @@ import { Router } from "express";
 import { departureController } from "../controllers/departure.controller.js";
 import { validate } from "../middlewares/validation.middleware.js";
 import { slugParamsSchema, uuidParamsSchema } from "../schemas/common.schema.js";
-import { departureSchemas } from "../schemas/departure.schema.js";
+import { departureSchemas, departureStatusSchema } from "../schemas/departure.schema.js";
 
 const router = Router();
 
@@ -132,6 +132,8 @@ router.get("/slug/:slug", validate(slugParamsSchema, "params"), departureControl
 router.get("/:id", validate(uuidParamsSchema, "params"), departureController.getById);
 router.patch("/:id", validate(uuidParamsSchema, "params"), validate(departureSchemas.update), departureController.update);
 router.delete("/:id", validate(uuidParamsSchema, "params"), departureController.remove);
+
+router.patch("/:id/status", validate(uuidParamsSchema, "params"), validate(departureStatusSchema), departureController.setStatus);
 
 /**
  * @swagger

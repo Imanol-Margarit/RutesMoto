@@ -44,6 +44,11 @@ export const departureRepository = {
     return toDeparture(rows[0]);
   },
 
+  async findBySlug(slug) {
+    const { rows } = await pool.query(`${SELECT_DEPARTURE} WHERE t.slug = $1 AND t.deleted_at IS NULL`, [slug]);
+    return toDeparture(rows[0]);
+  },
+
   async slugExists(slug, excludeId = null) {
     const { rowCount } = excludeId
       ? await pool.query("SELECT 1 FROM departures WHERE slug = $1 AND id <> $2 LIMIT 1", [slug, excludeId])

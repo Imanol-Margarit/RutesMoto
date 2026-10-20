@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, ValidationErrors } from '@angular/forms';
 import {
   DEPARTURE_STATUS_OPTIONS,
   Departure,
@@ -30,7 +30,7 @@ function toLocalInput(iso: string): string {
           }
         </select>
         @if (showError('routeId')) {
-          <p class="error">Selecciona la ruta de la salida.</p>
+          <p class="error">{{ errorMessage('routeId') }}</p>
         }
       </div>
 
@@ -39,7 +39,7 @@ function toLocalInput(iso: string): string {
           <label for="startDatetime" class="mb-1 block text-sm font-medium text-slate-700">Inicio</label>
           <input id="startDatetime" formControlName="startDatetime" type="datetime-local" class="input" />
           @if (showError('startDatetime')) {
-            <p class="error">La fecha de inicio es obligatoria.</p>
+            <p class="error">{{ errorMessage('startDatetime') }}</p>
           }
         </div>
 
@@ -47,7 +47,7 @@ function toLocalInput(iso: string): string {
           <label for="endDatetime" class="mb-1 block text-sm font-medium text-slate-700">Fin</label>
           <input id="endDatetime" formControlName="endDatetime" type="datetime-local" class="input" />
           @if (showError('endDatetime')) {
-            <p class="error">La fecha de fin es obligatoria.</p>
+            <p class="error">{{ errorMessage('endDatetime') }}</p>
           }
         </div>
       </div>
@@ -61,7 +61,7 @@ function toLocalInput(iso: string): string {
           <label for="capacity" class="mb-1 block text-sm font-medium text-slate-700">Plazas totales</label>
           <input id="capacity" formControlName="capacity" type="number" min="1" step="1" class="input" />
           @if (showError('capacity')) {
-            <p class="error">Indica al menos 1 plaza.</p>
+            <p class="error">{{ errorMessage('capacity') }}</p>
           }
         </div>
 
@@ -69,7 +69,7 @@ function toLocalInput(iso: string): string {
           <label for="price" class="mb-1 block text-sm font-medium text-slate-700">Precio (€)</label>
           <input id="price" formControlName="price" type="number" min="0" step="0.01" class="input" />
           @if (showError('price')) {
-            <p class="error">El precio no puede ser negativo.</p>
+            <p class="error">{{ errorMessage('price') }}</p>
           }
         </div>
 
@@ -77,6 +77,9 @@ function toLocalInput(iso: string): string {
           <div>
             <label for="bookedParticipants" class="mb-1 block text-sm font-medium text-slate-700">Plazas reservadas</label>
             <input id="bookedParticipants" formControlName="bookedParticipants" type="number" min="0" step="1" class="input" />
+            @if (showError('bookedParticipants')) {
+              <p class="error">{{ errorMessage('bookedParticipants') }}</p>
+            }
           </div>
         }
       </div>
@@ -155,6 +158,14 @@ export class DepartureForm {
   showError(name: string): boolean {
     const control = this.form.get(name);
     return !!control && control.invalid && (control.touched || control.dirty);
+  }
+
+  errorMessage(name: string): string {
+    const errors: ValidationErrors = this.form.get(name)?.errors ?? {};
+    if (errors['required']) return 'Este campo es obligatorio.';
+    if (errors['min']) return `El valor mínimo es ${errors['min'].min}.`;
+    if (errors['max']) return `El valor máximo es ${errors['max'].max}.`;
+    return 'Valor no válido.';
   }
 
   onSubmit(): void {

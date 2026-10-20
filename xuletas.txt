@@ -9,6 +9,7 @@
     if (payload.title !== undefined) {
       data.slug = await uniqueSlug(payload.title, id);
     }
+  }
 ----------------------------------------------------------------------
     falta endpoints en RoutesService idem Routesctrl server
 

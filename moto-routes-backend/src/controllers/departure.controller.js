@@ -83,6 +83,15 @@ export const departureController = {
     }
   },
 
+  async setStatus(req, res, next) {
+    try {
+      const data = await departureService.setStatus(req.params.id, req.body.status);
+      return respond(res, 200, "Estado de la salida actualizado correctamente", data);
+    } catch (error) {
+      return next(error);
+    }
+  },
+
   async deactivate(req, res, next) {
     try {
       const data = await departureService.setActive(req.params.id, false);

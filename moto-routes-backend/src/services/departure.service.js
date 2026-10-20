@@ -56,8 +56,23 @@ export const departureService = {
   },
 
   async update(id, payload) {
+    // 1. Validar el id
+    if (typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+      throw new AppError("El id debe ser un UUID válido", 400);
+    }
+
     const current = await departureRepository.findById(id);
     if (!current) throw notFound();
+
+    const merged = { ...current, ...payload };
+
+    if (new Date(merged.endDatetime) <= new Date(merged.startDatetime)) {
+      throw new AppError("La fecha de fin debe ser posterior a la de inicio", 400);
+    }
+
+    if (merged.bookedParticipants > merged.capacity) {
+      throw new AppError("Las plazas reservadas no pueden superar la capacidad", 400);
+    }
 
     const data = { ...payload };
     // El slug depende de la ruta y de la fecha: se recalcula si cambia alguna.
@@ -76,6 +91,18 @@ export const departureService = {
 
   async setActive(id, isActive) {
     const updated = await departureRepository.update(id, { isActive });
+    if (!updated) throw notFound();
+    return updated;
+  },
+  
+    async setStatus(id, status) {
+    // 1. Validar el id
+    if (typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+      throw new AppError("El id debe ser un UUID válido", 400);
+    }
+
+    // 2. Guardar el nuevo estado
+    const updated = await departureRepository.update(id, { status });
     if (!updated) throw notFound();
     return updated;
   },

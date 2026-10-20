@@ -8,6 +8,7 @@ import { RoutesService } from '../../../../core/services/routes.service';
 import { ErrorState } from '../../../../shared/components/error-state/error-state';
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { DepartureForm } from '../../components/departure-form/departure-form';
+import { DeparturesStore } from '../../../../core/stores/departures.store';
 
 @Component({
   selector: 'app-departure-edit',
@@ -48,6 +49,7 @@ export class DepartureEdit implements OnInit {
   private readonly routesService = inject(RoutesService);
   private readonly alert = inject(AlertService);
   private readonly router = inject(Router);
+  private readonly store = inject(DeparturesStore);
 
   readonly departure = signal<Departure | null>(null);
   readonly routes = signal<MotoRoute[]>([]);
@@ -77,9 +79,13 @@ export class DepartureEdit implements OnInit {
   }
 
   async save(payload: DeparturePayload): Promise<void> {
+    const current = this.departure();
+    if (!current) return;
+
     this.saving.set(true);
     try {
       const response = await this.departuresService.update(this.id(), payload);
+      this.store.upsert(response.data);
       await this.alert.toast('Salida actualizada', response.data.slug);
       await this.router.navigate(['/departures']);
     } catch {

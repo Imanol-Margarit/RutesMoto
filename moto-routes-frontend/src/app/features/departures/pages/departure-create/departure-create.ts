@@ -7,6 +7,7 @@ import { DeparturesService } from '../../../../core/services/departures.service'
 import { RoutesService } from '../../../../core/services/routes.service';
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { DepartureForm } from '../../components/departure-form/departure-form';
+import { DeparturesStore } from '../../../../core/stores/departures.store';
 
 @Component({
   selector: 'app-departure-create',
@@ -36,6 +37,7 @@ export class DepartureCreate implements OnInit {
   private readonly routesService = inject(RoutesService);
   private readonly alert = inject(AlertService);
   private readonly router = inject(Router);
+  private readonly store = inject(DeparturesStore);
 
   readonly routes = signal<MotoRoute[]>([]);
   readonly loadingRoutes = signal(false);
@@ -61,6 +63,7 @@ export class DepartureCreate implements OnInit {
     this.saving.set(true);
     try {
       const response = await this.departuresService.create(payload);
+      this.store.upsert(response.data);
       await this.alert.toast('Salida creada', response.data.slug);
       await this.router.navigate(['/departures']);
     } catch {

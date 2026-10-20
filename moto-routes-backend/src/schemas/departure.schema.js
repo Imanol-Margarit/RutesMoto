@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  UNKNOWN_FIELDS_MESSAGE,
   booleanField,
   buildSchemas,
   enumField,
@@ -38,3 +39,11 @@ export const departureSchemas = buildSchemas(
     }
   }
 );
+
+export const DEPARTURE_STATUSES = ["scheduled", "full", "cancelled", "completed"];
+
+export const departureStatusSchema = z
+  .object({
+    status: enumField(DEPARTURE_STATUSES, "El estado debe ser: scheduled, full, cancelled o completed")
+  })
+  .strict(UNKNOWN_FIELDS_MESSAGE);

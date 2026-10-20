@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { ApiResponse } from '../models/api.model';
-import { Departure, DeparturePayload } from '../models/departure.model';
+import { Departure, DeparturePayload, DepartureStatus} from '../models/departure.model';
 
 @Injectable({ providedIn: 'root' })
 export class DeparturesService {
@@ -26,6 +26,10 @@ export class DeparturesService {
   setActive(id: string, isActive: boolean): Promise<ApiResponse<Departure>> {
     const action = isActive ? 'activate' : 'deactivate';
     return this.api.patch<ApiResponse<Departure>>(`departures/${id}/${action}`, {});
+  }
+  
+  setStatus(id: string, status: DepartureStatus): Promise<ApiResponse<Departure>> {
+    return this.api.patch<ApiResponse<Departure>>(`departures/${id}/status`, { status });
   }
 
   remove(id: string): Promise<ApiResponse<Departure>> {

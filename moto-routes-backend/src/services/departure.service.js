@@ -94,8 +94,8 @@ export const departureService = {
     if (!updated) throw notFound();
     return updated;
   },
-  
-    async setStatus(id, status) {
+
+  async setStatus(id, status) {
     // 1. Validar el id
     if (typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
       throw new AppError("El id debe ser un UUID válido", 400);

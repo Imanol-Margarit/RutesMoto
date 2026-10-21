@@ -6,6 +6,7 @@ import { consoleLogger, fileLogger } from "./config/logger.js";
 import { swaggerSpec } from "./config/swagger.js";
 import routeRoutes from "./routes/route.routes.js";
 import departureRoutes from "./routes/departure.routes.js";
+import hostRoutes from "./routes/host.routes.js";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware.js";
 
 const app = express();
@@ -39,6 +40,7 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/routes", routeRoutes);
 app.use("/api/departures", departureRoutes);
+app.use("/api/hosts", hostRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

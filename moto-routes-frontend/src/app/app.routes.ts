@@ -14,6 +14,10 @@ export const routes: Routes = [
       {
         path: 'departures',
         loadChildren: () => import('./features/departures/departures.routes').then((m) => m.DEPARTURES_ROUTES)
+      },
+      {
+        path: 'hosts',
+        loadChildren: () => import('./features/hosts/hosts.routes').then((m) => m.HOSTS_ROUTES)
       }
     ]
   },

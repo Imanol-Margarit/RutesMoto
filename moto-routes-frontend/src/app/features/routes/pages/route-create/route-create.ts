@@ -4,6 +4,7 @@ import { RoutePayload } from '../../../../core/models/route.model';
 import { AlertService } from '../../../../core/services/alert.service';
 import { RoutesService } from '../../../../core/services/routes.service';
 import { RouteForm } from '../../components/route-form/route-form';
+import { HostsService } from '../../../../core/services/hosts.service';
 import { RoutesStore } from '../../../../core/stores/routes.store';
 
 @Component({
@@ -20,7 +21,7 @@ import { RoutesStore } from '../../../../core/stores/routes.store';
       </header>
 
       <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <app-route-form [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
+        <app-route-form [hosts]="hosts()" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
       </div>
     </section>
   `
@@ -30,8 +31,23 @@ export class RouteCreate {
   private readonly alert = inject(AlertService);
   private readonly router = inject(Router);
   private readonly store = inject(RoutesStore);
+  private readonly hostsService = inject(HostsService);
 
   readonly saving = signal(false);
+  readonly hosts = signal<{ _id: string; name: string }[]>([]);
+
+  constructor() {
+    void this.loadHosts();
+  }
+
+  async loadHosts(): Promise<void> {
+    try {
+      const response = await this.hostsService.getAll();
+      this.hosts.set(response.data);
+    } catch {
+      // Sin guías, el select solo muestra "Sin guía".
+    }
+  }
 
   async save(payload: RoutePayload): Promise<void> {
     this.saving.set(true);

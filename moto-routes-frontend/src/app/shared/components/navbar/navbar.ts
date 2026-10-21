@@ -29,6 +29,13 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
           >
             Salidas
           </a>
+          <a
+            routerLink="/hosts"
+            routerLinkActive="bg-leaf text-slate-900"
+            class="rounded-lg px-3 py-2 text-slate-700 hover:bg-seafoam hover:text-slate-900"
+          >
+            Guías
+          </a>
         </div>
       </div>
     </nav>

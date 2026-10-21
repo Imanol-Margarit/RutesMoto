@@ -12,7 +12,8 @@ const definition = {
     { name: "Sistema", description: "Estado de la API" },
     { name: "Rutas", description: "Rutas de moto" },
     { name: "Imágenes de rutas", description: "Imágenes asociadas a una ruta" },
-    { name: "Salidas", description: "Salidas programadas de una ruta" }
+    { name: "Salidas", description: "Salidas programadas de una ruta" },
+    { name: "Guías", description: "Guías que organizan las rutas" }
   ],
   components: {
     schemas: {
@@ -140,6 +141,33 @@ const definition = {
           altText: { type: "string", nullable: true, maxLength: 200 },
           position: { type: "integer", minimum: 0 },
           isCover: { type: "boolean" }
+        }
+      },
+      Host: {
+        type: "object",
+        properties: {
+          _id: { type: "string", format: "uuid" },
+          userId: { type: "string", format: "uuid", nullable: true },
+          name: { type: "string", maxLength: 100, example: "Lucía Ruta Norte" },
+          slug: { type: "string", example: "lucia-ruta-norte" },
+          biography: { type: "string", nullable: true, maxLength: 1000 },
+          status: { type: "string", enum: ["active", "inactive", "suspended"] },
+          isActive: { type: "boolean" },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
+          deletedAt: { type: "string", format: "date-time", nullable: true }
+        }
+      },
+      HostInput: {
+        type: "object",
+        required: ["name"],
+        additionalProperties: false,
+        properties: {
+          userId: { type: "string", format: "uuid", nullable: true },
+          name: { type: "string", maxLength: 100 },
+          biography: { type: "string", nullable: true, maxLength: 1000 },
+          status: { type: "string", enum: ["active", "inactive", "suspended"] },
+          isActive: { type: "boolean" }
         }
       },
       Error: {

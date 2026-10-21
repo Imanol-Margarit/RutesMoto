@@ -8,6 +8,7 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
 import { RouteForm } from '../../components/route-form/route-form';
 import { RouteImages } from '../../components/route-images/route-images';
 import { RoutesStore } from '../../../../core/stores/routes.store';
+import { HostsService } from '../../../../core/services/hosts.service';
 
 @Component({
   selector: 'app-route-edit',
@@ -28,7 +29,7 @@ import { RoutesStore } from '../../../../core/stores/routes.store';
         <app-error-state [message]="error()!" (retry)="load()" />
       } @else if (route(); as current) {
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <app-route-form [route]="current" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
+          <app-route-form [route]="current" [hosts]="hosts()" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
         </div>
 
         <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -46,6 +47,8 @@ export class RouteEdit implements OnInit {
   private readonly alert = inject(AlertService);
   private readonly router = inject(Router);
   private readonly store = inject(RoutesStore);
+  private readonly hostsService = inject(HostsService);
+  readonly hosts = signal<{ _id: string; name: string }[]>([]);
 
   readonly route = signal<MotoRoute | null>(null);
   readonly loading = signal(false);
@@ -54,6 +57,16 @@ export class RouteEdit implements OnInit {
 
   ngOnInit(): void {
     void this.load();
+    void this.loadHosts();
+  }
+
+  async loadHosts(): Promise<void> {
+    try {
+      const response = await this.hostsService.getAll();
+      this.hosts.set(response.data);
+    } catch {
+      // Sin guías, el select solo muestra "Sin guía".
+    }
   }
 
   async load(): Promise<void> {

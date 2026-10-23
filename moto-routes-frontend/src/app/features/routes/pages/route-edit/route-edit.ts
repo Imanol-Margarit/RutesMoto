@@ -10,6 +10,7 @@ import { RouteImages } from '../../components/route-images/route-images';
 import { RoutesStore } from '../../../../core/stores/routes.store';
 import { HostsService } from '../../../../core/services/hosts.service';
 import { CategoriesService } from '../../../../core/services/categories.service';
+import { LocationsService } from '../../../../core/services/locations.service';
 
 @Component({
   selector: 'app-route-edit',
@@ -30,7 +31,7 @@ import { CategoriesService } from '../../../../core/services/categories.service'
         <app-error-state [message]="error()!" (retry)="load()" />
       } @else if (route(); as current) {
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <app-route-form [route]="current" [hosts]="hosts()" [categories]="categories()" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
+          <app-route-form [route]="current" [hosts]="hosts()" [categories]="categories()" [locations]="locations()" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
         </div>
 
         <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -51,6 +52,8 @@ export class RouteEdit implements OnInit {
   private readonly hostsService = inject(HostsService);
   readonly hosts = signal<{ _id: string; name: string }[]>([]);
   readonly categories = signal<{ _id: string; name: string }[]>([]);
+  readonly locations = signal<{ _id: string; city: string }[]>([]);
+  private readonly locationsService = inject(LocationsService);
   private readonly categoriesService = inject(CategoriesService);
 
   readonly route = signal<MotoRoute | null>(null);
@@ -62,6 +65,16 @@ export class RouteEdit implements OnInit {
     void this.load();
     void this.loadHosts();
     void this.loadCategories();
+    void this.loadLocations();
+  }
+
+  async loadLocations(): Promise<void> {
+    try {
+      const response = await this.locationsService.getAll();
+      this.locations.set(response.data);
+    } catch {
+      // Sin localizaciones, el select solo muestra "Sin localización".
+    }
   }
 
   async loadCategories(): Promise<void> {

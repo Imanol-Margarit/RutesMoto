@@ -6,52 +6,7 @@ import { generateSlug } from "../utils/slug.util.js";
 // Estructura de las tablas (sin datos).
 const schemaSql = fs.readFileSync(new URL("../../db/moto_routes_schema.sql", import.meta.url), "utf8");
 
-const ROLES = [
-  { name: "admin", slug: "admin", description: "Administrador del panel" },
-  { name: "host", slug: "host", description: "Guía que organiza rutas" },
-  { name: "user", slug: "user", description: "Usuario registrado" }
-];
-
-const CATEGORIES = [
-  { name: "Curvas", slug: "curvas", description: "Carreteras con muchas curvas y horquillas" },
-  { name: "Paisaje", slug: "paisaje", description: "Rutas con vistas y paisajes destacados" },
-  { name: "Off-road", slug: "off-road", description: "Tramos de tierra o pista" },
-  { name: "Costa", slug: "costa", description: "Recorridos junto al mar" }
-];
-
-const HOSTS = [
-  { name: "Lucía Ruta Norte", slug: "lucia-ruta-norte", biography: "Guía especializada en puertos de montaña del norte peninsular." },
-  { name: "Javier Motoviaje", slug: "javier-motoviaje", biography: "Organiza salidas de fin de semana por el Mediterráneo y el interior." },
-  { name: "Carmen Sierra Tours", slug: "carmen-sierra-tours", biography: "Rutas tranquilas para principiantes con paradas gastronómicas." }
-];
-
-const LOCATIONS = [
-  { city: "Oviedo", region: "Asturias", country: "España", slug: "oviedo-espana", latitude: 43.3614, longitude: -5.8593 },
-  { city: "Ronda", region: "Andalucía", country: "España", slug: "ronda-espana", latitude: 36.7462, longitude: -5.1613 },
-  { city: "Níjar", region: "Andalucía", country: "España", slug: "nijar-espana", latitude: 36.9719, longitude: -2.1914 },
-  { city: "Olot", region: "Cataluña", country: "España", slug: "olot-espana", latitude: 42.1817, longitude: 2.4903 },
-  { city: "Ávila", region: "Castilla y León", country: "España", slug: "avila-espana", latitude: 40.6566, longitude: -4.6818 },
-  { city: "Plasencia", region: "Extremadura", country: "España", slug: "plasencia-espana", latitude: 40.031, longitude: -6.0893 },
-  { city: "Laguardia", region: "País Vasco", country: "España", slug: "laguardia-espana", latitude: 42.5412, longitude: -2.5659 },
-  { city: "Hecho", region: "Aragón", country: "España", slug: "hecho-espana", latitude: 42.7655, longitude: -0.749 },
-  { city: "Órgiva", region: "Andalucía", country: "España", slug: "orgiva-espana", latitude: 36.8985, longitude: -3.4224 },
-  { city: "Sóller", region: "Islas Baleares", country: "España", slug: "soller-espana", latitude: 39.7987, longitude: 2.715 }
-];
-
-const ROUTES = [
-  { title: "Puerto de Tarna y Ventana", description: "Cruce de la cordillera entre Asturias y León por carreteras de montaña con curvas rápidas, bosques y buenas vistas. Mejor fuera de los meses de nieve.", difficulty: "media", distanceKm: 112.4, surface: "asfalto", startPoint: "Plaza de la Catedral, Oviedo", estimatedMinutes: 150, host: "lucia-ruta-norte", category: "curvas", location: "oviedo-espana" },
-  { title: "Ronda - Grazalema por la Serranía", description: "Ruta entre pueblos blancos y sierras calizas, con tramos revirados y paisajes de dehesa. Ideal para una salida de día con parada a comer.", difficulty: "media", distanceKm: 68.0, surface: "asfalto", startPoint: "Puerta de Almocábar, Ronda", estimatedMinutes: 120, host: "javier-motoviaje", category: "paisaje", location: "ronda-espana" },
-  { title: "Cabo de Gata y costa de Níjar", description: "Recorrido por el parque natural con paisaje desértico y calas al fondo. Asfalto en buen estado, curvas suaves y poco tráfico fuera de verano.", difficulty: "facil", distanceKm: 85.2, surface: "mixto", startPoint: "Aparcamiento de San José", estimatedMinutes: 110, host: "carmen-sierra-tours", category: "costa", location: "nijar-espana" },
-  { title: "Garrotxa volcánica: Olot - Santa Pau", description: "Carreteras estrechas entre volcanes extintos y hayedos, con pueblos de piedra y muchas curvas encadenadas. Conviene ir con calma por el firme irregular.", difficulty: "media", distanceKm: 74.6, surface: "asfalto", startPoint: "Plaza Clarà, Olot", estimatedMinutes: 105, host: "javier-motoviaje", category: "paisaje", location: "olot-espana" },
-  { title: "Sierra de Gredos por el Puerto del Pico", description: "Subida por la antigua calzada hacia el valle del Tiétar, con rectas largas, curvas amplias y miradores sobre la sierra.", difficulty: "media", distanceKm: 83.3, surface: "asfalto", startPoint: "Plaza Mayor de Ávila", estimatedMinutes: 135, host: "lucia-ruta-norte", category: "curvas", location: "avila-espana" },
-  { title: "Valle del Jerte en flor", description: "Ruta tranquila entre cerezos y pueblos serranos. Especialmente bonita en primavera. Carretera ancha y buen asfalto, apta para principiantes.", difficulty: "facil", distanceKm: 62.8, surface: "asfalto", startPoint: "Plaza Mayor de Plasencia", estimatedMinutes: 90, host: "carmen-sierra-tours", category: "paisaje", location: "plasencia-espana" },
-  { title: "Ruta del vino por la Rioja Alavesa", description: "Circuito entre viñedos, bodegas y pueblos medievales con carreteras secundarias en muy buen estado. Perfecto para ir sin prisa y hacer varias paradas.", difficulty: "facil", distanceKm: 58.9, surface: "asfalto", startPoint: "Plaza de la Paz, Laguardia", estimatedMinutes: 75, host: "javier-motoviaje", category: "paisaje", location: "laguardia-espana" },
-  { title: "Valles de Hecho y Ansó", description: "Recorrido por los valles del Pirineo aragonés con carreteras estrechas, tramos sin quitamiedos y mucha curva cerrada. Requiere experiencia y atención al tráfico de ganado.", difficulty: "dificil", distanceKm: 105.5, surface: "mixto", startPoint: "Plaza de Hecho", estimatedMinutes: 180, host: "lucia-ruta-norte", category: "off-road", location: "hecho-espana" },
-  { title: "La Alpujarra granadina", description: "Pueblos colgados de la ladera sur de Sierra Nevada, con curvas continuas y desniveles marcados. Buena opción para dos jornadas con noche en la zona.", difficulty: "media", distanceKm: 96.7, surface: "asfalto", startPoint: "Plaza de la Iglesia, Órgiva", estimatedMinutes: 170, host: "carmen-sierra-tours", category: "curvas", location: "orgiva-espana" },
-  { title: "Sa Calobra y la Serra de Tramuntana", description: "Clásico para motoristas: carretera de montaña con horquillas muy cerradas y paisaje espectacular. Mucha afluencia en temporada alta, mejor ir temprano.", difficulty: "dificil", distanceKm: 62.4, surface: "asfalto", startPoint: "Puerto de Sóller", estimatedMinutes: 120, host: "javier-motoviaje", category: "curvas", location: "soller-espana" }
-];
-
-const DEPARTURE_DATES = ["2026-11-14", "2026-11-21", "2026-12-05"];
+const picsum = (seed, w, h) => `https://picsum.photos/seed/${seed}/${w}/${h}`;
 
 // Inserta una fila (columnas en snake_case) y devuelve su id.
 async function insert(table, data) {
@@ -64,109 +19,159 @@ async function insert(table, data) {
   return rows[0].id;
 }
 
+const ROLES = [
+  { name: "admin", slug: "admin", description: "Administrador del panel: gestiona todo el catálogo", is_active: true },
+  { name: "host", slug: "host", description: "Guía que organiza rutas y salidas", is_active: true },
+  { name: "user", slug: "user", description: "Usuario registrado que consulta las rutas", is_active: true }
+];
+
+const CATEGORIES = [
+  { name: "Curvas", description: "Carreteras con muchas curvas y horquillas", is_active: true },
+  { name: "Paisaje", description: "Rutas con vistas y paisajes destacados", is_active: true },
+  { name: "Off-road", description: "Tramos de tierra o pista", is_active: true },
+  { name: "Costa", description: "Recorridos junto al mar", is_active: true }
+];
+
+// user_id se rellena después: solo Lucía tiene cuenta de usuario con rol host.
+const HOSTS = [
+  { key: "lucia", name: "Lucía Ruta Norte", biography: "Guía especializada en puertos de montaña del norte peninsular. Organiza salidas de fin de semana desde Asturias.", status: "active", is_active: true },
+  { key: "javier", name: "Javier Motoviaje", biography: "Organiza salidas de fin de semana por el Mediterráneo y el interior, con paradas para comer.", status: "active", is_active: true },
+  { key: "carmen", name: "Carmen Sierra Tours", biography: "Rutas tranquilas para principiantes con paradas gastronómicas. Temporalmente sin salidas.", status: "suspended", is_active: true }
+];
+
+const LOCATIONS = [
+  { key: "oviedo", city: "Oviedo", region: "Asturias", country: "España", address: "Plaza de la Catedral, s/n", postal_code: "33003", latitude: 43.361400, longitude: -5.859300 },
+  { key: "ronda", city: "Ronda", region: "Andalucía", country: "España", address: "Plaza de España, 1", postal_code: "29400", latitude: 36.746200, longitude: -5.161300 },
+  { key: "nijar", city: "Níjar", region: "Andalucía", country: "España", address: "Calle Real, 10", postal_code: "04150", latitude: 36.971900, longitude: -2.191400 },
+  { key: "olot", city: "Olot", region: "Cataluña", country: "España", address: "Plaza Clarà, 2", postal_code: "17800", latitude: 42.181700, longitude: 2.490300 },
+  { key: "avila", city: "Ávila", region: "Castilla y León", country: "España", address: "Plaza Mayor, 1", postal_code: "05001", latitude: 40.656600, longitude: -4.681800 },
+  { key: "plasencia", city: "Plasencia", region: "Extremadura", country: "España", address: "Plaza Mayor, 3", postal_code: "10600", latitude: 40.031000, longitude: -6.089300 },
+  { key: "laguardia", city: "Laguardia", region: "País Vasco", country: "España", address: "Plaza de la Paz, 4", postal_code: "01300", latitude: 42.541200, longitude: -2.565900 },
+  { key: "hecho", city: "Hecho", region: "Aragón", country: "España", address: "Plaza de Hecho, s/n", postal_code: "22760", latitude: 42.765500, longitude: -0.749000 },
+  { key: "orgiva", city: "Órgiva", region: "Andalucía", country: "España", address: "Plaza de la Iglesia, s/n", postal_code: "18400", latitude: 36.898500, longitude: -3.422400 },
+  { key: "soller", city: "Sóller", region: "Islas Baleares", country: "España", address: "Puerto de Sóller, s/n", postal_code: "07100", latitude: 39.798700, longitude: 2.715000, status: "inactive" }
+];
+
+const ROUTES = [
+  { title: "Puerto de Tarna y Ventana", description: "Cruce de la cordillera entre Asturias y León por carreteras de montaña con curvas rápidas, bosques y buenas vistas. Mejor fuera de los meses de nieve.", difficulty: "media", distance_km: 112.4, surface: "asfalto", start_point: "Plaza de la Catedral, Oviedo", estimated_minutes: 150, status: "publicada", is_active: true, host: "lucia", category: "Curvas", location: "oviedo" },
+  { title: "Ronda - Grazalema por la Serranía", description: "Ruta entre pueblos blancos y sierras calizas, con tramos revirados y paisajes de dehesa. Ideal para una salida de día con parada a comer.", difficulty: "media", distance_km: 68.0, surface: "asfalto", start_point: "Puerta de Almocábar, Ronda", estimated_minutes: 120, status: "publicada", is_active: false, host: "javier", category: "Paisaje", location: "ronda" },
+  { title: "Cabo de Gata y costa de Níjar", description: "Recorrido por el parque natural con paisaje desértico y calas al fondo. Asfalto en buen estado, curvas suaves y poco tráfico fuera de verano.", difficulty: "facil", distance_km: 85.2, surface: "mixto", start_point: "Aparcamiento de San José", estimated_minutes: 110, status: "publicada", is_active: true, host: "carmen", category: "Costa", location: "nijar" },
+  { title: "Garrotxa volcánica: Olot - Santa Pau", description: "Carreteras estrechas entre volcanes extintos y hayedos, con pueblos de piedra y muchas curvas encadenadas. Conviene ir con calma por el firme irregular.", difficulty: "media", distance_km: 74.6, surface: "asfalto", start_point: "Plaza Clarà, Olot", estimated_minutes: 105, status: "publicada", is_active: true, host: "javier", category: "Paisaje", location: "olot" },
+  { title: "Sierra de Gredos por el Puerto del Pico", description: "Subida por la antigua calzada hacia el valle del Tiétar, con rectas largas, curvas amplias y miradores sobre la sierra.", difficulty: "media", distance_km: 83.3, surface: "asfalto", start_point: "Plaza Mayor de Ávila", estimated_minutes: 135, status: "publicada", is_active: true, host: "lucia", category: "Curvas", location: "avila" },
+  { title: "Valle del Jerte en flor", description: "Ruta tranquila entre cerezos y pueblos serranos. Especialmente bonita en primavera. Carretera ancha y buen asfalto, apta para principiantes.", difficulty: "facil", distance_km: 62.8, surface: "asfalto", start_point: "Plaza Mayor de Plasencia", estimated_minutes: 90, status: "publicada", is_active: true, host: "carmen", category: "Paisaje", location: "plasencia" },
+  { title: "Ruta del vino por la Rioja Alavesa", description: "Circuito entre viñedos, bodegas y pueblos medievales con carreteras secundarias en muy buen estado. Perfecto para ir sin prisa y hacer varias paradas.", difficulty: "facil", distance_km: 58.9, surface: "asfalto", start_point: "Plaza de la Paz, Laguardia", estimated_minutes: 75, status: "publicada", is_active: true, host: "javier", category: "Paisaje", location: "laguardia" },
+  { title: "Valles de Hecho y Ansó", description: "Recorrido por los valles del Pirineo aragonés con carreteras estrechas, tramos sin quitamiedos y mucha curva cerrada. Requiere experiencia y atención al tráfico de ganado.", difficulty: "dificil", distance_km: 105.5, surface: "mixto", start_point: "Plaza de Hecho", estimated_minutes: 180, status: "archivada", is_active: false, host: "lucia", category: "Off-road", location: "hecho" },
+  { title: "La Alpujarra granadina", description: "Pueblos colgados de la ladera sur de Sierra Nevada, con curvas continuas y desniveles marcados. Buena opción para dos jornadas con noche en la zona.", difficulty: "media", distance_km: 96.7, surface: "asfalto", start_point: "Plaza de la Iglesia, Órgiva", estimated_minutes: 170, status: "borrador", is_active: true, host: "carmen", category: "Curvas", location: "orgiva" },
+  { title: "Sa Calobra y la Serra de Tramuntana", description: "Clásico para motoristas: carretera de montaña con horquillas muy cerradas y paisaje espectacular. Mucha afluencia en temporada alta, mejor ir temprano.", difficulty: "dificil", distance_km: 62.4, surface: "asfalto", start_point: "Puerto de Sóller", estimated_minutes: 120, status: "publicada", is_active: true, host: "javier", category: "Curvas", location: "soller" }
+];
+
 async function seed() {
   // Recrea el esquema vacío y después inserta los datos.
   await pool.query("DROP SCHEMA public CASCADE; CREATE SCHEMA public;");
   await pool.query(schemaSql);
 
+  // ROLES
   const roleIds = {};
   for (const role of ROLES) {
     roleIds[role.slug] = await insert("roles", role);
   }
 
-  // Hash de marcador: el login se hará con scrypt cuando se monte la autenticación.
-  const adminId = await insert("users", {
-    role_id: roleIds.admin,
-    first_name: "System",
-    last_name: "Admin",
-    email: "admin@motoroutes.local",
-    password_hash: "PENDIENTE_HASH"
-  });
-  await insert("users_images", {
-    user_id: adminId,
-    image_url: `https://picsum.photos/seed/${adminId}/200/200`,
-    alt_text: "System Admin",
-    is_primary: true,
-    sort_order: 0
-  });
+  // USUARIOS (hash de marcador: el login se hará con scrypt cuando se monte la autenticación)
+  const users = {
+    admin: { role_id: roleIds.admin, first_name: "System", last_name: "Admin", email: "admin@motoroutes.local", password_hash: "PENDIENTE_HASH", avatar_url: picsum("admin", 200, 200), is_active: true },
+    lucia: { role_id: roleIds.host, first_name: "Lucía", last_name: "Ruta Norte", email: "lucia@motoroutes.local", password_hash: "PENDIENTE_HASH", avatar_url: picsum("lucia-user", 200, 200), is_active: true },
+    marcos: { role_id: roleIds.user, first_name: "Marcos", last_name: "Motero", email: "marcos@motoroutes.local", password_hash: "PENDIENTE_HASH", avatar_url: null, is_active: true }
+  };
+  const userIds = {};
+  for (const [key, user] of Object.entries(users)) {
+    userIds[key] = await insert("users", user);
+    await insert("users_images", { user_id: userIds[key], image_url: picsum(`user-${key}`, 200, 200), alt_text: `Foto de ${user.first_name} ${user.last_name}`, is_primary: true, sort_order: 0 });
+  }
 
+  // CATEGORÍAS (con imagen principal)
   const categoryIds = {};
   for (const category of CATEGORIES) {
-    categoryIds[category.slug] = await insert("categories", category);
-    await insert("categories_images", {
-      category_id: categoryIds[category.slug],
-      image_url: `https://picsum.photos/seed/${category.slug}/800/400`,
-      alt_text: category.name,
-      is_primary: true,
-      sort_order: 0
-    });
+    const slug = generateSlug(category.name);
+    categoryIds[category.name] = await insert("categories", { ...category, slug });
+    await insert("categories_images", { category_id: categoryIds[category.name], image_url: picsum(slug, 800, 400), alt_text: `Categoría ${category.name}`, is_primary: true, sort_order: 0 });
   }
 
+  // GUÍAS (Lucía es la única ligada a un usuario con rol host)
   const hostIds = {};
   for (const host of HOSTS) {
-    hostIds[host.slug] = await insert("hosts", { ...host, status: "active" });
-    await insert("hosts_images", {
-      host_id: hostIds[host.slug],
-      image_url: `https://picsum.photos/seed/${host.slug}/400/400`,
-      alt_text: host.name,
-      is_primary: true,
-      sort_order: 0
-    });
+    const { key, ...data } = host;
+    const slug = generateSlug(data.name);
+    hostIds[key] = await insert("hosts", { ...data, slug, user_id: key === "lucia" ? userIds.lucia : null });
+    await insert("hosts_images", { host_id: hostIds[key], image_url: picsum(slug, 400, 400), alt_text: `Foto de ${data.name}`, is_primary: true, sort_order: 0 });
   }
+  // Una segunda imagen de Lucía, no principal, para comprobar el orden
+  await insert("hosts_images", { host_id: hostIds.lucia, image_url: picsum("lucia-2", 400, 400), alt_text: "Lucía en ruta", is_primary: false, sort_order: 1 });
 
+  // LOCALIZACIONES (con imagen principal)
   const locationIds = {};
   for (const location of LOCATIONS) {
-    locationIds[location.slug] = await insert("locations", location);
-    await insert("locations_images", {
-      location_id: locationIds[location.slug],
-      image_url: `https://picsum.photos/seed/${location.slug}/800/600`,
-      alt_text: location.city,
-      is_primary: true,
-      sort_order: 0
-    });
+    const { key, ...data } = location;
+    const slug = generateSlug(`${data.city} ${data.country}`);
+    locationIds[key] = await insert("locations", { ...data, slug, status: data.status ?? "active", is_active: data.status !== "inactive" });
+    await insert("locations_images", { location_id: locationIds[key], image_url: picsum(slug, 800, 600), alt_text: `Vista de ${data.city}`, is_primary: true, sort_order: 0 });
   }
 
+  // RUTAS con sus imágenes
+  const routeIds = {};
   for (const [index, route] of ROUTES.entries()) {
-    const slug = generateSlug(route.title);
+    const { host, category, location, ...data } = route;
+    const slug = generateSlug(data.title);
     const routeId = await insert("rutas", {
-      title: route.title,
+      ...data,
       slug,
-      description: route.description,
-      distance_km: route.distanceKm,
-      difficulty: route.difficulty,
-      surface: route.surface,
-      start_point: route.startPoint,
-      estimated_minutes: route.estimatedMinutes,
-      host_id: hostIds[route.host],
-      category_id: categoryIds[route.category],
-      location_id: locationIds[route.location]
+      host_id: hostIds[host],
+      category_id: categoryIds[category],
+      location_id: locationIds[location]
     });
+    routeIds[slug] = routeId;
 
-    await insert("rutas_images", {
-      ruta_id: routeId,
-      image_url: `https://picsum.photos/seed/${slug}/800/600`,
-      alt_text: route.title,
-      is_primary: true,
-      sort_order: 0
-    });
-
-    // Las tres primeras rutas tienen una salida de ejemplo.
-    if (index < DEPARTURE_DATES.length) {
-      const date = DEPARTURE_DATES[index];
-      await insert("departures", {
+    // Las tres primeras rutas tienen varias imágenes; el resto, una principal.
+    const imageCount = index < 3 ? 3 : 1;
+    for (let position = 0; position < imageCount; position += 1) {
+      await insert("rutas_images", {
         ruta_id: routeId,
-        slug: `${slug}-${date}`,
-        start_datetime: `${date}T09:00:00+01:00`,
-        end_datetime: `${date}T18:00:00+01:00`,
-        capacity: 12,
-        booked_participants: 3,
-        price: 45,
-        status: "scheduled"
+        image_url: picsum(`${slug}-${position + 1}`, 800, 600),
+        alt_text: `${data.title} (${position + 1})`,
+        is_primary: position === 0,
+        sort_order: position
       });
     }
   }
 
-  console.log(`Datos cargados: ${ROUTES.length} rutas y ${DEPARTURE_DATES.length} salidas.`);
+  // SALIDAS: cubren todos los estados y casos (programada, completa, cancelada, finalizada, inactiva)
+  const departures = [
+    { route: 0, date: "2026-11-14", start: "09:00", end: "18:00", capacity: 12, booked: 3, price: 45.0, status: "scheduled", is_active: true },
+    { route: 0, date: "2026-12-05", start: "08:30", end: "17:30", capacity: 10, booked: 10, price: 45.0, status: "full", is_active: true },
+    { route: 1, date: "2026-11-21", start: "09:00", end: "15:00", capacity: 8, booked: 0, price: 35.5, status: "cancelled", is_active: true },
+    { route: 2, date: "2026-06-20", start: "10:00", end: "19:00", capacity: 15, booked: 15, price: 60.0, status: "completed", is_active: true },
+    { route: 3, date: "2026-11-28", start: "09:30", end: "16:00", capacity: 12, booked: 5, price: 40.0, status: "scheduled", is_active: false },
+    { route: 4, date: "2026-12-12", start: "08:00", end: "20:00", capacity: 6, booked: 2, price: 120.0, status: "scheduled", is_active: true }
+  ];
+  for (const departure of departures) {
+    const route = ROUTES[departure.route];
+    const slug = generateSlug(route.title);
+    await insert("departures", {
+      ruta_id: routeIds[slug],
+      slug: `${slug}-${departure.date}`,
+      start_datetime: `${departure.date}T${departure.start}:00+01:00`,
+      end_datetime: `${departure.date}T${departure.end}:00+01:00`,
+      capacity: departure.capacity,
+      booked_participants: departure.booked,
+      price: departure.price,
+      status: departure.status,
+      is_active: departure.is_active
+    });
+  }
+
+  console.log(
+    `Datos cargados: ${ROLES.length} roles, ${Object.keys(users).length} usuarios, ${CATEGORIES.length} categorías, ` +
+      `${HOSTS.length} guías, ${LOCATIONS.length} localizaciones, ${ROUTES.length} rutas y ${departures.length} salidas.`
+  );
 }
 
 seed()

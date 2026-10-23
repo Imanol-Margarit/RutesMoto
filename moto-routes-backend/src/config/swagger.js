@@ -14,7 +14,8 @@ const definition = {
     { name: "Imágenes de rutas", description: "Imágenes asociadas a una ruta" },
     { name: "Salidas", description: "Salidas programadas de una ruta" },
     { name: "Guías", description: "Guías que organizan las rutas" },
-    { name: "Categorías", description: "Tipos de ruta: curvas, paisaje, off-road..." }
+    { name: "Categorías", description: "Tipos de ruta: curvas, paisaje, off-road..." },
+    { name: "Localizaciones", description: "Ciudad, región y país de cada ruta" }
   ],
   components: {
     schemas: {
@@ -178,6 +179,22 @@ const definition = {
         properties: {
           name: { type: "string", maxLength: 60, example: "Curvas" },
           description: { type: "string", nullable: true, maxLength: 500 },
+          isActive: { type: "boolean" }
+        }
+      },
+      LocationInput: {
+        type: "object",
+        required: ["city", "country"],
+        additionalProperties: false,
+        properties: {
+          city: { type: "string", maxLength: 100, example: "Oviedo" },
+          region: { type: "string", nullable: true, maxLength: 100 },
+          country: { type: "string", maxLength: 100, example: "España" },
+          address: { type: "string", nullable: true, maxLength: 255 },
+          postalCode: { type: "string", nullable: true, maxLength: 20 },
+          latitude: { type: "number", nullable: true, minimum: -90, maximum: 90 },
+          longitude: { type: "number", nullable: true, minimum: -180, maximum: 180 },
+          status: { type: "string", enum: ["active", "inactive"] },
           isActive: { type: "boolean" }
         }
       },

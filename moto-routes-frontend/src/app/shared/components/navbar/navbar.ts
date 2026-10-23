@@ -50,6 +50,13 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
           >
             Localizaciones
           </a>
+          <a
+            routerLink="/users"
+            routerLinkActive="bg-leaf text-slate-900"
+            class="rounded-lg px-3 py-2 text-slate-700 hover:bg-seafoam hover:text-slate-900"
+          >
+            Usuarios
+          </a>
         </div>
       </div>
     </nav>

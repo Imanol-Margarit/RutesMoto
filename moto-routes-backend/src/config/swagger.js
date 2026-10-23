@@ -15,7 +15,9 @@ const definition = {
     { name: "Salidas", description: "Salidas programadas de una ruta" },
     { name: "Guías", description: "Guías que organizan las rutas" },
     { name: "Categorías", description: "Tipos de ruta: curvas, paisaje, off-road..." },
-    { name: "Localizaciones", description: "Ciudad, región y país de cada ruta" }
+    { name: "Localizaciones", description: "Ciudad, región y país de cada ruta" },
+    { name: "Usuarios", description: "Cuentas de usuario, con rol y contraseña" },
+    { name: "Roles", description: "Roles de usuario" }
   ],
   components: {
     schemas: {
@@ -195,6 +197,34 @@ const definition = {
           latitude: { type: "number", nullable: true, minimum: -90, maximum: 90 },
           longitude: { type: "number", nullable: true, minimum: -180, maximum: 180 },
           status: { type: "string", enum: ["active", "inactive"] },
+          isActive: { type: "boolean" }
+        }
+      },
+      UserCreate: {
+        type: "object",
+        required: ["roleId", "firstName", "lastName", "email", "password"],
+        additionalProperties: false,
+        properties: {
+          roleId: { type: "string", format: "uuid" },
+          firstName: { type: "string", maxLength: 100, example: "Marcos" },
+          lastName: { type: "string", maxLength: 150, example: "Motero" },
+          email: { type: "string", format: "email", maxLength: 150 },
+          password: { type: "string", minLength: 8, maxLength: 100 },
+          avatarUrl: { type: "string", format: "uri", nullable: true, maxLength: 500 },
+          isActive: { type: "boolean" }
+        }
+      },
+      UserUpdate: {
+        type: "object",
+        additionalProperties: false,
+        description: "Al menos un campo. La contraseña es opcional.",
+        properties: {
+          roleId: { type: "string", format: "uuid" },
+          firstName: { type: "string", maxLength: 100 },
+          lastName: { type: "string", maxLength: 150 },
+          email: { type: "string", format: "email", maxLength: 150 },
+          password: { type: "string", minLength: 8, maxLength: 100 },
+          avatarUrl: { type: "string", format: "uri", nullable: true, maxLength: 500 },
           isActive: { type: "boolean" }
         }
       },

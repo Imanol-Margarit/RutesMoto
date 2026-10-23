@@ -61,9 +61,11 @@ export const departureService = {
       throw new AppError("El id debe ser un UUID válido", 400);
     }
 
+    // 2. Buscar la salida
     const current = await departureRepository.findById(id);
     if (!current) throw notFound();
 
+    // 3. Validar con los valores finales (los guardados + los que llegan)
     const merged = { ...current, ...payload };
 
     if (new Date(merged.endDatetime) <= new Date(merged.startDatetime)) {
@@ -74,8 +76,8 @@ export const departureService = {
       throw new AppError("Las plazas reservadas no pueden superar la capacidad", 400);
     }
 
+    // 4. Preparar los datos a guardar (el slug depende de la ruta y de la fecha)
     const data = { ...payload };
-    // El slug depende de la ruta y de la fecha: se recalcula si cambia alguna.
     if (payload.routeId !== undefined || payload.startDatetime !== undefined) {
       data.slug = await buildSlug(
         payload.routeId ?? current.routeId,
@@ -84,6 +86,7 @@ export const departureService = {
       );
     }
 
+    // 5. Guardar
     const updated = await departureRepository.update(id, data);
     if (!updated) throw notFound();
     return updated;
@@ -96,12 +99,9 @@ export const departureService = {
   },
 
   async setStatus(id, status) {
-    // 1. Validar el id
     if (typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
       throw new AppError("El id debe ser un UUID válido", 400);
     }
-
-    // 2. Guardar el nuevo estado
     const updated = await departureRepository.update(id, { status });
     if (!updated) throw notFound();
     return updated;

@@ -13,7 +13,8 @@ const definition = {
     { name: "Rutas", description: "Rutas de moto" },
     { name: "Imágenes de rutas", description: "Imágenes asociadas a una ruta" },
     { name: "Salidas", description: "Salidas programadas de una ruta" },
-    { name: "Guías", description: "Guías que organizan las rutas" }
+    { name: "Guías", description: "Guías que organizan las rutas" },
+    { name: "Categorías", description: "Tipos de ruta: curvas, paisaje, off-road..." }
   ],
   components: {
     schemas: {
@@ -167,6 +168,16 @@ const definition = {
           name: { type: "string", maxLength: 100 },
           biography: { type: "string", nullable: true, maxLength: 1000 },
           status: { type: "string", enum: ["active", "inactive", "suspended"] },
+          isActive: { type: "boolean" }
+        }
+      },
+      CategoryInput: {
+        type: "object",
+        required: ["name"],
+        additionalProperties: false,
+        properties: {
+          name: { type: "string", maxLength: 60, example: "Curvas" },
+          description: { type: "string", nullable: true, maxLength: 500 },
           isActive: { type: "boolean" }
         }
       },

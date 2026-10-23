@@ -18,6 +18,10 @@ export const routes: Routes = [
       {
         path: 'hosts',
         loadChildren: () => import('./features/hosts/hosts.routes').then((m) => m.HOSTS_ROUTES)
+      },
+      {
+        path: 'categories',
+        loadChildren: () => import('./features/categories/categories.routes').then((m) => m.CATEGORIES_ROUTES)
       }
     ]
   },

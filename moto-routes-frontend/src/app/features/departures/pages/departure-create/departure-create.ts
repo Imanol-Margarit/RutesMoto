@@ -4,10 +4,10 @@ import { DeparturePayload } from '../../../../core/models/departure.model';
 import { MotoRoute } from '../../../../core/models/route.model';
 import { AlertService } from '../../../../core/services/alert.service';
 import { DeparturesService } from '../../../../core/services/departures.service';
+import { DeparturesStore } from '../../../../core/stores/departures.store';
 import { RoutesService } from '../../../../core/services/routes.service';
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { DepartureForm } from '../../components/departure-form/departure-form';
-import { DeparturesStore } from '../../../../core/stores/departures.store';
 
 @Component({
   selector: 'app-departure-create',

@@ -39,13 +39,13 @@ export const departureRepository = {
     return toDeparture(rows[0]);
   },
 
-  async findAnyById(id) {
-    const { rows } = await pool.query(`${SELECT_DEPARTURE} WHERE t.id = $1`, [id]);
+  async findBySlug(slug) {
+    const { rows } = await pool.query(`${SELECT_DEPARTURE} WHERE t.slug = $1 AND t.deleted_at IS NULL`, [slug]);
     return toDeparture(rows[0]);
   },
 
-  async findBySlug(slug) {
-    const { rows } = await pool.query(`${SELECT_DEPARTURE} WHERE t.slug = $1 AND t.deleted_at IS NULL`, [slug]);
+  async findAnyById(id) {
+    const { rows } = await pool.query(`${SELECT_DEPARTURE} WHERE t.id = $1`, [id]);
     return toDeparture(rows[0]);
   },
 

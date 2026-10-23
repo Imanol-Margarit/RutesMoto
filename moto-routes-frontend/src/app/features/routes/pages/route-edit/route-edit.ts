@@ -9,6 +9,7 @@ import { RouteForm } from '../../components/route-form/route-form';
 import { RouteImages } from '../../components/route-images/route-images';
 import { RoutesStore } from '../../../../core/stores/routes.store';
 import { HostsService } from '../../../../core/services/hosts.service';
+import { CategoriesService } from '../../../../core/services/categories.service';
 
 @Component({
   selector: 'app-route-edit',
@@ -29,7 +30,7 @@ import { HostsService } from '../../../../core/services/hosts.service';
         <app-error-state [message]="error()!" (retry)="load()" />
       } @else if (route(); as current) {
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <app-route-form [route]="current" [hosts]="hosts()" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
+          <app-route-form [route]="current" [hosts]="hosts()" [categories]="categories()" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
         </div>
 
         <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -49,6 +50,8 @@ export class RouteEdit implements OnInit {
   private readonly store = inject(RoutesStore);
   private readonly hostsService = inject(HostsService);
   readonly hosts = signal<{ _id: string; name: string }[]>([]);
+  readonly categories = signal<{ _id: string; name: string }[]>([]);
+  private readonly categoriesService = inject(CategoriesService);
 
   readonly route = signal<MotoRoute | null>(null);
   readonly loading = signal(false);
@@ -58,6 +61,16 @@ export class RouteEdit implements OnInit {
   ngOnInit(): void {
     void this.load();
     void this.loadHosts();
+    void this.loadCategories();
+  }
+
+  async loadCategories(): Promise<void> {
+    try {
+      const response = await this.categoriesService.getAll();
+      this.categories.set(response.data);
+    } catch {
+      // Sin categorías, el select solo muestra "Sin categoría".
+    }
   }
 
   async loadHosts(): Promise<void> {

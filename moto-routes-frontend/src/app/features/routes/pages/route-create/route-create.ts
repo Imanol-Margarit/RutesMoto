@@ -5,6 +5,7 @@ import { AlertService } from '../../../../core/services/alert.service';
 import { RoutesService } from '../../../../core/services/routes.service';
 import { RouteForm } from '../../components/route-form/route-form';
 import { HostsService } from '../../../../core/services/hosts.service';
+import { CategoriesService } from '../../../../core/services/categories.service';
 import { RoutesStore } from '../../../../core/stores/routes.store';
 
 @Component({
@@ -21,7 +22,7 @@ import { RoutesStore } from '../../../../core/stores/routes.store';
       </header>
 
       <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <app-route-form [hosts]="hosts()" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
+        <app-route-form [hosts]="hosts()" [categories]="categories()" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
       </div>
     </section>
   `
@@ -35,9 +36,21 @@ export class RouteCreate {
 
   readonly saving = signal(false);
   readonly hosts = signal<{ _id: string; name: string }[]>([]);
+  readonly categories = signal<{ _id: string; name: string }[]>([]);
+  private readonly categoriesService = inject(CategoriesService);
 
   constructor() {
     void this.loadHosts();
+    void this.loadCategories();
+  }
+
+  async loadCategories(): Promise<void> {
+    try {
+      const response = await this.categoriesService.getAll();
+      this.categories.set(response.data);
+    } catch {
+      // Sin categorías, el select solo muestra "Sin categoría".
+    }
   }
 
   async loadHosts(): Promise<void> {

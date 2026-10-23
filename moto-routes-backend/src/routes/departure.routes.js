@@ -131,9 +131,9 @@ router.get("/slug/:slug", validate(slugParamsSchema, "params"), departureControl
  */
 router.get("/:id", validate(uuidParamsSchema, "params"), departureController.getById);
 router.patch("/:id", validate(uuidParamsSchema, "params"), validate(departureSchemas.update), departureController.update);
-router.delete("/:id", validate(uuidParamsSchema, "params"), departureController.remove);
-
 router.patch("/:id/status", validate(uuidParamsSchema, "params"), validate(departureStatusSchema), departureController.setStatus);
+
+router.delete("/:id", validate(uuidParamsSchema, "params"), departureController.remove);
 
 /**
  * @swagger

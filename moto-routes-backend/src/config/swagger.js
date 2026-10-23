@@ -228,6 +228,16 @@ const definition = {
           isActive: { type: "boolean" }
         }
       },
+      RoleInput: {
+        type: "object",
+        required: ["name"],
+        additionalProperties: false,
+        properties: {
+          name: { type: "string", maxLength: 50, example: "host" },
+          description: { type: "string", nullable: true, maxLength: 500 },
+          isActive: { type: "boolean" }
+        }
+      },
       Error: {
         type: "object",
         properties: {

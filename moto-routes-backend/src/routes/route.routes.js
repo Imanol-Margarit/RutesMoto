@@ -3,7 +3,7 @@ import { routeController } from "../controllers/route.controller.js";
 import { validate } from "../middlewares/validation.middleware.js";
 import { slugParamsSchema, uuidParamsSchema } from "../schemas/common.schema.js";
 import { routeSchemas, routeStatusSchema } from "../schemas/route.schema.js";
-import imageRoutes from "./image.routes.js";
+import { createImageRoutes } from "./image.routes.js";
 
 const router = Router();
 
@@ -211,6 +211,6 @@ router.patch("/:id/deactivate", validate(uuidParamsSchema, "params"), routeContr
 router.patch("/:id/restore", validate(uuidParamsSchema, "params"), routeController.restore);
 
 // Imágenes de una ruta: /api/routes/{id}/images (ver image.routes.js)
-router.use("/:id/images", validate(uuidParamsSchema, "params"), imageRoutes);
+router.use("/:id/images", validate(uuidParamsSchema, "params"), createImageRoutes("route"));
 
 export default router;

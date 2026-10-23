@@ -33,8 +33,9 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
             <thead class="bg-slate-50 text-left text-slate-600">
               <tr>
                 <th class="px-4 py-3 font-medium">Nombre</th>
+                <th class="px-4 py-3 font-medium">Descripción</th>
                 <th class="px-4 py-3 font-medium">Activa</th>
-                <th class="px-4 py-3 font-medium">Acciones</th>
+                <th class="w-44 px-4 py-3 text-center font-medium">Acciones</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -44,6 +45,7 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
                     <p class="font-medium">{{ role.name }}</p>
                     <p class="text-xs text-slate-400">{{ role.slug }}</p>
                   </td>
+                  <td class="max-w-xs truncate px-4 py-3 text-slate-600" [title]="role.description ?? ''">{{ role.description ?? '—' }}</td>
                   <td class="px-4 py-3">
                     <button
                       type="button"
@@ -55,8 +57,8 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
                       {{ role.isActive ? 'Activa' : 'Inactiva' }}
                     </button>
                   </td>
-                  <td class="px-4 py-3">
-                    <div class="flex gap-2">
+                  <td class="w-44 px-4 py-3 text-right">
+                    <div class="flex justify-end gap-2">
                       <a [routerLink]="['/roles', role._id, 'edit']" class="btn-secondary text-xs">Editar</a>
                       <button type="button" (click)="remove(role)" [disabled]="busyId() === role._id" class="btn-danger text-xs">
                         Eliminar

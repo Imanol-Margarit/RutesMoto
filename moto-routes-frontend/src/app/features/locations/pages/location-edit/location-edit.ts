@@ -6,11 +6,12 @@ import { LocationsService } from '../../../../core/services/locations.service';
 import { LocationsStore } from '../../../../core/stores/locations.store';
 import { ErrorState } from '../../../../shared/components/error-state/error-state';
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
+import { ImagesManager } from '../../../../shared/components/images-manager/images-manager';
 import { LocationForm } from '../../components/location-form/location-form';
 
 @Component({
   selector: 'app-location-edit',
-  imports: [LocationForm, RouterLink, SkeletonLoader, ErrorState],
+  imports: [LocationForm, RouterLink, SkeletonLoader, ErrorState, ImagesManager],
   template: `
     <section class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
       <header class="mb-8 flex items-center gap-3">
@@ -28,6 +29,10 @@ import { LocationForm } from '../../components/location-form/location-form';
       } @else if (location(); as current) {
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <app-location-form [location]="current" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
+        </div>
+
+        <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <app-images-manager [basePath]="'locations/' + current._id + '/images'" />
         </div>
       }
     </section>

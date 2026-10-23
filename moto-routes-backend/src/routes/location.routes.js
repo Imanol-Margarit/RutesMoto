@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { locationController } from "../controllers/location.controller.js";
 import { validate } from "../middlewares/validation.middleware.js";
+import { createImageRoutes } from "./image.routes.js";
 import { slugParamsSchema, uuidParamsSchema } from "../schemas/common.schema.js";
 import { locationSchemas, locationStatusSchema } from "../schemas/location.schema.js";
 
@@ -220,5 +221,10 @@ router.patch("/:id/deactivate", validate(uuidParamsSchema, "params"), locationCo
  *         description: Localización restaurada
  */
 router.patch("/:id/restore", validate(uuidParamsSchema, "params"), locationController.restore);
+
+/**
+ * Imágenes de un location: /api/locations/:id/images
+ */
+router.use("/:id/images", validate(uuidParamsSchema, "params"), createImageRoutes("location"));
 
 export default router;

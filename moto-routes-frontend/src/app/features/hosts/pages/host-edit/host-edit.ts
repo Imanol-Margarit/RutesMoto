@@ -6,11 +6,12 @@ import { HostsService } from '../../../../core/services/hosts.service';
 import { HostsStore } from '../../../../core/stores/hosts.store';
 import { ErrorState } from '../../../../shared/components/error-state/error-state';
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
+import { ImagesManager } from '../../../../shared/components/images-manager/images-manager';
 import { HostForm } from '../../components/host-form/host-form';
 
 @Component({
   selector: 'app-host-edit',
-  imports: [HostForm, RouterLink, SkeletonLoader, ErrorState],
+  imports: [HostForm, RouterLink, SkeletonLoader, ErrorState, ImagesManager],
   template: `
     <section class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
       <header class="mb-8 flex items-center gap-3">
@@ -28,6 +29,10 @@ import { HostForm } from '../../components/host-form/host-form';
       } @else if (host(); as current) {
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <app-host-form [host]="current" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
+        </div>
+
+        <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <app-images-manager [basePath]="'hosts/' + current._id + '/images'" />
         </div>
       }
     </section>

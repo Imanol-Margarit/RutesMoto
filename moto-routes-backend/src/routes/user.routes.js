@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { userController } from "../controllers/user.controller.js";
 import { validate } from "../middlewares/validation.middleware.js";
+import { createImageRoutes } from "./image.routes.js";
 import { uuidParamsSchema } from "../schemas/common.schema.js";
 import { userSchemas } from "../schemas/user.schema.js";
 
@@ -173,5 +174,10 @@ router.patch("/:id/deactivate", validate(uuidParamsSchema, "params"), userContro
  *         description: Usuario restaurado
  */
 router.patch("/:id/restore", validate(uuidParamsSchema, "params"), userController.restore);
+
+/**
+ * Imágenes de un user: /api/users/:id/images
+ */
+router.use("/:id/images", validate(uuidParamsSchema, "params"), createImageRoutes("user"));
 
 export default router;

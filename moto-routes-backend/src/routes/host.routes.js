@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { hostController } from "../controllers/host.controller.js";
 import { validate } from "../middlewares/validation.middleware.js";
+import { createImageRoutes } from "./image.routes.js";
 import { slugParamsSchema, uuidParamsSchema } from "../schemas/common.schema.js";
 import { hostSchemas, hostStatusSchema } from "../schemas/host.schema.js";
 
@@ -220,5 +221,10 @@ router.patch("/:id/deactivate", validate(uuidParamsSchema, "params"), hostContro
  *         description: Guía restaurado
  */
 router.patch("/:id/restore", validate(uuidParamsSchema, "params"), hostController.restore);
+
+/**
+ * Imágenes de un host: /api/hosts/:id/images
+ */
+router.use("/:id/images", validate(uuidParamsSchema, "params"), createImageRoutes("host"));
 
 export default router;

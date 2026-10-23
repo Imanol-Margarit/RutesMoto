@@ -33,9 +33,10 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
             <thead class="bg-slate-50 text-left text-slate-600">
               <tr>
                 <th class="px-4 py-3 font-medium">Nombre</th>
+                <th class="px-4 py-3 font-medium">Descripción</th>
                 <th class="px-4 py-3 font-medium">Estado</th>
                 <th class="px-4 py-3 font-medium">Activo</th>
-                <th class="px-4 py-3 font-medium">Acciones</th>
+                <th class="w-44 px-4 py-3 text-center font-medium">Acciones</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -45,6 +46,7 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
                     <p class="font-medium">{{ host.name }}</p>
                     <p class="text-xs text-slate-400">{{ host.slug }}</p>
                   </td>
+                  <td class="max-w-xs truncate px-4 py-3 text-slate-600" [title]="host.biography ?? ''">{{ host.biography ?? '—' }}</td>
                   <td class="px-4 py-3">
                     <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
                       {{ statusLabels[host.status] }}
@@ -61,8 +63,8 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
                       {{ host.isActive ? 'Activo' : 'Inactivo' }}
                     </button>
                   </td>
-                  <td class="px-4 py-3">
-                    <div class="flex gap-2">
+                  <td class="w-44 px-4 py-3 text-right">
+                    <div class="flex justify-end gap-2">
                       <a [routerLink]="['/hosts', host._id, 'edit']" class="btn-secondary text-xs">Editar</a>
                       <button type="button" (click)="remove(host)" [disabled]="busyId() === host._id" class="btn-danger text-xs">
                         Eliminar

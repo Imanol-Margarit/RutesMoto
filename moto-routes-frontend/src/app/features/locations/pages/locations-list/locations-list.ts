@@ -37,7 +37,7 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
                 <th class="px-4 py-3 font-medium">País</th>
                 <th class="px-4 py-3 font-medium">Estado</th>
                 <th class="px-4 py-3 font-medium">Activa</th>
-                <th class="px-4 py-3 font-medium">Acciones</th>
+                <th class="w-44 px-4 py-3 text-center font-medium">Acciones</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -65,8 +65,8 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
                       {{ location.isActive ? 'Activa' : 'Inactiva' }}
                     </button>
                   </td>
-                  <td class="px-4 py-3">
-                    <div class="flex gap-2">
+                  <td class="w-44 px-4 py-3 text-right">
+                    <div class="flex justify-end gap-2">
                       <a [routerLink]="['/locations', location._id, 'edit']" class="btn-secondary text-xs">Editar</a>
                       <button type="button" (click)="remove(location)" [disabled]="busyId() === location._id" class="btn-danger text-xs">
                         Eliminar

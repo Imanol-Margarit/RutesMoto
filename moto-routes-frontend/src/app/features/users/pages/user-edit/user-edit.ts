@@ -8,11 +8,12 @@ import { UsersService } from '../../../../core/services/users.service';
 import { UsersStore } from '../../../../core/stores/users.store';
 import { ErrorState } from '../../../../shared/components/error-state/error-state';
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
+import { ImagesManager } from '../../../../shared/components/images-manager/images-manager';
 import { UserForm } from '../../components/user-form/user-form';
 
 @Component({
   selector: 'app-user-edit',
-  imports: [UserForm, RouterLink, SkeletonLoader, ErrorState],
+  imports: [UserForm, RouterLink, SkeletonLoader, ErrorState, ImagesManager],
   template: `
     <section class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
       <header class="mb-8 flex items-center gap-3">
@@ -30,6 +31,10 @@ import { UserForm } from '../../components/user-form/user-form';
       } @else if (user(); as current) {
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <app-user-form [user]="current" [roles]="roles()" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
+        </div>
+
+        <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <app-images-manager [basePath]="'users/' + current._id + '/images'" />
         </div>
       }
     </section>

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { categoryController } from "../controllers/category.controller.js";
 import { validate } from "../middlewares/validation.middleware.js";
+import { createImageRoutes } from "./image.routes.js";
 import { slugParamsSchema, uuidParamsSchema } from "../schemas/common.schema.js";
 import { categorySchemas } from "../schemas/category.schema.js";
 
@@ -192,5 +193,10 @@ router.patch("/:id/deactivate", validate(uuidParamsSchema, "params"), categoryCo
  *         description: Categoría restaurada
  */
 router.patch("/:id/restore", validate(uuidParamsSchema, "params"), categoryController.restore);
+
+/**
+ * Imágenes de un category: /api/categorys/:id/images
+ */
+router.use("/:id/images", validate(uuidParamsSchema, "params"), createImageRoutes("category"));
 
 export default router;

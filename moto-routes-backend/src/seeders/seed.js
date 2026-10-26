@@ -2,6 +2,8 @@ import "dotenv/config";
 import fs from "node:fs";
 import { pool, closeDB } from "../config/db.js";
 import { generateSlug } from "../utils/slug.util.js";
+import { buildSku } from "../utils/sku.util.js";
+import { randomUUID } from "node:crypto";
 
 // Estructura de las tablas (sin datos).
 const schemaSql = fs.readFileSync(new URL("../../db/moto_routes_schema.sql", import.meta.url), "utf8");
@@ -155,7 +157,10 @@ async function seed() {
   for (const departure of departures) {
     const route = ROUTES[departure.route];
     const slug = generateSlug(route.title);
+    const departureId = randomUUID();
     await insert("departures", {
+      id: departureId,
+      sku: buildSku(routeIds[slug], `${departure.date}T${departure.start}:00+01:00`, departureId),
       ruta_id: routeIds[slug],
       slug: `${slug}-${departure.date}`,
       start_datetime: `${departure.date}T${departure.start}:00+01:00`,
@@ -177,6 +182,8 @@ async function seed() {
 seed()
   .catch((error) => {
     console.error("Error al ejecutar el seed:", error.message);
+    console.error(error);
+    console.error("code:", error?.code, "| detail:", error?.detail, "| where:", error?.where);
     process.exitCode = 1;
   })
   .finally(() => closeDB());

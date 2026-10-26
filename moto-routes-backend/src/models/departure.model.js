@@ -2,8 +2,10 @@
 export const departureModel = {
   table: "departures",
   columns: {
+    id: "id",
     routeId: "ruta_id",
     slug: "slug",
+    sku: "sku",
     startDatetime: "start_datetime",
     endDatetime: "end_datetime",
     capacity: "capacity",

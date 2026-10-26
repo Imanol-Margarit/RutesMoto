@@ -46,7 +46,7 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
             <tbody class="divide-y divide-slate-100">
               @for (departure of store.items(); track departure._id) {
                 <tr [class.bg-slate-100]="!departure.isActive" [class.text-slate-500]="!departure.isActive">
-                  <td class="px-4 py-3 font-medium">{{ departure.route?.title ?? 'Ruta no disponible' }}</td>
+                  <td class="px-4 py-3 font-medium">{{ departure.route?.title ?? 'Ruta no disponible' }}<span class="block text-xs text-slate-400">{{ departure.sku }}</span></td>
                   <td class="px-4 py-3">{{ formatDate(departure.startDatetime) }}</td>
                   <td class="px-4 py-3">{{ formatDate(departure.endDatetime) }}</td>
                   <td class="px-4 py-3">{{ departure.bookedParticipants }} / {{ departure.capacity }}</td>

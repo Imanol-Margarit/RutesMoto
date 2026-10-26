@@ -9,6 +9,7 @@ const CONSTRAINT_MESSAGES = {
   locations_slug_key: "Ya existe una localización con esa ciudad y país",
   rutas_slug_key: "Ya existe una ruta con ese título",
   departures_slug_key: "Ya existe una salida con esos datos",
+  departures_sku_key: "Ya existe una salida con ese SKU",
   departures_dates_check: "La fecha de fin debe ser posterior a la de inicio",
   departures_booked_check: "Las plazas reservadas no pueden superar la capacidad"
 };

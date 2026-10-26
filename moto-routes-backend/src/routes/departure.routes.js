@@ -2,6 +2,7 @@ import { Router } from "express";
 import { departureController } from "../controllers/departure.controller.js";
 import { validate } from "../middlewares/validation.middleware.js";
 import { slugParamsSchema, uuidParamsSchema } from "../schemas/common.schema.js";
+import { departureSkuParamsSchema } from "../schemas/departure.schema.js";
 import { departureSchemas, departureStatusSchema } from "../schemas/departure.schema.js";
 
 const router = Router();
@@ -85,6 +86,7 @@ router.get("/deleted", departureController.listDeleted);
  *         $ref: '#/components/responses/NotFound'
  */
 router.get("/slug/:slug", validate(slugParamsSchema, "params"), departureController.getBySlug);
+router.get("/sku/:sku", validate(departureSkuParamsSchema, "params"), departureController.getBySku);
 
 /**
  * @swagger

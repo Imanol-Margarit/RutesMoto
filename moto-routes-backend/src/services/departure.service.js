@@ -1,4 +1,6 @@
+import { randomUUID } from "node:crypto";
 import { departureRepository } from "../repositories/departure.repository.js";
+import { buildSku } from "../utils/sku.util.js";
 import { routeRepository } from "../repositories/route.repository.js";
 import { AppError } from "../utils/app-error.js";
 import { generateSlug } from "../utils/slug.util.js";
@@ -50,9 +52,17 @@ export const departureService = {
     return departure;
   },
 
+  async getBySku(sku) {
+    const departure = await departureRepository.findBySku(sku);
+    if (!departure) throw notFound();
+    return departure;
+  },
+
   async create(payload) {
+    const id = randomUUID();
     const slug = await buildSlug(payload.routeId, payload.startDatetime);
-    return departureRepository.create({ ...payload, slug });
+    const sku = buildSku(payload.routeId, payload.startDatetime, id);
+    return departureRepository.create({ ...payload, id, slug, sku });
   },
 
   async update(id, payload) {
@@ -80,6 +90,14 @@ export const departureService = {
     const data = { ...payload };
     if (payload.routeId !== undefined || payload.startDatetime !== undefined) {
       data.slug = await buildSlug(
+        payload.routeId ?? current.routeId,
+        payload.startDatetime ?? current.startDatetime,
+        id
+      );
+    }
+
+    if (payload.routeId !== undefined || payload.startDatetime !== undefined) {
+      data.sku = buildSku(
         payload.routeId ?? current.routeId,
         payload.startDatetime ?? current.startDatetime,
         id

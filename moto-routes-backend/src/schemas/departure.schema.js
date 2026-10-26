@@ -47,3 +47,7 @@ export const departureStatusSchema = z
     status: enumField(DEPARTURE_STATUSES, "El estado debe ser: scheduled, full, cancelled o completed")
   })
   .strict(UNKNOWN_FIELDS_MESSAGE);
+
+export const departureSkuParamsSchema = z.object({
+  sku: z.string().trim().min(1, "El SKU es obligatorio")
+});

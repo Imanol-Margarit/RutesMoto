@@ -4,7 +4,7 @@ import { toColumns } from "../utils/sql.util.js";
 
 // Populate (con JOIN/subconsulta): la ruta a la que pertenece la salida.
 const SELECT_DEPARTURE = `
-  SELECT t.id AS "_id", t.ruta_id AS "routeId", t.slug,
+  SELECT t.id AS "_id", t.ruta_id AS "routeId", t.slug, t.sku,
          t.start_datetime AS "startDatetime", t.end_datetime AS "endDatetime",
          t.capacity, t.booked_participants AS "bookedParticipants", t.price,
          t.status, t.is_active AS "isActive",
@@ -36,6 +36,11 @@ export const departureRepository = {
 
   async findById(id) {
     const { rows } = await pool.query(`${SELECT_DEPARTURE} WHERE t.id = $1 AND t.deleted_at IS NULL`, [id]);
+    return toDeparture(rows[0]);
+  },
+
+  async findBySku(sku) {
+    const { rows } = await pool.query(`${SELECT_DEPARTURE} WHERE t.sku = $1 AND t.deleted_at IS NULL`, [sku]);
     return toDeparture(rows[0]);
   },
 

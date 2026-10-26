@@ -47,6 +47,15 @@ export const departureController = {
     }
   },
 
+  async getBySku(req, res, next) {
+    try {
+      const data = await departureService.getBySku(req.params.sku);
+      return respond(res, 200, "Salida obtenida correctamente", data);
+    } catch (error) {
+      return next(error);
+    }
+  },
+
   async getBySlug(req, res, next) {
     try {
       const data = await departureService.getBySlug(req.params.slug);

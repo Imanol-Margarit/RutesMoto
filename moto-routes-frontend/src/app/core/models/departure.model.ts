@@ -24,6 +24,7 @@ export interface Departure {
   _id: string;
   routeId: string;
   slug: string;
+  sku: string;
   startDatetime: string;
   endDatetime: string;
   capacity: number;

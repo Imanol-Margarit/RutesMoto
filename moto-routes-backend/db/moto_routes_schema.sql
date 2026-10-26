@@ -232,6 +232,8 @@ CREATE TABLE departures (
 
     slug VARCHAR(200) NOT NULL,
 
+    sku VARCHAR(40) NOT NULL UNIQUE,
+
     start_datetime TIMESTAMPTZ NOT NULL,
     end_datetime TIMESTAMPTZ NOT NULL,
 

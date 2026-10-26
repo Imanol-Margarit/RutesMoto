@@ -48,6 +48,10 @@ export class DeparturesService {
     return this.api.get<ApiResponse<Departure[]>>('departures/deleted');
   }
 
+  getBySku(sku: string): Promise<ApiResponse<Departure>> {
+    return this.api.get<ApiResponse<Departure>>(`departures/sku/${encodeURIComponent(sku)}`);
+  }
+
   getBySlug(slug: string): Promise<ApiResponse<Departure>> {
     return this.api.get<ApiResponse<Departure>>(`departures/slug/${encodeURIComponent(slug)}`);
   }

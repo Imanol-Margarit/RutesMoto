@@ -182,8 +182,6 @@ async function seed() {
 seed()
   .catch((error) => {
     console.error("Error al ejecutar el seed:", error.message);
-    console.error(error);
-    console.error("code:", error?.code, "| detail:", error?.detail, "| where:", error?.where);
     process.exitCode = 1;
   })
   .finally(() => closeDB());

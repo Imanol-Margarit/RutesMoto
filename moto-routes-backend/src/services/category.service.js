@@ -1,4 +1,5 @@
 import { categoryRepository } from "../repositories/category.repository.js";
+import { routeRepository } from "../repositories/route.repository.js";
 import { AppError } from "../utils/app-error.js";
 import { generateSlug } from "../utils/slug.util.js";
 
@@ -15,6 +16,12 @@ async function uniqueSlug(name, excludeId = null) {
 }
 
 const notFound = () => new AppError("Categoría no encontrada", 404);
+
+async function validateCanDeactivateCategory(categoryId) {
+  if (await routeRepository.hasRoutesForCategory(categoryId)) {
+    throw new AppError("No puedes desactivar ni borrar una categoría con rutas asociadas", 409);
+  }
+}
 
 export const categoryService = {
   async list() {
@@ -51,6 +58,7 @@ export const categoryService = {
   },
 
   async update(id, payload) {
+    if (payload.isActive === false) await validateCanDeactivateCategory(id);
     // 1. Validar el id
     if (typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
       throw new AppError("El id debe ser un UUID válido", 400);
@@ -73,12 +81,14 @@ export const categoryService = {
   },
 
   async setActive(id, isActive) {
+    if (!isActive) await validateCanDeactivateCategory(id);
     const updated = await categoryRepository.update(id, { isActive });
     if (!updated) throw notFound();
     return updated;
   },
 
   async remove(id) {
+    await validateCanDeactivateCategory(id);
     const removed = await categoryRepository.softDelete(id);
     if (!removed) throw notFound();
     return removed;

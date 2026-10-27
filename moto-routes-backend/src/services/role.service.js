@@ -1,4 +1,5 @@
 import { roleRepository } from "../repositories/role.repository.js";
+import { userRepository } from "../repositories/user.repository.js";
 import { AppError } from "../utils/app-error.js";
 import { generateSlug } from "../utils/slug.util.js";
 
@@ -15,6 +16,12 @@ async function uniqueSlug(name, excludeId = null) {
 }
 
 const notFound = () => new AppError("Rol no encontrado", 404);
+
+async function validateCanDeactivateRole(roleId) {
+  if (await userRepository.hasUsersForRole(roleId)) {
+    throw new AppError("No puedes desactivar ni borrar un rol con usuarios asignados", 409);
+  }
+}
 
 export const roleService = {
   async list() {
@@ -60,6 +67,8 @@ export const roleService = {
     const current = await roleRepository.findById(id);
     if (!current) throw notFound();
 
+    if (payload.isActive === false) await validateCanDeactivateRole(id);
+
     // 3. Preparar los datos: el slug solo cambia si cambia el nombre
     const data = { ...payload };
     if (payload.name !== undefined) {
@@ -73,12 +82,14 @@ export const roleService = {
   },
 
   async setActive(id, isActive) {
+    if (!isActive) await validateCanDeactivateRole(id);
     const updated = await roleRepository.update(id, { isActive });
     if (!updated) throw notFound();
     return updated;
   },
 
   async remove(id) {
+    await validateCanDeactivateRole(id);
     const removed = await roleRepository.softDelete(id);
     if (!removed) throw notFound();
     return removed;

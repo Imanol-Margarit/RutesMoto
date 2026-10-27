@@ -11,7 +11,7 @@ const definition = {
   tags: [
     { name: "Sistema", description: "Estado de la API" },
     { name: "Rutas", description: "Rutas de moto" },
-    { name: "Imágenes de rutas", description: "Imágenes asociadas a una ruta" },
+    { name: "Imágenes", description: "Imágenes de rutas, guías, categorías, localizaciones y usuarios" },
     { name: "Salidas", description: "Salidas programadas de una ruta" },
     { name: "Guías", description: "Guías que organizan las rutas" },
     { name: "Categorías", description: "Tipos de ruta: curvas, paisaje, off-road..." },
@@ -238,6 +238,80 @@ const definition = {
           isActive: { type: "boolean" }
         }
       },
+      Category: {
+        type: "object",
+        properties: {
+          _id: { type: "string", format: "uuid" },
+          name: { type: "string", example: "Curvas" },
+          slug: { type: "string", example: "curvas" },
+          description: { type: "string", nullable: true },
+          isActive: { type: "boolean" },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
+          deletedAt: { type: "string", format: "date-time", nullable: true }
+        }
+      },
+      Location: {
+        type: "object",
+        properties: {
+          _id: { type: "string", format: "uuid" },
+          city: { type: "string", example: "Oviedo" },
+          region: { type: "string", nullable: true, example: "Asturias" },
+          country: { type: "string", example: "España" },
+          slug: { type: "string", example: "oviedo-espana" },
+          address: { type: "string", nullable: true },
+          postalCode: { type: "string", nullable: true },
+          latitude: { type: "number", nullable: true },
+          longitude: { type: "number", nullable: true },
+          status: { type: "string", enum: ["active", "inactive"] },
+          isActive: { type: "boolean" },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
+          deletedAt: { type: "string", format: "date-time", nullable: true }
+        }
+      },
+      User: {
+        type: "object",
+        description: "Nunca incluye la contraseña",
+        properties: {
+          _id: { type: "string", format: "uuid" },
+          roleId: { type: "string", format: "uuid" },
+          firstName: { type: "string", example: "Marcos" },
+          lastName: { type: "string", example: "Motero" },
+          email: { type: "string", format: "email" },
+          avatarUrl: { type: "string", nullable: true },
+          isActive: { type: "boolean" },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
+          deletedAt: { type: "string", format: "date-time", nullable: true }
+        }
+      },
+      Role: {
+        type: "object",
+        properties: {
+          _id: { type: "string", format: "uuid" },
+          name: { type: "string", example: "host" },
+          slug: { type: "string", example: "host" },
+          description: { type: "string", nullable: true },
+          isActive: { type: "boolean" },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
+          deletedAt: { type: "string", format: "date-time", nullable: true }
+        }
+      },
+      EntityImage: {
+        type: "object",
+        description: "Imagen de cualquier entidad (las rutas usan la misma forma)",
+        properties: {
+          _id: { type: "string", format: "uuid" },
+          parentId: { type: "string", format: "uuid", description: "Id de la entidad a la que pertenece" },
+          imageUrl: { type: "string", format: "uri" },
+          altText: { type: "string", nullable: true },
+          position: { type: "integer", example: 0 },
+          isCover: { type: "boolean", description: "Imagen principal (solo una por entidad)" },
+          createdAt: { type: "string", format: "date-time" }
+        }
+      },
       Error: {
         type: "object",
         properties: {
@@ -257,6 +331,12 @@ const definition = {
       }
     },
     parameters: {
+      HostId: { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" }, description: "Id del guía" },
+      CategoryId: { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" }, description: "Id de la categoría" },
+      LocationId: { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" }, description: "Id de la localización" },
+      UserId: { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" }, description: "Id del usuario" },
+      RoleId: { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" }, description: "Id del rol" },
+      Sku: { name: "sku", in: "path", required: true, schema: { type: "string" }, description: "SKU de la salida (DEPARTURE-...)" },
       RouteId: { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" }, description: "Id de la ruta" },
       DepartureId: { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" }, description: "Id de la salida" },
       ImageId: { name: "imageId", in: "path", required: true, schema: { type: "string", format: "uuid" }, description: "Id de la imagen" },

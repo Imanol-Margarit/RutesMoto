@@ -1,4 +1,5 @@
 import { locationRepository } from "../repositories/location.repository.js";
+import { routeRepository } from "../repositories/route.repository.js";
 import { AppError } from "../utils/app-error.js";
 import { generateSlug } from "../utils/slug.util.js";
 
@@ -17,6 +18,12 @@ async function uniqueSlug(text, excludeId = null) {
 }
 
 const notFound = () => new AppError("Localización no encontrada", 404);
+
+async function validateCanDeactivateLocation(locationId) {
+  if (await routeRepository.hasRoutesForLocation(locationId)) {
+    throw new AppError("No puedes desactivar ni borrar una localización con rutas asociadas", 409);
+  }
+}
 
 export const locationService = {
   async list() {
@@ -53,6 +60,7 @@ export const locationService = {
   },
 
   async update(id, payload) {
+    if (payload.isActive === false) await validateCanDeactivateLocation(id);
     // 1. Validar el id
     if (typeof id !== "string" || !UUID_REGEX.test(id)) {
       throw new AppError("El id debe ser un UUID válido", 400);
@@ -76,6 +84,7 @@ export const locationService = {
   },
 
   async setActive(id, isActive) {
+    if (!isActive) await validateCanDeactivateLocation(id);
     const updated = await locationRepository.update(id, { isActive });
     if (!updated) throw notFound();
     return updated;
@@ -91,6 +100,7 @@ export const locationService = {
   },
 
   async remove(id) {
+    await validateCanDeactivateLocation(id);
     const removed = await locationRepository.softDelete(id);
     if (!removed) throw notFound();
     return removed;

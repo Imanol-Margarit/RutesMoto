@@ -34,6 +34,16 @@ export const departureRepository = {
     return rows.map(toDeparture);
   },
 
+  // Salidas que aún no han terminado (no canceladas y con fin posterior a ahora).
+  async hasOpenForRoute(routeId) {
+    const { rowCount } = await pool.query(
+      `SELECT 1 FROM departures WHERE ruta_id = $1 AND deleted_at IS NULL
+       AND status <> 'cancelled' AND end_datetime > NOW() LIMIT 1`,
+      [routeId]
+    );
+    return rowCount > 0;
+  },
+
   async findById(id) {
     const { rows } = await pool.query(`${SELECT_DEPARTURE} WHERE t.id = $1 AND t.deleted_at IS NULL`, [id]);
     return toDeparture(rows[0]);

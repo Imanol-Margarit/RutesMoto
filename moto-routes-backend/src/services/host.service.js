@@ -1,4 +1,6 @@
 import { hostRepository } from "../repositories/host.repository.js";
+import { userRepository } from "../repositories/user.repository.js";
+import { routeRepository } from "../repositories/route.repository.js";
 import { AppError } from "../utils/app-error.js";
 import { generateSlug } from "../utils/slug.util.js";
 
@@ -15,6 +17,18 @@ async function uniqueSlug(name, excludeId = null) {
 }
 
 const notFound = () => new AppError("Guía no encontrada", 404);
+
+async function validateUserExists(userId) {
+  if (userId && !(await userRepository.findById(userId))) {
+    throw new AppError("El usuario indicado no existe o está borrado", 400);
+  }
+}
+
+async function validateCanDeactivateHost(hostId) {
+  if (await routeRepository.hasRoutesForHost(hostId)) {
+    throw new AppError("No puedes desactivar ni borrar una guía con rutas asociadas", 409);
+  }
+}
 
 export const hostService = {
   async list() {
@@ -46,11 +60,13 @@ export const hostService = {
   },
 
   async create(payload) {
+    await validateUserExists(payload.userId);
     const slug = await uniqueSlug(payload.name);
     return hostRepository.create({ ...payload, slug });
   },
 
   async update(id, payload) {
+    if (payload.isActive === false) await validateCanDeactivateHost(id);
     // 1. Validar el id
     if (typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
       throw new AppError("El id debe ser un UUID válido", 400);
@@ -73,6 +89,7 @@ export const hostService = {
   },
 
   async setActive(id, isActive) {
+    if (!isActive) await validateCanDeactivateHost(id);
     const updated = await hostRepository.update(id, { isActive });
     if (!updated) throw notFound();
     return updated;
@@ -88,6 +105,7 @@ export const hostService = {
   },
 
   async remove(id) {
+    await validateCanDeactivateHost(id);
     const removed = await hostRepository.softDelete(id);
     if (!removed) throw notFound();
     return removed;

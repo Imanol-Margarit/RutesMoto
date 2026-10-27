@@ -26,6 +26,11 @@ export const hostRepository = {
     return rows;
   },
 
+  async hasHostForUser(userId) {
+    const { rowCount } = await pool.query("SELECT 1 FROM hosts WHERE user_id = $1 AND deleted_at IS NULL LIMIT 1", [userId]);
+    return rowCount > 0;
+  },
+
   async findById(id) {
     const { rows } = await pool.query(`${SELECT_HOST} WHERE t.id = $1 AND t.deleted_at IS NULL`, [id]);
     return rows[0] ?? null;

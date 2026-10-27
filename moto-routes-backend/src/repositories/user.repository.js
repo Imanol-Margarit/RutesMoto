@@ -26,6 +26,11 @@ export const userRepository = {
     return rows;
   },
 
+  async hasUsersForRole(roleId) {
+    const { rowCount } = await pool.query("SELECT 1 FROM users WHERE role_id = $1 AND deleted_at IS NULL LIMIT 1", [roleId]);
+    return rowCount > 0;
+  },
+
   async findById(id) {
     const { rows } = await pool.query(`${SELECT_USER} WHERE t.id = $1 AND t.deleted_at IS NULL`, [id]);
     return rows[0] ?? null;

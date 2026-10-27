@@ -33,6 +33,21 @@ export const routeRepository = {
     return rows.map(toRoute);
   },
 
+  async hasRoutesForHost(hostId) {
+    const { rowCount } = await pool.query("SELECT 1 FROM rutas WHERE host_id = $1 AND deleted_at IS NULL LIMIT 1", [hostId]);
+    return rowCount > 0;
+  },
+
+  async hasRoutesForCategory(categoryId) {
+    const { rowCount } = await pool.query("SELECT 1 FROM rutas WHERE category_id = $1 AND deleted_at IS NULL LIMIT 1", [categoryId]);
+    return rowCount > 0;
+  },
+
+  async hasRoutesForLocation(locationId) {
+    const { rowCount } = await pool.query("SELECT 1 FROM rutas WHERE location_id = $1 AND deleted_at IS NULL LIMIT 1", [locationId]);
+    return rowCount > 0;
+  },
+
   async findById(id) {
     const { rows } = await pool.query(`${SELECT_ROUTE} WHERE t.id = $1 AND t.deleted_at IS NULL`, [id]);
     return toRoute(rows[0]);

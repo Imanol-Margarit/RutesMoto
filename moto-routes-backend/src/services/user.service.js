@@ -1,4 +1,6 @@
 import { userRepository } from "../repositories/user.repository.js";
+import { roleRepository } from "../repositories/role.repository.js";
+import { hostRepository } from "../repositories/host.repository.js";
 import { AppError } from "../utils/app-error.js";
 import { hashPassword } from "../utils/password.util.js";
 
@@ -10,6 +12,18 @@ async function withPasswordHash(payload) {
   const { password, ...rest } = payload;
   if (password === undefined) return rest;
   return { ...rest, passwordHash: await hashPassword(password) };
+}
+
+async function validateRoleExists(roleId) {
+  if (roleId && !(await roleRepository.findById(roleId))) {
+    throw new AppError("El rol indicado no existe o está borrado", 400);
+  }
+}
+
+async function validateCanDeactivateUser(userId) {
+  if (await hostRepository.hasHostForUser(userId)) {
+    throw new AppError("No puedes desactivar ni borrar un usuario que es guía", 409);
+  }
 }
 
 export const userService = {
@@ -36,11 +50,13 @@ export const userService = {
   },
 
   async create(payload) {
+    await validateRoleExists(payload.roleId);
     const data = await withPasswordHash(payload);
     return userRepository.create(data);
   },
 
   async update(id, payload) {
+    await validateRoleExists(payload.roleId);
     // 1. Validar el id
     if (typeof id !== "string" || !UUID_REGEX.test(id)) {
       throw new AppError("El id debe ser un UUID válido", 400);
@@ -49,6 +65,8 @@ export const userService = {
     // 2. Buscar el usuario
     const current = await userRepository.findById(id);
     if (!current) throw notFound();
+
+    if (payload.isActive === false) await validateCanDeactivateUser(id);
 
     // 3. Preparar los datos (la contraseña solo se cambia si llega)
     const data = await withPasswordHash(payload);
@@ -60,12 +78,14 @@ export const userService = {
   },
 
   async setActive(id, isActive) {
+    if (!isActive) await validateCanDeactivateUser(id);
     const updated = await userRepository.update(id, { isActive });
     if (!updated) throw notFound();
     return updated;
   },
 
   async remove(id) {
+    await validateCanDeactivateUser(id);
     const removed = await userRepository.softDelete(id);
     if (!removed) throw notFound();
     return removed;

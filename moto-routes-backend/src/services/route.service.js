@@ -1,6 +1,10 @@
 import { routeRepository } from "../repositories/route.repository.js";
 import { AppError } from "../utils/app-error.js";
 import { generateSlug } from "../utils/slug.util.js";
+import { hostRepository } from "../repositories/host.repository.js";
+import { categoryRepository } from "../repositories/category.repository.js";
+import { locationRepository } from "../repositories/location.repository.js";
+import { departureRepository } from "../repositories/departure.repository.js";
 
 // Slug único a partir del título. Si ya existe, añade -2, -3...
 async function uniqueSlug(title, excludeId = null) {
@@ -15,6 +19,24 @@ async function uniqueSlug(title, excludeId = null) {
 }
 
 const notFound = () => new AppError("Ruta no encontrada", 404);
+
+async function validateRouteRefs(data) {
+  if (data.hostId && !(await hostRepository.findById(data.hostId))) {
+    throw new AppError("El guía indicado no existe o está borrado", 400);
+  }
+  if (data.categoryId && !(await categoryRepository.findById(data.categoryId))) {
+    throw new AppError("La categoría indicada no existe o está borrada", 400);
+  }
+  if (data.locationId && !(await locationRepository.findById(data.locationId))) {
+    throw new AppError("La localización indicada no existe o está borrada", 400);
+  }
+}
+
+async function validateCanDeactivateRoute(routeId) {
+  if (await departureRepository.hasOpenForRoute(routeId)) {
+    throw new AppError("No puedes desactivar ni borrar una ruta con salidas que aún no han terminado", 409);
+  }
+}
 
 export const routeService = {
   async list() {
@@ -46,11 +68,14 @@ export const routeService = {
   },
 
   async create(payload) {
+    await validateRouteRefs(payload);
     const slug = await uniqueSlug(payload.title);
     return routeRepository.create({ ...payload, slug });
   },
 
   async update(id, payload) {
+    await validateRouteRefs(payload);
+    if (payload.isActive === false) await validateCanDeactivateRoute(id);
     //validateID
     if (typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
       throw new AppError("El id debe ser un UUID válido", 400);
@@ -77,12 +102,14 @@ export const routeService = {
   },
 
   async setActive(id, isActive) {
+    if (!isActive) await validateCanDeactivateRoute(id);
     const updated = await routeRepository.update(id, { isActive });
     if (!updated) throw notFound();
     return updated;
   },
 
   async remove(id) {
+    await validateCanDeactivateRoute(id);
     const removed = await routeRepository.softDelete(id);
     if (!removed) throw notFound();
     return removed;

@@ -1,5 +1,6 @@
 import { userRepository } from "../repositories/user.repository.js";
 import { roleRepository } from "../repositories/role.repository.js";
+import { revokedTokenRepository } from "../repositories/revoked-token.repository.js";
 import { AppError } from "../utils/app-error.js";
 import { createToken } from "../utils/jwt.util.js";
 import { verifyPassword } from "../utils/password.util.js";
@@ -26,5 +27,10 @@ export const authService = {
       expiresIn: process.env.JWT_EXPIRES_IN || "1h",
       user: { _id: user._id, email: user.email, role: roleName }
     };
+  },
+
+  // Revoca el token actual: se guarda en PostgreSQL hasta su caducidad.
+  async logout(auth) {
+    await revokedTokenRepository.revoke(auth.jti, auth.sub, new Date(auth.exp * 1000));
   }
 };

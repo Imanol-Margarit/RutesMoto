@@ -1,4 +1,5 @@
 import { userRepository } from "../repositories/user.repository.js";
+import { profileRepository } from "../repositories/profile.repository.js";
 import { roleRepository } from "../repositories/role.repository.js";
 import { hostRepository } from "../repositories/host.repository.js";
 import { AppError } from "../utils/app-error.js";
@@ -52,7 +53,9 @@ export const userService = {
   async create(payload) {
     await validateRoleExists(payload.roleId);
     const data = await withPasswordHash(payload);
-    return userRepository.create(data);
+    const user = await userRepository.create(data);
+    await profileRepository.create(user._id);
+    return user;
   },
 
   async update(id, payload) {

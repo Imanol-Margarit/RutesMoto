@@ -5,6 +5,7 @@ import { slugParamsSchema, uuidParamsSchema } from "../schemas/common.schema.js"
 import { routeSchemas, routeStatusSchema } from "../schemas/route.schema.js";
 import { createImageRoutes } from "./image.routes.js";
 import { authenticate } from "../middlewares/authentication.middleware.js";
+import { requireWriter } from "../middlewares/authorization.middleware.js";
 
 const router = Router();
 
@@ -41,7 +42,7 @@ const router = Router();
  */
 // Las rutas fijas van antes de "/:id": si no, Express tomaría "active" como id.
 router.get("/", routeController.list);
-router.post("/", authenticate, validate(routeSchemas.create), routeController.create);
+router.post("/", authenticate, requireWriter, validate(routeSchemas.create), routeController.create);
 
 /**
  * @swagger
@@ -139,8 +140,8 @@ router.get("/slug/:slug", validate(slugParamsSchema, "params"), routeController.
  *         $ref: '#/components/responses/NotFound'
  */
 router.get("/:id", validate(uuidParamsSchema, "params"), routeController.getById);
-router.patch("/:id", authenticate, validate(uuidParamsSchema, "params"), validate(routeSchemas.update), routeController.update);
-router.delete("/:id", authenticate, validate(uuidParamsSchema, "params"), routeController.remove);
+router.patch("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), validate(routeSchemas.update), routeController.update);
+router.delete("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), routeController.remove);
 
 /**
  * @swagger
@@ -161,7 +162,7 @@ router.delete("/:id", authenticate, validate(uuidParamsSchema, "params"), routeC
  *       400:
  *         $ref: '#/components/responses/ValidationError'
  */
-router.patch("/:id/status", authenticate, validate(uuidParamsSchema, "params"), validate(routeStatusSchema), routeController.setStatus);
+router.patch("/:id/status", authenticate, requireWriter, validate(uuidParamsSchema, "params"), validate(routeStatusSchema), routeController.setStatus);
 
 /**
  * @swagger
@@ -177,7 +178,7 @@ router.patch("/:id/status", authenticate, validate(uuidParamsSchema, "params"), 
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.patch("/:id/activate", authenticate, validate(uuidParamsSchema, "params"), routeController.activate);
+router.patch("/:id/activate", authenticate, requireWriter, validate(uuidParamsSchema, "params"), routeController.activate);
 
 /**
  * @swagger
@@ -193,7 +194,7 @@ router.patch("/:id/activate", authenticate, validate(uuidParamsSchema, "params")
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.patch("/:id/deactivate", authenticate, validate(uuidParamsSchema, "params"), routeController.deactivate);
+router.patch("/:id/deactivate", authenticate, requireWriter, validate(uuidParamsSchema, "params"), routeController.deactivate);
 
 /**
  * @swagger
@@ -209,7 +210,7 @@ router.patch("/:id/deactivate", authenticate, validate(uuidParamsSchema, "params
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.patch("/:id/restore", authenticate, validate(uuidParamsSchema, "params"), routeController.restore);
+router.patch("/:id/restore", authenticate, requireWriter, validate(uuidParamsSchema, "params"), routeController.restore);
 
 // Imágenes de una ruta: /api/routes/{id}/images (ver image.routes.js)
 router.use("/:id/images", validate(uuidParamsSchema, "params"), createImageRoutes("route"));

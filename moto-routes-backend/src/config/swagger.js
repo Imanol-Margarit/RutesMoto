@@ -20,6 +20,9 @@ const definition = {
     { name: "Roles", description: "Roles de usuario" }
   ],
   components: {
+    securitySchemes: {
+      bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" }
+    },
     schemas: {
       Route: {
         type: "object",

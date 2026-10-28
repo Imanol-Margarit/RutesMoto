@@ -13,8 +13,5 @@ export function authorizeRoles(...allowedRoles) {
   };
 }
 
-/** Lecturas: cualquier usuario autenticado. Escrituras (POST, PATCH, DELETE): solo admin. */
-export function authorizeAdminForWrites(req, res, next) {
-  if (req.method === "GET") return next();
-  return authorizeRoles("admin")(req, res, next);
-}
+/** Escrituras (POST, PATCH, DELETE): admin y host. El rol user solo puede leer. */
+export const requireWriter = authorizeRoles("admin", "host");

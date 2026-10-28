@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import jwt from "jsonwebtoken";
 import { AppError } from "./app-error.js";
 
@@ -10,7 +11,7 @@ function getSecret() {
 
 /** create_token: firma un token con email, rol e identificador de usuario. */
 export function createToken({ sub, email, role }) {
-  return jwt.sign({ sub, email, role }, getSecret(), {
+  return jwt.sign({ sub, email, role, jti: randomUUID() }, getSecret(), {
     expiresIn: process.env.JWT_EXPIRES_IN || "1h"
   });
 }

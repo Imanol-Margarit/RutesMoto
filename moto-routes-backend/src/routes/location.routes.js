@@ -5,6 +5,7 @@ import { createImageRoutes } from "./image.routes.js";
 import { slugParamsSchema, uuidParamsSchema } from "../schemas/common.schema.js";
 import { locationSchemas, locationStatusSchema } from "../schemas/location.schema.js";
 import { authenticate } from "../middlewares/authentication.middleware.js";
+import { requireWriter } from "../middlewares/authorization.middleware.js";
 
 const router = Router();
 
@@ -33,7 +34,7 @@ const router = Router();
  */
 // Las rutas fijas van antes de "/:id": si no, Express tomaría "active" como id.
 router.get("/", locationController.list);
-router.post("/", authenticate, validate(locationSchemas.create), locationController.create);
+router.post("/", authenticate, requireWriter, validate(locationSchemas.create), locationController.create);
 
 /**
  * @swagger
@@ -141,8 +142,8 @@ router.get("/slug/:slug", validate(slugParamsSchema, "params"), locationControll
  *         $ref: '#/components/responses/NotFound'
  */
 router.get("/:id", validate(uuidParamsSchema, "params"), locationController.getById);
-router.patch("/:id", authenticate, validate(uuidParamsSchema, "params"), validate(locationSchemas.update), locationController.update);
-router.delete("/:id", authenticate, validate(uuidParamsSchema, "params"), locationController.remove);
+router.patch("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), validate(locationSchemas.update), locationController.update);
+router.delete("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), locationController.remove);
 
 /**
  * @swagger
@@ -170,7 +171,7 @@ router.delete("/:id", authenticate, validate(uuidParamsSchema, "params"), locati
  *       400:
  *         $ref: '#/components/responses/ValidationError'
  */
-router.patch("/:id/status", authenticate, validate(uuidParamsSchema, "params"), validate(locationStatusSchema), locationController.setStatus);
+router.patch("/:id/status", authenticate, requireWriter, validate(uuidParamsSchema, "params"), validate(locationStatusSchema), locationController.setStatus);
 
 /**
  * @swagger
@@ -187,7 +188,7 @@ router.patch("/:id/status", authenticate, validate(uuidParamsSchema, "params"), 
  *       200:
  *         description: Localización activada
  */
-router.patch("/:id/activate", authenticate, validate(uuidParamsSchema, "params"), locationController.activate);
+router.patch("/:id/activate", authenticate, requireWriter, validate(uuidParamsSchema, "params"), locationController.activate);
 
 /**
  * @swagger
@@ -204,7 +205,7 @@ router.patch("/:id/activate", authenticate, validate(uuidParamsSchema, "params")
  *       200:
  *         description: Localización desactivada
  */
-router.patch("/:id/deactivate", authenticate, validate(uuidParamsSchema, "params"), locationController.deactivate);
+router.patch("/:id/deactivate", authenticate, requireWriter, validate(uuidParamsSchema, "params"), locationController.deactivate);
 
 /**
  * @swagger
@@ -221,7 +222,7 @@ router.patch("/:id/deactivate", authenticate, validate(uuidParamsSchema, "params
  *       200:
  *         description: Localización restaurada
  */
-router.patch("/:id/restore", authenticate, validate(uuidParamsSchema, "params"), locationController.restore);
+router.patch("/:id/restore", authenticate, requireWriter, validate(uuidParamsSchema, "params"), locationController.restore);
 
 /**
  * Imágenes de un location: /api/locations/:id/images

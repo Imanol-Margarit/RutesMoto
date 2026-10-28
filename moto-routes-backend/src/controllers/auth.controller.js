@@ -9,5 +9,14 @@ export const authController = {
     } catch (error) {
       return next(error);
     }
+  },
+
+  async logout(req, res, next) {
+    try {
+      await authService.logout(req.auth);
+      return respond(res, 200, "Sesión cerrada correctamente", null);
+    } catch (error) {
+      return next(error);
+    }
   }
 };

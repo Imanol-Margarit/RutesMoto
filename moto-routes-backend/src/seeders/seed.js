@@ -90,6 +90,7 @@ async function seed() {
   const userIds = {};
   for (const [key, user] of Object.entries(users)) {
     userIds[key] = await insert("users", user);
+    await insert("profiles", { user_id: userIds[key], phone: "+34 600 000 000", bio: `Perfil de ${user.first_name} ${user.last_name}`, avatar_url: user.avatar_url ?? null });
     await insert("users_images", { user_id: userIds[key], image_url: picsum(`user-${key}`, 200, 200), alt_text: `Foto de ${user.first_name} ${user.last_name}`, is_primary: true, sort_order: 0 });
   }
 

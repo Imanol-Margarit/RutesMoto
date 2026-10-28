@@ -5,6 +5,7 @@ import { createImageRoutes } from "./image.routes.js";
 import { uuidParamsSchema } from "../schemas/common.schema.js";
 import { userSchemas } from "../schemas/user.schema.js";
 import { authenticate } from "../middlewares/authentication.middleware.js";
+import { requireWriter } from "../middlewares/authorization.middleware.js";
 
 const router = Router();
 
@@ -33,7 +34,7 @@ const router = Router();
  */
 // Las rutas fijas van antes de "/:id": si no, Express tomaría "active" como id.
 router.get("/", userController.list);
-router.post("/", authenticate, validate(userSchemas.create), userController.create);
+router.post("/", authenticate, requireWriter, validate(userSchemas.create), userController.create);
 
 /**
  * @swagger
@@ -122,8 +123,8 @@ router.get("/deleted", userController.listDeleted);
  *         $ref: '#/components/responses/NotFound'
  */
 router.get("/:id", validate(uuidParamsSchema, "params"), userController.getById);
-router.patch("/:id", authenticate, validate(uuidParamsSchema, "params"), validate(userSchemas.update), userController.update);
-router.delete("/:id", authenticate, validate(uuidParamsSchema, "params"), userController.remove);
+router.patch("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), validate(userSchemas.update), userController.update);
+router.delete("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), userController.remove);
 
 /**
  * @swagger
@@ -140,7 +141,7 @@ router.delete("/:id", authenticate, validate(uuidParamsSchema, "params"), userCo
  *       200:
  *         description: Usuario activado
  */
-router.patch("/:id/activate", authenticate, validate(uuidParamsSchema, "params"), userController.activate);
+router.patch("/:id/activate", authenticate, requireWriter, validate(uuidParamsSchema, "params"), userController.activate);
 
 /**
  * @swagger
@@ -157,7 +158,7 @@ router.patch("/:id/activate", authenticate, validate(uuidParamsSchema, "params")
  *       200:
  *         description: Usuario desactivado
  */
-router.patch("/:id/deactivate", authenticate, validate(uuidParamsSchema, "params"), userController.deactivate);
+router.patch("/:id/deactivate", authenticate, requireWriter, validate(uuidParamsSchema, "params"), userController.deactivate);
 
 /**
  * @swagger
@@ -174,7 +175,7 @@ router.patch("/:id/deactivate", authenticate, validate(uuidParamsSchema, "params
  *       200:
  *         description: Usuario restaurado
  */
-router.patch("/:id/restore", authenticate, validate(uuidParamsSchema, "params"), userController.restore);
+router.patch("/:id/restore", authenticate, requireWriter, validate(uuidParamsSchema, "params"), userController.restore);
 
 /**
  * Imágenes de un user: /api/users/:id/images

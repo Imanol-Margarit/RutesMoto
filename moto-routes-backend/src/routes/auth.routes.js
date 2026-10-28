@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authController } from "../controllers/auth.controller.js";
+import { authenticate } from "../middlewares/authentication.middleware.js";
 import { validate } from "../middlewares/validation.middleware.js";
 import { loginSchema } from "../schemas/auth.schema.js";
 
@@ -23,12 +24,28 @@ const router = Router();
  *               password: { type: string, example: Motoroutes123 }
  *     responses:
  *       200:
- *         description: Token JWT. Enviarlo en la cabecera Authorization: Bearer <token>
+ *         description: "Token JWT. Enviarlo en la cabecera Authorization: Bearer <token>"
  *       400:
  *         $ref: '#/components/responses/ValidationError'
  *       401:
  *         description: Email o contraseña incorrectos
  */
 router.post("/login", validate(loginSchema), authController.login);
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Cerrar sesión (revoca el token actual en el servidor)
+ *     tags: [Autenticación]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Sesión cerrada
+ *       401:
+ *         description: Token ausente, inválido, caducado o ya revocado
+ */
+router.post("/logout", authenticate, authController.logout);
 
 export default router;

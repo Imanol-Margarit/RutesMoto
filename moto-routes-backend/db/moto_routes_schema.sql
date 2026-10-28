@@ -388,3 +388,39 @@ CREATE INDEX idx_users_images_users ON users_images (user_id);
 CREATE UNIQUE INDEX uq_users_images_primary
     ON users_images (user_id)
     WHERE is_primary AND deleted_at IS NULL;
+
+-- Tokens JWT revocados en el logout (se borran cuando caducan).
+CREATE TABLE revoked_tokens (
+    jti UUID PRIMARY KEY,
+    user_id UUID NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_revoked_tokens_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_revoked_tokens_expires ON revoked_tokens (expires_at);
+
+-- Perfil de cada usuario (tabla propia, como en la referencia).
+CREATE TABLE profiles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    user_id UUID NOT NULL UNIQUE,
+
+    phone VARCHAR(30),
+    bio VARCHAR(2000),
+    avatar_url TEXT,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+
+    CONSTRAINT fk_profiles_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+

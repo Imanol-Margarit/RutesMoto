@@ -4,6 +4,7 @@ import { pool, closeDB } from "../config/db.js";
 import { generateSlug } from "../utils/slug.util.js";
 import { buildSku } from "../utils/sku.util.js";
 import { randomUUID } from "node:crypto";
+import { hashPassword } from "../utils/password.util.js";
 
 // Estructura de las tablas (sin datos).
 const schemaSql = fs.readFileSync(new URL("../../db/moto_routes_schema.sql", import.meta.url), "utf8");
@@ -79,10 +80,12 @@ async function seed() {
   }
 
   // USUARIOS (hash de marcador: el login se hará con scrypt cuando se monte la autenticación)
+  // Contraseña de ejemplo para los usuarios del seed: Motoroutes123
+  const passwordHash = await hashPassword("Motoroutes123");
   const users = {
-    admin: { role_id: roleIds.admin, first_name: "System", last_name: "Admin", email: "admin@motoroutes.local", password_hash: "PENDIENTE_HASH", avatar_url: picsum("admin", 200, 200), is_active: true },
-    lucia: { role_id: roleIds.host, first_name: "Lucía", last_name: "Ruta Norte", email: "lucia@motoroutes.local", password_hash: "PENDIENTE_HASH", avatar_url: picsum("lucia-user", 200, 200), is_active: true },
-    marcos: { role_id: roleIds.user, first_name: "Marcos", last_name: "Motero", email: "marcos@motoroutes.local", password_hash: "PENDIENTE_HASH", avatar_url: null, is_active: true }
+    admin: { role_id: roleIds.admin, first_name: "System", last_name: "Admin", email: "admin@motoroutes.local", password_hash: passwordHash, avatar_url: picsum("admin", 200, 200), is_active: true },
+    lucia: { role_id: roleIds.host, first_name: "Lucía", last_name: "Ruta Norte", email: "lucia@motoroutes.local", password_hash: passwordHash, avatar_url: picsum("lucia-user", 200, 200), is_active: true },
+    marcos: { role_id: roleIds.user, first_name: "Marcos", last_name: "Motero", email: "marcos@motoroutes.local", password_hash: passwordHash, avatar_url: null, is_active: true }
   };
   const userIds = {};
   for (const [key, user] of Object.entries(users)) {

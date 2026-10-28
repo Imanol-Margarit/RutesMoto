@@ -31,6 +31,14 @@ export const userRepository = {
     return rowCount > 0;
   },
 
+  // Solo para el login: devuelve el hash. Nunca se usa en las respuestas de la API.
+  async findAuthByEmail(email) {
+    const { rows } = await pool.query(
+      `SELECT t.id AS "_id", t.email, t.password_hash AS "passwordHash", t.role_id AS "roleId", t.is_active AS "isActive"
+       FROM users AS t WHERE LOWER(t.email) = LOWER($1) AND t.deleted_at IS NULL`, [email]);
+    return rows[0] ?? null;
+  },
+
   async findById(id) {
     const { rows } = await pool.query(`${SELECT_USER} WHERE t.id = $1 AND t.deleted_at IS NULL`, [id]);
     return rows[0] ?? null;

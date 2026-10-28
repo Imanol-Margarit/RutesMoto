@@ -4,6 +4,7 @@ import { validate } from "../middlewares/validation.middleware.js";
 import { slugParamsSchema, uuidParamsSchema } from "../schemas/common.schema.js";
 import { departureSkuParamsSchema } from "../schemas/departure.schema.js";
 import { departureSchemas, departureStatusSchema } from "../schemas/departure.schema.js";
+import { authenticate } from "../middlewares/authentication.middleware.js";
 
 const router = Router();
 
@@ -33,7 +34,7 @@ const router = Router();
  */
 // Las rutas fijas van antes de "/:id": si no, Express tomaría "active" como id.
 router.get("/", departureController.list);
-router.post("/", validate(departureSchemas.create), departureController.create);
+router.post("/", authenticate, validate(departureSchemas.create), departureController.create);
 
 /**
  * @swagger
@@ -132,10 +133,10 @@ router.get("/sku/:sku", validate(departureSkuParamsSchema, "params"), departureC
  *         $ref: '#/components/responses/NotFound'
  */
 router.get("/:id", validate(uuidParamsSchema, "params"), departureController.getById);
-router.patch("/:id", validate(uuidParamsSchema, "params"), validate(departureSchemas.update), departureController.update);
-router.patch("/:id/status", validate(uuidParamsSchema, "params"), validate(departureStatusSchema), departureController.setStatus);
+router.patch("/:id", authenticate, validate(uuidParamsSchema, "params"), validate(departureSchemas.update), departureController.update);
+router.patch("/:id/status", authenticate, validate(uuidParamsSchema, "params"), validate(departureStatusSchema), departureController.setStatus);
 
-router.delete("/:id", validate(uuidParamsSchema, "params"), departureController.remove);
+router.delete("/:id", authenticate, validate(uuidParamsSchema, "params"), departureController.remove);
 
 /**
  * @swagger
@@ -151,7 +152,7 @@ router.delete("/:id", validate(uuidParamsSchema, "params"), departureController.
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.patch("/:id/activate", validate(uuidParamsSchema, "params"), departureController.activate);
+router.patch("/:id/activate", authenticate, validate(uuidParamsSchema, "params"), departureController.activate);
 
 /**
  * @swagger
@@ -167,7 +168,7 @@ router.patch("/:id/activate", validate(uuidParamsSchema, "params"), departureCon
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.patch("/:id/deactivate", validate(uuidParamsSchema, "params"), departureController.deactivate);
+router.patch("/:id/deactivate", authenticate, validate(uuidParamsSchema, "params"), departureController.deactivate);
 
 /**
  * @swagger
@@ -183,6 +184,6 @@ router.patch("/:id/deactivate", validate(uuidParamsSchema, "params"), departureC
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.patch("/:id/restore", validate(uuidParamsSchema, "params"), departureController.restore);
+router.patch("/:id/restore", authenticate, validate(uuidParamsSchema, "params"), departureController.restore);
 
 export default router;

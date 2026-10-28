@@ -4,6 +4,7 @@ import { validate } from "../middlewares/validation.middleware.js";
 import { createImageRoutes } from "./image.routes.js";
 import { slugParamsSchema, uuidParamsSchema } from "../schemas/common.schema.js";
 import { categorySchemas } from "../schemas/category.schema.js";
+import { authenticate } from "../middlewares/authentication.middleware.js";
 
 const router = Router();
 
@@ -32,7 +33,7 @@ const router = Router();
  */
 // Las rutas fijas van antes de "/:id": si no, Express tomaría "active" como id.
 router.get("/", categoryController.list);
-router.post("/", validate(categorySchemas.create), categoryController.create);
+router.post("/", authenticate, validate(categorySchemas.create), categoryController.create);
 
 /**
  * @swagger
@@ -140,8 +141,8 @@ router.get("/slug/:slug", validate(slugParamsSchema, "params"), categoryControll
  *         $ref: '#/components/responses/NotFound'
  */
 router.get("/:id", validate(uuidParamsSchema, "params"), categoryController.getById);
-router.patch("/:id", validate(uuidParamsSchema, "params"), validate(categorySchemas.update), categoryController.update);
-router.delete("/:id", validate(uuidParamsSchema, "params"), categoryController.remove);
+router.patch("/:id", authenticate, validate(uuidParamsSchema, "params"), validate(categorySchemas.update), categoryController.update);
+router.delete("/:id", authenticate, validate(uuidParamsSchema, "params"), categoryController.remove);
 
 /**
  * @swagger
@@ -158,7 +159,7 @@ router.delete("/:id", validate(uuidParamsSchema, "params"), categoryController.r
  *       200:
  *         description: Categoría activada
  */
-router.patch("/:id/activate", validate(uuidParamsSchema, "params"), categoryController.activate);
+router.patch("/:id/activate", authenticate, validate(uuidParamsSchema, "params"), categoryController.activate);
 
 /**
  * @swagger
@@ -175,7 +176,7 @@ router.patch("/:id/activate", validate(uuidParamsSchema, "params"), categoryCont
  *       200:
  *         description: Categoría desactivada
  */
-router.patch("/:id/deactivate", validate(uuidParamsSchema, "params"), categoryController.deactivate);
+router.patch("/:id/deactivate", authenticate, validate(uuidParamsSchema, "params"), categoryController.deactivate);
 
 /**
  * @swagger
@@ -192,7 +193,7 @@ router.patch("/:id/deactivate", validate(uuidParamsSchema, "params"), categoryCo
  *       200:
  *         description: Categoría restaurada
  */
-router.patch("/:id/restore", validate(uuidParamsSchema, "params"), categoryController.restore);
+router.patch("/:id/restore", authenticate, validate(uuidParamsSchema, "params"), categoryController.restore);
 
 /**
  * Imágenes de un category: /api/categorys/:id/images

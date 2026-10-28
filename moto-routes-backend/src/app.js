@@ -11,6 +11,8 @@ import categoryRoutes from "./routes/category.routes.js";
 import locationRoutes from "./routes/location.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import roleRoutes from "./routes/role.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import profileRoutes from "./routes/profile.routes.js";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware.js";
 
 const app = express();
@@ -49,6 +51,8 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/locations", locationRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/profile", profileRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

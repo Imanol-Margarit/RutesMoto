@@ -4,6 +4,7 @@ import { validate } from "../middlewares/validation.middleware.js";
 import { createImageRoutes } from "./image.routes.js";
 import { slugParamsSchema, uuidParamsSchema } from "../schemas/common.schema.js";
 import { hostSchemas, hostStatusSchema } from "../schemas/host.schema.js";
+import { authenticate } from "../middlewares/authentication.middleware.js";
 
 const router = Router();
 
@@ -32,7 +33,7 @@ const router = Router();
  */
 // Las rutas fijas van antes de "/:id": si no, Express tomaría "active" como id.
 router.get("/", hostController.list);
-router.post("/", validate(hostSchemas.create), hostController.create);
+router.post("/", authenticate, validate(hostSchemas.create), hostController.create);
 
 /**
  * @swagger
@@ -140,8 +141,8 @@ router.get("/slug/:slug", validate(slugParamsSchema, "params"), hostController.g
  *         $ref: '#/components/responses/NotFound'
  */
 router.get("/:id", validate(uuidParamsSchema, "params"), hostController.getById);
-router.patch("/:id", validate(uuidParamsSchema, "params"), validate(hostSchemas.update), hostController.update);
-router.delete("/:id", validate(uuidParamsSchema, "params"), hostController.remove);
+router.patch("/:id", authenticate, validate(uuidParamsSchema, "params"), validate(hostSchemas.update), hostController.update);
+router.delete("/:id", authenticate, validate(uuidParamsSchema, "params"), hostController.remove);
 
 /**
  * @swagger
@@ -169,7 +170,7 @@ router.delete("/:id", validate(uuidParamsSchema, "params"), hostController.remov
  *       400:
  *         $ref: '#/components/responses/ValidationError'
  */
-router.patch("/:id/status", validate(uuidParamsSchema, "params"), validate(hostStatusSchema), hostController.setStatus);
+router.patch("/:id/status", authenticate, validate(uuidParamsSchema, "params"), validate(hostStatusSchema), hostController.setStatus);
 
 /**
  * @swagger
@@ -186,7 +187,7 @@ router.patch("/:id/status", validate(uuidParamsSchema, "params"), validate(hostS
  *       200:
  *         description: Guía activado
  */
-router.patch("/:id/activate", validate(uuidParamsSchema, "params"), hostController.activate);
+router.patch("/:id/activate", authenticate, validate(uuidParamsSchema, "params"), hostController.activate);
 
 /**
  * @swagger
@@ -203,7 +204,7 @@ router.patch("/:id/activate", validate(uuidParamsSchema, "params"), hostControll
  *       200:
  *         description: Guía desactivado
  */
-router.patch("/:id/deactivate", validate(uuidParamsSchema, "params"), hostController.deactivate);
+router.patch("/:id/deactivate", authenticate, validate(uuidParamsSchema, "params"), hostController.deactivate);
 
 /**
  * @swagger
@@ -220,7 +221,7 @@ router.patch("/:id/deactivate", validate(uuidParamsSchema, "params"), hostContro
  *       200:
  *         description: Guía restaurado
  */
-router.patch("/:id/restore", validate(uuidParamsSchema, "params"), hostController.restore);
+router.patch("/:id/restore", authenticate, validate(uuidParamsSchema, "params"), hostController.restore);
 
 /**
  * Imágenes de un host: /api/hosts/:id/images

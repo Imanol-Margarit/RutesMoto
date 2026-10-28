@@ -3,6 +3,7 @@ import { roleController } from "../controllers/role.controller.js";
 import { validate } from "../middlewares/validation.middleware.js";
 import { slugParamsSchema, uuidParamsSchema } from "../schemas/common.schema.js";
 import { roleSchemas } from "../schemas/role.schema.js";
+import { authenticate } from "../middlewares/authentication.middleware.js";
 
 const router = Router();
 
@@ -31,7 +32,7 @@ const router = Router();
  */
 // Las rutas fijas van antes de "/:id": si no, Express tomaría "active" como id.
 router.get("/", roleController.list);
-router.post("/", validate(roleSchemas.create), roleController.create);
+router.post("/", authenticate, validate(roleSchemas.create), roleController.create);
 
 /**
  * @swagger
@@ -139,8 +140,8 @@ router.get("/slug/:slug", validate(slugParamsSchema, "params"), roleController.g
  *         $ref: '#/components/responses/NotFound'
  */
 router.get("/:id", validate(uuidParamsSchema, "params"), roleController.getById);
-router.patch("/:id", validate(uuidParamsSchema, "params"), validate(roleSchemas.update), roleController.update);
-router.delete("/:id", validate(uuidParamsSchema, "params"), roleController.remove);
+router.patch("/:id", authenticate, validate(uuidParamsSchema, "params"), validate(roleSchemas.update), roleController.update);
+router.delete("/:id", authenticate, validate(uuidParamsSchema, "params"), roleController.remove);
 
 /**
  * @swagger
@@ -157,7 +158,7 @@ router.delete("/:id", validate(uuidParamsSchema, "params"), roleController.remov
  *       200:
  *         description: Rol activado
  */
-router.patch("/:id/activate", validate(uuidParamsSchema, "params"), roleController.activate);
+router.patch("/:id/activate", authenticate, validate(uuidParamsSchema, "params"), roleController.activate);
 
 /**
  * @swagger
@@ -174,7 +175,7 @@ router.patch("/:id/activate", validate(uuidParamsSchema, "params"), roleControll
  *       200:
  *         description: Rol desactivado
  */
-router.patch("/:id/deactivate", validate(uuidParamsSchema, "params"), roleController.deactivate);
+router.patch("/:id/deactivate", authenticate, validate(uuidParamsSchema, "params"), roleController.deactivate);
 
 /**
  * @swagger
@@ -191,6 +192,6 @@ router.patch("/:id/deactivate", validate(uuidParamsSchema, "params"), roleContro
  *       200:
  *         description: Rol restaurado
  */
-router.patch("/:id/restore", validate(uuidParamsSchema, "params"), roleController.restore);
+router.patch("/:id/restore", authenticate, validate(uuidParamsSchema, "params"), roleController.restore);
 
 export default router;

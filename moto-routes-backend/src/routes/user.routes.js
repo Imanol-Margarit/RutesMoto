@@ -33,7 +33,7 @@ const router = Router();
  *         $ref: '#/components/responses/ValidationError'
  */
 // Las rutas fijas van antes de "/:id": si no, Express tomaría "active" como id.
-router.get("/", userController.list);
+router.get("/", authenticate, requireWriter, userController.list);
 router.post("/", authenticate, requireWriter, validate(userSchemas.create), userController.create);
 
 /**
@@ -46,7 +46,7 @@ router.post("/", authenticate, requireWriter, validate(userSchemas.create), user
  *       200:
  *         description: Usuarios con isActive = true
  */
-router.get("/active", userController.listActive);
+router.get("/active", authenticate, requireWriter, userController.listActive);
 
 /**
  * @swagger
@@ -58,7 +58,7 @@ router.get("/active", userController.listActive);
  *       200:
  *         description: Usuarios con isActive = false
  */
-router.get("/inactive", userController.listInactive);
+router.get("/inactive", authenticate, requireWriter, userController.listInactive);
 
 /**
  * @swagger
@@ -70,7 +70,7 @@ router.get("/inactive", userController.listInactive);
  *       200:
  *         description: Usuarios con deletedAt distinto de null
  */
-router.get("/deleted", userController.listDeleted);
+router.get("/deleted", authenticate, requireWriter, userController.listDeleted);
 
 /**
  * @swagger
@@ -122,7 +122,7 @@ router.get("/deleted", userController.listDeleted);
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/:id", validate(uuidParamsSchema, "params"), userController.getById);
+router.get("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), userController.getById);
 router.patch("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), validate(userSchemas.update), userController.update);
 router.delete("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), userController.remove);
 

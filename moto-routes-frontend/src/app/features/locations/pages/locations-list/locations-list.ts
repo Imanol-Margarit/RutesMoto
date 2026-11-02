@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { AuthStore } from '../../../../auth/auth.store';
 import { RouterLink } from '@angular/router';
 import { Location, LOCATION_STATUS_OPTIONS } from '../../../../core/models/location.model';
 import { AlertService } from '../../../../core/services/alert.service';
@@ -18,7 +19,9 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
           <h1 class="text-2xl font-semibold text-slate-900">Localizaciones</h1>
           <p class="text-sm text-slate-500">Ciudad, región y país donde están las rutas.</p>
         </div>
-        <a routerLink="/locations/create" class="btn-primary">Nueva localización</a>
+        @if (canWrite()) {
+          <a routerLink="/locations/create" class="btn-primary">Nueva localización</a>
+        }
       </header>
 
       @if (store.loading()) {
@@ -55,7 +58,8 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
                     </span>
                   </td>
                   <td class="px-4 py-3">
-                    <button
+                                        @if (canWrite()) {
+                      <button
                       type="button"
                       (click)="toggleActive(location)"
                       [disabled]="busyId() === location._id"
@@ -64,13 +68,20 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
                     >
                       {{ location.isActive ? 'Activa' : 'Inactiva' }}
                     </button>
+                    } @else {
+                      <span class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700">{{ location.isActive ? 'Activa' : 'Inactiva' }}</span>
+                    }
                   </td>
                   <td class="w-44 px-4 py-3 text-right">
                     <div class="flex justify-end gap-2">
-                      <a [routerLink]="['/locations', location._id, 'edit']" class="btn-secondary text-xs">Editar</a>
-                      <button type="button" (click)="remove(location)" [disabled]="busyId() === location._id" class="btn-danger text-xs">
+                      @if (canWrite()) {
+                        <a [routerLink]="['/locations', location._id, 'edit']" class="btn-secondary text-xs">Editar</a>
+                      }
+                                            @if (canWrite()) {
+                        <button type="button" (click)="remove(location)" [disabled]="busyId() === location._id" class="btn-danger text-xs">
                         Eliminar
                       </button>
+                      }
                     </div>
                   </td>
                 </tr>
@@ -83,6 +94,7 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
   `
 })
 export class LocationsList {
+  readonly canWrite = inject(AuthStore).canWrite;
   readonly store = inject(LocationsStore);
   private readonly locationsService = inject(LocationsService);
   private readonly alert = inject(AlertService);

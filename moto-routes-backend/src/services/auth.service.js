@@ -21,14 +21,36 @@ export const authService = {
 
     const token = createToken({ sub: user._id, email: user.email, role: roleName });
 
-    return {
+     return {
       token,
       tokenType: "Bearer",
       expiresIn: process.env.JWT_EXPIRES_IN || "1h",
-      user: { _id: user._id, email: user.email, role: roleName }
+      user: {
+        _id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: roleName,
+      },
     };
   },
 
+  async me(userId) {
+    const user = await userRepository.findById(userId);
+    if (!user) throw new AppError("Usuario no encontrado", 404);
+
+    const role = await roleRepository.findById(user.roleId);
+
+    return {
+      user: {
+        _id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: role?.name ?? "user",
+      },
+    };
+  },
   // Revoca el token actual: se guarda en PostgreSQL hasta su caducidad.
   async logout(auth) {
     await revokedTokenRepository.revoke(auth.jti, auth.sub, new Date(auth.exp * 1000));

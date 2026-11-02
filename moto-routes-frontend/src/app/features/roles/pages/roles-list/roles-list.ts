@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { AuthStore } from '../../../../auth/auth.store';
 import { RouterLink } from '@angular/router';
 import { Role } from '../../../../core/models/role.model';
 import { AlertService } from '../../../../core/services/alert.service';
@@ -18,7 +19,9 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
           <h1 class="text-2xl font-semibold text-slate-900">Roles</h1>
           <p class="text-sm text-slate-500">Permisos y función de cada cuenta del panel.</p>
         </div>
-        <a routerLink="/roles/create" class="btn-primary">Nuevo rol</a>
+        @if (canWrite()) {
+          <a routerLink="/roles/create" class="btn-primary">Nuevo rol</a>
+        }
       </header>
 
       @if (store.loading()) {
@@ -47,7 +50,8 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
                   </td>
                   <td class="max-w-xs truncate px-4 py-3 text-slate-600" [title]="role.description ?? ''">{{ role.description ?? '—' }}</td>
                   <td class="px-4 py-3">
-                    <button
+                                        @if (canWrite()) {
+                      <button
                       type="button"
                       (click)="toggleActive(role)"
                       [disabled]="busyId() === role._id"
@@ -56,13 +60,20 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
                     >
                       {{ role.isActive ? 'Activa' : 'Inactiva' }}
                     </button>
+                    } @else {
+                      <span class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700">{{ role.isActive ? 'Activa' : 'Inactiva' }}</span>
+                    }
                   </td>
                   <td class="w-44 px-4 py-3 text-right">
                     <div class="flex justify-end gap-2">
-                      <a [routerLink]="['/roles', role._id, 'edit']" class="btn-secondary text-xs">Editar</a>
-                      <button type="button" (click)="remove(role)" [disabled]="busyId() === role._id" class="btn-danger text-xs">
+                      @if (canWrite()) {
+                        <a [routerLink]="['/roles', role._id, 'edit']" class="btn-secondary text-xs">Editar</a>
+                      }
+                                            @if (canWrite()) {
+                        <button type="button" (click)="remove(role)" [disabled]="busyId() === role._id" class="btn-danger text-xs">
                         Eliminar
                       </button>
+                      }
                     </div>
                   </td>
                 </tr>
@@ -75,6 +86,7 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
   `
 })
 export class RolesList {
+  readonly canWrite = inject(AuthStore).canWrite;
   readonly store = inject(RolesStore);
   private readonly rolesService = inject(RolesService);
   private readonly alert = inject(AlertService);

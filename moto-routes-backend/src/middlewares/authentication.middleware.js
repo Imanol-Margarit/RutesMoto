@@ -16,7 +16,7 @@ function extractBearerToken(authorizationHeader) {
 /** Comprueba el token y que el usuario siga existiendo y activo. Deja los datos en req.user. */
 export async function authenticate(req, res, next) {
   try {
-    const token = extractBearerToken(req.headers.authorization);
+    const token = extractBearerToken(req.headers.authorization) || req.cookies?.access_token;
     if (!token) throw new AppError(AUTH_REQUIRED, 401);
 
     let payload;

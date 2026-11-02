@@ -8,6 +8,7 @@ type QueryParams = Record<string, string | number | boolean>;
 /**
  * Único punto de acceso a HttpClient. Cada método devuelve una Promise,
  * así los servicios y componentes usan async/await.
+ * withCredentials: el navegador envía la cookie de sesión (access_token) en cada petición.
  */
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -15,24 +16,42 @@ export class ApiService {
 
   get<T>(path: string, params?: QueryParams): Promise<T> {
     return firstValueFrom(
-      this.http.get<T>(this.url(path), { params }).pipe(timeout(environment.apiTimeoutMs))
+      this.http
+        .get<T>(this.url(path), { params, withCredentials: true })
+        .pipe(timeout(environment.apiTimeoutMs))
     );
   }
 
   post<T>(path: string, body: unknown): Promise<T> {
     return firstValueFrom(
-      this.http.post<T>(this.url(path), body).pipe(timeout(environment.apiTimeoutMs))
+      this.http
+        .post<T>(this.url(path), body, { withCredentials: true })
+        .pipe(timeout(environment.apiTimeoutMs))
     );
   }
 
   patch<T>(path: string, body: unknown): Promise<T> {
     return firstValueFrom(
-      this.http.patch<T>(this.url(path), body).pipe(timeout(environment.apiTimeoutMs))
+      this.http
+        .patch<T>(this.url(path), body, { withCredentials: true })
+        .pipe(timeout(environment.apiTimeoutMs))
+    );
+  }
+
+  put<T>(path: string, body: unknown): Promise<T> {
+    return firstValueFrom(
+      this.http
+        .put<T>(this.url(path), body, { withCredentials: true })
+        .pipe(timeout(environment.apiTimeoutMs))
     );
   }
 
   delete<T>(path: string): Promise<T> {
-    return firstValueFrom(this.http.delete<T>(this.url(path)).pipe(timeout(environment.apiTimeoutMs)));
+    return firstValueFrom(
+      this.http
+        .delete<T>(this.url(path), { withCredentials: true })
+        .pipe(timeout(environment.apiTimeoutMs))
+    );
   }
 
   private url(path: string): string {

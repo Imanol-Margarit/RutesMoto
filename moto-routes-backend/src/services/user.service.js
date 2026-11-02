@@ -58,7 +58,7 @@ export const userService = {
     return user;
   },
 
-  async update(id, payload) {
+  async update(id, payload) { //await profileRepository.update(user._id);
     await validateRoleExists(payload.roleId);
     // 1. Validar el id
     if (typeof id !== "string" || !UUID_REGEX.test(id)) {

@@ -2,6 +2,7 @@ import express from "express";
 import swaggerUi from "swagger-ui-express";
 import cors from "cors";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import { consoleLogger, fileLogger } from "./config/logger.js";
 import { swaggerSpec } from "./config/swagger.js";
 import routeRoutes from "./routes/route.routes.js";
@@ -17,16 +18,17 @@ import { errorHandler, notFoundHandler } from "./middlewares/error.middleware.js
 
 const app = express();
 
-const corsOptions =
-  process.env.NODE_ENV === "development"
-    ? { origin: true }
-    : { origin: process.env.CORS_ORIGIN?.split(",") || false };
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN?.split(",") || "http://localhost:4200",
+  credentials: true,
+};
 
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(helmet({ frameguard: { action: "deny" } }));
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser());
 app.use(consoleLogger);
 app.use(fileLogger);
 

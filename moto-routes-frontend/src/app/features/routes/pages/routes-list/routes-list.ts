@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { AuthStore } from '../../../../auth/auth.store';
 import { RouterLink } from '@angular/router';
 import { MotoRoute, DIFFICULTY_LABELS, STATUS_LABELS, SURFACE_LABELS } from '../../../../core/models/route.model';
 import { AlertService } from '../../../../core/services/alert.service';
@@ -18,7 +19,9 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
           <h1 class="text-2xl font-semibold text-slate-900">Rutas</h1>
           <p class="text-sm text-slate-500">Gestiona las rutas de moto, su estado y sus imágenes.</p>
         </div>
-        <a routerLink="/routes/create" class="btn-primary">Nueva ruta</a>
+        @if (canWrite()) {
+          <a routerLink="/routes/create" class="btn-primary">Nueva ruta</a>
+        }
       </header>
 
       @if (store.loading()) {
@@ -63,7 +66,8 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
                     </span>
                   </td>
                   <td class="px-4 py-3">
-                    <button
+                                        @if (canWrite()) {
+                      <button
                       type="button"
                       (click)="toggleActive(route)"
                       [disabled]="busyId() === route._id"
@@ -72,13 +76,20 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
                     >
                       {{ route.isActive ? 'Activa' : 'Inactiva' }}
                     </button>
+                    } @else {
+                      <span class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700">{{ route.isActive ? 'Activa' : 'Inactiva' }}</span>
+                    }
                   </td>
                   <td class="w-44 px-4 py-3 text-right">
                     <div class="flex justify-end gap-2">
-                      <a [routerLink]="['/routes', route._id, 'edit']" class="btn-secondary text-xs">Editar</a>
-                      <button type="button" (click)="remove(route)" [disabled]="busyId() === route._id" class="btn-danger text-xs">
+                      @if (canWrite()) {
+                        <a [routerLink]="['/routes', route._id, 'edit']" class="btn-secondary text-xs">Editar</a>
+                      }
+                                            @if (canWrite()) {
+                        <button type="button" (click)="remove(route)" [disabled]="busyId() === route._id" class="btn-danger text-xs">
                         Eliminar
                       </button>
+                      }
                     </div>
                   </td>
                 </tr>
@@ -91,6 +102,7 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
   `
 })
 export class RoutesList {
+  readonly canWrite = inject(AuthStore).canWrite;
   readonly store = inject(RoutesStore);
   private readonly routesService = inject(RoutesService);
   private readonly alert = inject(AlertService);

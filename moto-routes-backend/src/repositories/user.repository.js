@@ -34,8 +34,9 @@ export const userRepository = {
   // Solo para el login: devuelve el hash. Nunca se usa en las respuestas de la API.
   async findAuthByEmail(email) {
     const { rows } = await pool.query(
-      `SELECT t.id AS "_id", t.email, t.password_hash AS "passwordHash", t.role_id AS "roleId", t.is_active AS "isActive"
-       FROM users AS t WHERE LOWER(t.email) = LOWER($1) AND t.deleted_at IS NULL`, [email]);
+      `SELECT t.id AS "_id", t.email, t.first_name AS "firstName", t.last_name AS "lastName",
+      t.password_hash AS "passwordHash", t.role_id AS "roleId", t.is_active AS "isActive"
+      FROM users AS t WHERE LOWER(t.email) = LOWER($1) AND t.deleted_at IS NULL`, [email]);
     return rows[0] ?? null;
   },
 
@@ -58,12 +59,12 @@ export const userRepository = {
     return userRepository.findAnyById(rows[0].id);
   },
 
-  async update(id, data) {
+  async update(id, data, client = pool) {
     const { names, values } = toColumns(userModel.columns, data);
     if (names.length === 0) return userRepository.findById(id);
 
     const sets = names.map((name, i) => `${name} = $${i + 1}`).join(", ");
-    const { rowCount } = await pool.query(
+    const { rowCount } = await client.query(
       `UPDATE users SET ${sets}, updated_at = NOW() WHERE id = $${names.length + 1} AND deleted_at IS NULL`,
       [...values, id]
     );

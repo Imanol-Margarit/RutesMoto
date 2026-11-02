@@ -47,5 +47,6 @@ router.post("/login", validate(loginSchema), authController.login);
  *         description: Token ausente, inválido, caducado o ya revocado
  */
 router.post("/logout", authenticate, authController.logout);
+router.get("/me", authenticate, authController.me);
 
 export default router;

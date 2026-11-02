@@ -32,7 +32,7 @@ const router = Router();
  *         $ref: '#/components/responses/ValidationError'
  */
 // Las rutas fijas van antes de "/:id": si no, Express tomaría "active" como id.
-router.get("/", roleController.list);
+router.get("/", authenticate, requireWriter, roleController.list);
 router.post("/", authenticate, requireWriter, validate(roleSchemas.create), roleController.create);
 
 /**
@@ -45,7 +45,7 @@ router.post("/", authenticate, requireWriter, validate(roleSchemas.create), role
  *       200:
  *         description: Roles con isActive = true
  */
-router.get("/active", roleController.listActive);
+router.get("/active", authenticate, requireWriter, roleController.listActive);
 
 /**
  * @swagger
@@ -57,7 +57,7 @@ router.get("/active", roleController.listActive);
  *       200:
  *         description: Roles con isActive = false
  */
-router.get("/inactive", roleController.listInactive);
+router.get("/inactive", authenticate, requireWriter, roleController.listInactive);
 
 /**
  * @swagger
@@ -69,7 +69,7 @@ router.get("/inactive", roleController.listInactive);
  *       200:
  *         description: Roles con deletedAt distinto de null
  */
-router.get("/deleted", roleController.listDeleted);
+router.get("/deleted", authenticate, requireWriter, roleController.listDeleted);
 
 /**
  * @swagger
@@ -88,7 +88,7 @@ router.get("/deleted", roleController.listDeleted);
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/slug/:slug", validate(slugParamsSchema, "params"), roleController.getBySlug);
+router.get("/slug/:slug", authenticate, requireWriter, validate(slugParamsSchema, "params"), roleController.getBySlug);
 
 /**
  * @swagger
@@ -140,7 +140,7 @@ router.get("/slug/:slug", validate(slugParamsSchema, "params"), roleController.g
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/:id", validate(uuidParamsSchema, "params"), roleController.getById);
+router.get("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), roleController.getById);
 router.patch("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), validate(roleSchemas.update), roleController.update);
 router.delete("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), roleController.remove);
 

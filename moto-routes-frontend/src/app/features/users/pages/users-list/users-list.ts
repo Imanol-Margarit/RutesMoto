@@ -1,4 +1,5 @@
 import { Component, inject, signal, computed } from '@angular/core';
+import { AuthStore } from '../../../../auth/auth.store';
 import { RouterLink } from '@angular/router';
 import { User } from '../../../../core/models/user.model';
 import { AlertService } from '../../../../core/services/alert.service';
@@ -20,7 +21,9 @@ import { Role } from '../../../../core/models/role.model';
           <h1 class="text-2xl font-semibold text-slate-900">Usuarios</h1>
           <p class="text-sm text-slate-500">Cuentas del panel y de la aplicación, con su rol.</p>
         </div>
-        <a routerLink="/users/create" class="btn-primary">Nuevo usuario</a>
+        @if (canWrite()) {
+          <a routerLink="/users/create" class="btn-primary">Nuevo usuario</a>
+        }
       </header>
 
       @if (store.loading()) {
@@ -49,7 +52,8 @@ import { Role } from '../../../../core/models/role.model';
                   </td>
                   <td class="px-4 py-3">{{ roleName(user.roleId) }}</td>
                   <td class="px-4 py-3">
-                    <button
+                                        @if (canWrite()) {
+                      <button
                       type="button"
                       (click)="toggleActive(user)"
                       [disabled]="busyId() === user._id"
@@ -58,13 +62,20 @@ import { Role } from '../../../../core/models/role.model';
                     >
                       {{ user.isActive ? 'Activo' : 'Inactivo' }}
                     </button>
+                    } @else {
+                      <span class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700">{{ user.isActive ? 'Activa' : 'Inactiva' }}</span>
+                    }
                   </td>
                   <td class="w-44 px-4 py-3 text-right">
                     <div class="flex justify-end gap-2">
-                      <a [routerLink]="['/users', user._id, 'edit']" class="btn-secondary text-xs">Editar</a>
-                      <button type="button" (click)="remove(user)" [disabled]="busyId() === user._id" class="btn-danger text-xs">
+                      @if (canWrite()) {
+                        <a [routerLink]="['/users', user._id, 'edit']" class="btn-secondary text-xs">Editar</a>
+                      }
+                                            @if (canWrite()) {
+                        <button type="button" (click)="remove(user)" [disabled]="busyId() === user._id" class="btn-danger text-xs">
                         Eliminar
                       </button>
+                      }
                     </div>
                   </td>
                 </tr>
@@ -77,6 +88,7 @@ import { Role } from '../../../../core/models/role.model';
   `
 })
 export class UsersList {
+  readonly canWrite = inject(AuthStore).canWrite;
   readonly store = inject(UsersStore);
   private readonly usersService = inject(UsersService);
   private readonly rolesService = inject(RolesService);

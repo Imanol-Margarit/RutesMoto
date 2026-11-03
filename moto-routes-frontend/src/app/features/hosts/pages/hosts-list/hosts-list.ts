@@ -13,11 +13,11 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
   selector: 'app-hosts-list',
   imports: [RouterLink, SkeletonLoader, ErrorState, EmptyState],
   template: `
-    <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <section class="page">
+      <header class="page-header">
         <div>
-          <h1 class="text-2xl font-semibold text-slate-900">Guías</h1>
-          <p class="text-sm text-slate-500">Gestiona los guías que organizan las rutas.</p>
+          <h1 class="page-title">Guías</h1>
+          <p class="page-subtitle">Gestiona los guías que organizan las rutas.</p>
         </div>
         @if (canWrite()) {
           <a routerLink="/hosts/create" class="btn-primary">Nuevo guía</a>
@@ -31,9 +31,9 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
       } @else if (store.count() === 0) {
         <app-empty-state heading="No hay guías" message="Crea el primer guía para empezar." actionLabel="Nuevo guía" actionLink="/hosts/create" />
       } @else {
-        <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <table class="min-w-full divide-y divide-slate-200 text-sm">
-            <thead class="bg-slate-50 text-left text-slate-600">
+        <div class="card-flush overflow-x-auto">
+          <table class="data-table">
+            <thead>
               <tr>
                 <th class="px-4 py-3 font-medium">Nombre</th>
                 <th class="px-4 py-3 font-medium">Descripción</th>

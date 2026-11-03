@@ -13,16 +13,16 @@ import { DepartureForm } from '../../components/departure-form/departure-form';
   selector: 'app-departure-create',
   imports: [DepartureForm, RouterLink, SkeletonLoader],
   template: `
-    <section class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <header class="mb-8 flex items-center gap-3">
+    <section class="page">
+      <header class="page-header !justify-start">
         <a routerLink="/departures" class="btn-secondary text-xs">← Volver</a>
         <div>
-          <h1 class="text-2xl font-semibold text-slate-900">Nueva salida</h1>
-          <p class="text-sm text-slate-500">Elige la ruta y programa la fecha, las plazas y el precio.</p>
+          <h1 class="page-title">Nueva salida</h1>
+          <p class="page-subtitle">Elige la ruta y programa la fecha, las plazas y el precio.</p>
         </div>
       </header>
 
-      <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="card">
         @if (loadingRoutes()) {
           <app-skeleton-loader [rows]="4" />
         } @else {

@@ -15,11 +15,11 @@ import { UserForm } from '../../components/user-form/user-form';
   selector: 'app-user-edit',
   imports: [UserForm, RouterLink, SkeletonLoader, ErrorState, ImagesManager],
   template: `
-    <section class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <header class="mb-8 flex items-center gap-3">
+    <section class="page">
+      <header class="page-header !justify-start">
         <a routerLink="/users" class="btn-secondary text-xs">← Volver</a>
         <div class="min-w-0">
-          <h1 class="text-2xl font-semibold text-slate-900">Editar usuario</h1>
+          <h1 class="page-title">Editar usuario</h1>
           <p class="truncate text-sm text-slate-500">{{ user()?.email }}</p>
         </div>
       </header>
@@ -29,12 +29,14 @@ import { UserForm } from '../../components/user-form/user-form';
       } @else if (error()) {
         <app-error-state [message]="error()!" (retry)="load()" />
       } @else if (user(); as current) {
-        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="grid items-start gap-6 xl:grid-cols-2">
+          <div class="card">
           <app-user-form [user]="current" [roles]="roles()" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
-        </div>
+          </div>
 
-        <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div class="card">
           <app-images-manager [basePath]="'users/' + current._id + '/images'" />
+          </div>
         </div>
       }
     </section>

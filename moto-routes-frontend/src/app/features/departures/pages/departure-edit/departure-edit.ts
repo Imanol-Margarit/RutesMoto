@@ -14,11 +14,11 @@ import { DepartureForm } from '../../components/departure-form/departure-form';
   selector: 'app-departure-edit',
   imports: [DepartureForm, RouterLink, SkeletonLoader, ErrorState],
   template: `
-    <section class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <header class="mb-8 flex items-center gap-3">
+    <section class="page">
+      <header class="page-header !justify-start">
         <a routerLink="/departures" class="btn-secondary text-xs">← Volver</a>
         <div class="min-w-0">
-          <h1 class="text-2xl font-semibold text-slate-900">Editar salida</h1>
+          <h1 class="page-title">Editar salida</h1>
           <p class="truncate text-sm text-slate-500">{{ departure()?.route?.title }}</p>
         </div>
       </header>
@@ -28,7 +28,7 @@ import { DepartureForm } from '../../components/departure-form/departure-form';
       } @else if (error()) {
         <app-error-state [message]="error()!" (retry)="load()" />
       } @else if (departure(); as current) {
-        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="card">
           <app-departure-form
             [departure]="current"
             [routes]="routes()"

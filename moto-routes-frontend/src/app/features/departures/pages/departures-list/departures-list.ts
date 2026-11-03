@@ -14,11 +14,11 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
   selector: 'app-departures-list',
   imports: [DecimalPipe, RouterLink, SkeletonLoader, ErrorState, EmptyState],
   template: `
-    <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <section class="page">
+      <header class="page-header">
         <div>
-          <h1 class="text-2xl font-semibold text-slate-900">Salidas</h1>
-          <p class="text-sm text-slate-500">Fechas, plazas y precio de cada salida programada.</p>
+          <h1 class="page-title">Salidas</h1>
+          <p class="page-subtitle">Fechas, plazas y precio de cada salida programada.</p>
         </div>
         @if (canWrite()) {
           <a routerLink="/departures/create" class="btn-primary">Nueva salida</a>
@@ -32,9 +32,9 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
       } @else if (store.count() === 0) {
         <app-empty-state heading="No hay salidas" message="Programa la primera salida de una ruta." actionLabel="Nueva salida" actionLink="/departures/create" />
       } @else {
-        <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <table class="min-w-full divide-y divide-slate-200 text-sm">
-            <thead class="bg-slate-50 text-left text-slate-600">
+        <div class="card-flush overflow-x-auto">
+          <table class="data-table">
+            <thead>
               <tr>
                 <th class="px-4 py-3 font-medium">Ruta</th>
                 <th class="px-4 py-3 font-medium">Inicio</th>

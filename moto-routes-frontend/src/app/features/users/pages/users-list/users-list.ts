@@ -15,11 +15,11 @@ import { Role } from '../../../../core/models/role.model';
   selector: 'app-users-list',
   imports: [RouterLink, SkeletonLoader, ErrorState, EmptyState],
   template: `
-    <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <section class="page">
+      <header class="page-header">
         <div>
-          <h1 class="text-2xl font-semibold text-slate-900">Usuarios</h1>
-          <p class="text-sm text-slate-500">Cuentas del panel y de la aplicación, con su rol.</p>
+          <h1 class="page-title">Usuarios</h1>
+          <p class="page-subtitle">Cuentas del panel y de la aplicación, con su rol.</p>
         </div>
         @if (canWrite()) {
           <a routerLink="/users/create" class="btn-primary">Nuevo usuario</a>
@@ -33,9 +33,9 @@ import { Role } from '../../../../core/models/role.model';
       } @else if (store.count() === 0) {
         <app-empty-state heading="No hay usuarios" message="Crea el primer usuario para empezar." actionLabel="Nuevo usuario" actionLink="/users/create" />
       } @else {
-        <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <table class="min-w-full divide-y divide-slate-200 text-sm">
-            <thead class="bg-slate-50 text-left text-slate-600">
+        <div class="card-flush overflow-x-auto">
+          <table class="data-table">
+            <thead>
               <tr>
                 <th class="px-4 py-3 font-medium">Usuario</th>
                 <th class="px-4 py-3 font-medium">Rol</th>

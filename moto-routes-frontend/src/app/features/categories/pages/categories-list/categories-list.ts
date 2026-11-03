@@ -13,11 +13,11 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
   selector: 'app-categories-list',
   imports: [RouterLink, SkeletonLoader, ErrorState, EmptyState],
   template: `
-    <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <section class="page">
+      <header class="page-header">
         <div>
-          <h1 class="text-2xl font-semibold text-slate-900">Categorías</h1>
-          <p class="text-sm text-slate-500">Tipos de ruta, como curvas, paisaje u off-road.</p>
+          <h1 class="page-title">Categorías</h1>
+          <p class="page-subtitle">Tipos de ruta, como curvas, paisaje u off-road.</p>
         </div>
         @if (canWrite()) {
           <a routerLink="/categories/create" class="btn-primary">Nueva categoría</a>
@@ -31,9 +31,9 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
       } @else if (store.count() === 0) {
         <app-empty-state heading="No hay categorías" message="Crea la primera categoría para empezar." actionLabel="Nueva categoría" actionLink="/categories/create" />
       } @else {
-        <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <table class="min-w-full divide-y divide-slate-200 text-sm">
-            <thead class="bg-slate-50 text-left text-slate-600">
+        <div class="card-flush overflow-x-auto">
+          <table class="data-table">
+            <thead>
               <tr>
                 <th class="px-4 py-3 font-medium">Nombre</th>
                 <th class="px-4 py-3 font-medium">Descripción</th>

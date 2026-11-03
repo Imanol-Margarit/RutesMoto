@@ -13,11 +13,11 @@ import { HostForm } from '../../components/host-form/host-form';
   selector: 'app-host-edit',
   imports: [HostForm, RouterLink, SkeletonLoader, ErrorState, ImagesManager],
   template: `
-    <section class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <header class="mb-8 flex items-center gap-3">
+    <section class="page">
+      <header class="page-header !justify-start">
         <a routerLink="/hosts" class="btn-secondary text-xs">← Volver</a>
         <div class="min-w-0">
-          <h1 class="text-2xl font-semibold text-slate-900">Editar guía</h1>
+          <h1 class="page-title">Editar guía</h1>
           <p class="truncate text-sm text-slate-500">{{ host()?.name }}</p>
         </div>
       </header>
@@ -27,12 +27,14 @@ import { HostForm } from '../../components/host-form/host-form';
       } @else if (error()) {
         <app-error-state [message]="error()!" (retry)="load()" />
       } @else if (host(); as current) {
-        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="grid items-start gap-6 xl:grid-cols-2">
+          <div class="card">
           <app-host-form [host]="current" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
-        </div>
+          </div>
 
-        <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div class="card">
           <app-images-manager [basePath]="'hosts/' + current._id + '/images'" />
+          </div>
         </div>
       }
     </section>

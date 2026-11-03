@@ -13,11 +13,11 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
   selector: 'app-routes-list',
   imports: [RouterLink, SkeletonLoader, ErrorState, EmptyState],
   template: `
-    <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <section class="page">
+      <header class="page-header">
         <div>
-          <h1 class="text-2xl font-semibold text-slate-900">Rutas</h1>
-          <p class="text-sm text-slate-500">Gestiona las rutas de moto, su estado y sus imágenes.</p>
+          <h1 class="page-title">Rutas</h1>
+          <p class="page-subtitle">Gestiona las rutas de moto, su estado y sus imágenes.</p>
         </div>
         @if (canWrite()) {
           <a routerLink="/routes/create" class="btn-primary">Nueva ruta</a>
@@ -33,9 +33,9 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
       } @else {
         <p class="mb-3 text-xs text-slate-500">{{ store.count() }} {{ store.count() === 1 ? 'ruta' : 'rutas' }}</p>
 
-        <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <table class="min-w-full divide-y divide-slate-200 text-sm">
-            <thead class="bg-slate-50 text-left text-slate-600">
+        <div class="card-flush overflow-x-auto">
+          <table class="data-table">
+            <thead>
               <tr>
                 <th class="px-4 py-3 font-medium">Título</th>
                 <th class="px-4 py-3 font-medium">Distancia</th>

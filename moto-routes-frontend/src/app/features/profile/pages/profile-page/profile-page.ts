@@ -9,15 +9,15 @@ import { ProfileResponse, ProfileUser } from '../../../../core/models/profile.mo
   selector: 'app-profile-page',
   imports: [ReactiveFormsModule],
   template: `
-    <section class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
+    <section class="page">
+      <header class="page-header">
         <div>
-          <p class="text-sm font-medium uppercase tracking-[0.2em] text-teal-700">Mi cuenta</p>
-          <h1 class="text-2xl font-semibold text-slate-900">Perfil</h1>
-          <p class="text-sm text-slate-500">Datos personales y de contacto.</p>
+          <p class="page-eyebrow">Mi cuenta</p>
+          <h1 class="page-title">Perfil</h1>
+          <p class="page-subtitle">Datos personales y de contacto.</p>
         </div>
 
-        <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+        <div class="card !px-4 !py-3">
           <p class="text-sm font-semibold text-slate-900">{{ fullName() }}</p>
           <p class="text-xs text-slate-500">{{ user()?.email ?? '' }}</p>
           <p class="text-xs text-slate-400">Rol: {{ user()?.role ?? '' }}</p>
@@ -25,10 +25,10 @@ import { ProfileResponse, ProfileUser } from '../../../../core/models/profile.mo
       </header>
 
       @if (loading()) {
-        <div class="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">Cargando perfil...</div>
+        <div class="card text-sm text-slate-500">Cargando perfil...</div>
       } @else {
         <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div class="card">
             <h2 class="mb-4 text-lg font-semibold text-slate-900">Editar perfil</h2>
 
             <form [formGroup]="form" (ngSubmit)="save()" novalidate class="space-y-5">
@@ -88,7 +88,7 @@ import { ProfileResponse, ProfileUser } from '../../../../core/models/profile.mo
             </form>
           </div>
 
-          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div class="card">
             <h2 class="mb-4 text-lg font-semibold text-slate-900">Vista previa</h2>
             <div class="space-y-3 text-sm text-slate-700">
               <div>

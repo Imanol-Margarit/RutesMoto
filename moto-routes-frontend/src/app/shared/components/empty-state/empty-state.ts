@@ -6,7 +6,7 @@ import { RouterLink } from '@angular/router';
   selector: 'app-empty-state',
   imports: [RouterLink],
   template: `
-    <div class="rounded-2xl border border-slate-200 bg-white px-6 py-14 text-center">
+    <div class="card-flush px-6 py-14 text-center">
       <h3 class="mb-1 text-lg font-semibold text-slate-700">{{ heading() }}</h3>
       <p class="text-sm text-slate-500">{{ message() }}</p>
       @if (actionLabel() && actionLink()) {

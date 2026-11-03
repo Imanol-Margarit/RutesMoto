@@ -1,46 +1,49 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { BrandLogo } from '../shared/components/brand-logo/brand-logo';
 import { AuthService } from './auth.service';
 import { AuthStore } from './auth.store';
 
 @Component({
   selector: 'app-login-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, BrandLogo],
   template: `
-    <section class="flex min-h-screen items-center justify-center bg-frost px-4">
-      <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-7 shadow-xl">
-        <header class="mb-6 text-center">
-          <span class="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-teal-700 text-sm font-bold text-white">
-            MR
-          </span>
-          <h1 class="text-2xl font-semibold text-slate-900">Iniciar sesión</h1>
-          <p class="mt-1 text-sm text-slate-500">Moto Routes</p>
-        </header>
+    <main class="flex min-h-screen items-center justify-center bg-frost px-4 py-12">
+      <div class="w-full max-w-md">
+        <div class="mb-6 flex flex-col items-center text-center">
+          <app-brand-logo size="lg" />
+          <h1 class="mt-4 text-3xl font-bold tracking-tight text-slate-900">Motoruta</h1>
+          <p class="page-eyebrow mt-2">Panel de administración</p>
+        </div>
 
-        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-4">
-          <div>
-            <label for="email" class="mb-1 block text-sm font-medium text-slate-700">Email</label>
-            <input id="email" formControlName="email" type="email" class="input" />
-            @if (form.controls.email.invalid && form.controls.email.touched) {
-              <p class="error">Introduce un email válido.</p>
-            }
-          </div>
+        <section class="card !p-7">
+          <h2 class="mb-5 text-lg font-semibold text-slate-900">Iniciar sesión</h2>
 
-          <div>
-            <label for="password" class="mb-1 block text-sm font-medium text-slate-700">Contraseña</label>
-            <input id="password" formControlName="password" type="password" class="input" />
-            @if (form.controls.password.invalid && form.controls.password.touched) {
-              <p class="error">La contraseña es obligatoria.</p>
-            }
-          </div>
+          <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-4">
+            <div>
+              <label for="email" class="mb-1 block text-sm font-medium text-slate-700">Email</label>
+              <input id="email" formControlName="email" type="email" autocomplete="username" class="input" />
+              @if (form.controls.email.invalid && form.controls.email.touched) {
+                <p class="error">Introduce un email válido.</p>
+              }
+            </div>
 
-          <button type="submit" [disabled]="submitting()" class="btn-primary w-full">
-            {{ submitting() ? 'Entrando...' : 'Entrar' }}
-          </button>
-        </form>
+            <div>
+              <label for="password" class="mb-1 block text-sm font-medium text-slate-700">Contraseña</label>
+              <input id="password" formControlName="password" type="password" autocomplete="current-password" class="input" />
+              @if (form.controls.password.invalid && form.controls.password.touched) {
+                <p class="error">La contraseña es obligatoria.</p>
+              }
+            </div>
+
+            <button type="submit" [disabled]="submitting()" class="btn-primary w-full !py-2.5">
+              {{ submitting() ? 'Entrando...' : 'Entrar' }}
+            </button>
+          </form>
+        </section>
       </div>
-    </section>
+    </main>
   `
 })
 export class LoginPage {

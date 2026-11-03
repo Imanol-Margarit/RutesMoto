@@ -16,11 +16,11 @@ import { LocationsService } from '../../../../core/services/locations.service';
   selector: 'app-route-edit',
   imports: [RouteForm, RouteImages, RouterLink, SkeletonLoader, ErrorState],
   template: `
-    <section class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <header class="mb-8 flex items-center gap-3">
+    <section class="page">
+      <header class="page-header !justify-start">
         <a routerLink="/routes" class="btn-secondary text-xs">← Volver</a>
         <div class="min-w-0">
-          <h1 class="text-2xl font-semibold text-slate-900">Editar ruta</h1>
+          <h1 class="page-title">Editar ruta</h1>
           <p class="truncate text-sm text-slate-500">{{ route()?.title }}</p>
         </div>
       </header>
@@ -30,12 +30,14 @@ import { LocationsService } from '../../../../core/services/locations.service';
       } @else if (error()) {
         <app-error-state [message]="error()!" (retry)="load()" />
       } @else if (route(); as current) {
-        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="grid items-start gap-6 xl:grid-cols-2">
+        <div class="card">
           <app-route-form [route]="current" [hosts]="hosts()" [categories]="categories()" [locations]="locations()" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
         </div>
 
-        <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="card">
           <app-route-images [routeId]="current._id" />
+        </div>
         </div>
       }
     </section>

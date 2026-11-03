@@ -1,46 +1,43 @@
-import { Component, computed, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, computed, inject, output } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../auth/auth.service';
 import { AuthStore } from '../../../auth/auth.store';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink, RouterLinkActive],
   template: `
-    <nav class="sticky top-0 z-50 border-b border-sage bg-mint/90 backdrop-blur">
-      <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <a routerLink="/routes" class="flex items-center gap-2">
-          <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-teal-700 text-sm font-bold text-white">
-            MR
-          </span>
-          <span class="text-sm font-semibold tracking-wide text-slate-800">Moto Routes Admin</span>
-        </a>
-
-        <div class="flex items-center gap-2 text-sm">
-          <a routerLink="/routes" routerLinkActive="bg-leaf text-slate-900" class="rounded-lg px-3 py-2 text-slate-700 hover:bg-seafoam hover:text-slate-900">Rutas</a>
-          <a routerLink="/departures" routerLinkActive="bg-leaf text-slate-900" class="rounded-lg px-3 py-2 text-slate-700 hover:bg-seafoam hover:text-slate-900">Salidas</a>
-          <a routerLink="/hosts" routerLinkActive="bg-leaf text-slate-900" class="rounded-lg px-3 py-2 text-slate-700 hover:bg-seafoam hover:text-slate-900">Guías</a>
-          <a routerLink="/categories" routerLinkActive="bg-leaf text-slate-900" class="rounded-lg px-3 py-2 text-slate-700 hover:bg-seafoam hover:text-slate-900">Categorías</a>
-          <a routerLink="/locations" routerLinkActive="bg-leaf text-slate-900" class="rounded-lg px-3 py-2 text-slate-700 hover:bg-seafoam hover:text-slate-900">Localizaciones</a>
-          @if (canManageUsers()) {
-            <a routerLink="/users" routerLinkActive="bg-leaf text-slate-900" class="rounded-lg px-3 py-2 text-slate-700 hover:bg-seafoam hover:text-slate-900">Usuarios</a>
-          }
-          <a routerLink="/roles" routerLinkActive="bg-leaf text-slate-900" class="rounded-lg px-3 py-2 text-slate-700 hover:bg-seafoam hover:text-slate-900">Roles</a>
-          <a routerLink="/profile" routerLinkActive="bg-leaf text-slate-900" class="rounded-lg px-3 py-2 text-slate-700 hover:bg-seafoam hover:text-slate-900">Perfil</a>
-
-          <span class="ml-2 rounded-lg bg-white/70 px-3 py-2 text-slate-700">{{ userLabel() }}</span>
-          <button type="button" (click)="logout()" class="rounded-lg border border-slate-300 px-3 py-2 text-slate-700 hover:bg-slate-100">
-            Salir
-          </button>
-        </div>
+    <header class="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-sage/70 bg-white/85 px-4 backdrop-blur sm:px-6 lg:px-8">
+      <div class="flex items-center gap-2">
+        <button type="button" (click)="menuToggle.emit()" aria-label="Abrir menú"
+                class="rounded-lg p-2 text-slate-700 hover:bg-slate-100 lg:hidden">
+          <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
+        </button>
+        <span class="text-sm font-semibold text-slate-700 lg:hidden">Motoruta</span>
       </div>
-    </nav>
+
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 rounded-xl px-2 py-1.5">
+          <span class="grid h-9 w-9 place-items-center rounded-full bg-teal-700 text-xs font-bold text-white">{{ initials() }}</span>
+          <span class="hidden text-left leading-tight sm:block">
+            <span class="block text-sm font-semibold text-slate-900">{{ userLabel() }}</span>
+            <span class="block text-[11px] uppercase tracking-wide text-slate-500">{{ roleLabel() }}</span>
+          </span>
+        </div>
+        <button type="button" (click)="logout()" class="btn-secondary !px-3 !py-1.5 text-xs">
+          Cerrar sesión
+        </button>
+      </div>
+    </header>
   `
 })
 export class Navbar {
   private readonly authStore = inject(AuthStore);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+
+  readonly menuToggle = output<void>();
 
   readonly userLabel = computed(() => {
     const user = this.authStore.user();
@@ -49,7 +46,12 @@ export class Navbar {
     return fullName || user.email;
   });
   readonly roleLabel = computed(() => this.authStore.role() ?? '');
-  readonly canManageUsers = computed(() => this.authStore.canWrite());
+  readonly initials = computed(() => {
+    const user = this.authStore.user();
+    if (!user) return '';
+    const source = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email;
+    return source.split(/\s+/).slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join('');
+  });
 
   async logout(): Promise<void> {
     await this.authService.logout();

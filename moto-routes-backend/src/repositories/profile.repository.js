@@ -3,7 +3,7 @@ import { profileModel } from "../models/profile.model.js";
 import { toColumns } from "../utils/sql.util.js";
 
 const SELECT_PROFILE = `
-  SELECT t.id AS "_id", t.user_id AS "userId", t.phone, t.bio, t.avatar_url AS "avatarUrl",
+  SELECT t.id AS "_id", t.user_id AS "userId", t.phone, t.bio,
          t.created_at AS "createdAt", t.updated_at AS "updatedAt"
   FROM ${profileModel.table} AS t`;
 
@@ -15,8 +15,8 @@ export const profileRepository = {
 
   async create(userId, data = {}) {
     await pool.query(
-      "INSERT INTO profiles (user_id, phone, bio, avatar_url) VALUES ($1, $2, $3, $4)",
-      [userId, data.phone ?? null, data.bio ?? null, data.avatarUrl ?? null]
+      "INSERT INTO profiles (user_id, phone, bio) VALUES ($1, $2, $3)",
+      [userId, data.phone ?? null, data.bio ?? null]
     );
     return profileRepository.findByUserId(userId);
   },

@@ -13,6 +13,7 @@ export class AuthService {
   async login(credentials: LoginRequest): Promise<void> {
     const response = await this.api.post<ApiResponse<LoginResponseData>>('auth/login', credentials);
     this.store.login(response.data.user);
+    await this.restoreSession();
   }
 
   /** El servidor revoca el token y borra la cookie. Aunque falle la petición, se limpia la sesión local. */

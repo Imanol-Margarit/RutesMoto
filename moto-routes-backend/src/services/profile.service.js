@@ -12,7 +12,7 @@ export const profileService = {
     if (!user) throw notFound();
 
     const profile = (await profileRepository.findByUserId(userId))
-      ?? { phone: null, bio: null, avatarUrl: null };
+      ?? { phone: null, bio: null };
 
     const role = await roleRepository.findById(user.roleId);
 
@@ -28,7 +28,7 @@ export const profileService = {
       profile: {
         phone: profile.phone,
         bio: profile.bio,
-        avatarUrl: profile.avatarUrl,
+        avatarUrl: user.avatarUrl,
       },
     };
   },

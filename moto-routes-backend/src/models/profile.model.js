@@ -4,8 +4,7 @@ export const profileModel = {
   columns: {
     userId: "user_id",
     phone: "phone",
-    bio: "bio",
-    avatarUrl: "avatar_url"
+    bio: "bio"
   },
   numeric: []
 };

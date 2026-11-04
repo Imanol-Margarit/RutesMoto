@@ -177,9 +177,4 @@ router.patch("/:id/deactivate", authenticate, requireWriter, validate(uuidParams
  */
 router.patch("/:id/restore", authenticate, requireWriter, validate(uuidParamsSchema, "params"), userController.restore);
 
-/**
- * Imágenes de un user: /api/users/:id/images
- */
-router.use("/:id/images", validate(uuidParamsSchema, "params"), createImageRoutes("user"));
-
 export default router;

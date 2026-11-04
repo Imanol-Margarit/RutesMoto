@@ -48,6 +48,7 @@ export const authService = {
         firstName: user.firstName,
         lastName: user.lastName,
         role: role?.name ?? "user",
+        avatarUrl: user.avatarUrl ?? null,
       },
     };
   },

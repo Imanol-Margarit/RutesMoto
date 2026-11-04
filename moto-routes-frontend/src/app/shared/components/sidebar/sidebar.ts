@@ -36,7 +36,9 @@ import { BrandLogo } from '../brand-logo/brand-logo';
             @if (canManageUsers()) {
               <li><a routerLink="/users" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Usuarios</a></li>
             }
+            @if (canManageUsers()) {
             <li><a routerLink="/roles" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Roles</a></li>
+            }
           </ul>
         </div>
 

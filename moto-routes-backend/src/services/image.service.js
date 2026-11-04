@@ -4,15 +4,13 @@ import { routeRepository } from "../repositories/route.repository.js";
 import { hostRepository } from "../repositories/host.repository.js";
 import { categoryRepository } from "../repositories/category.repository.js";
 import { locationRepository } from "../repositories/location.repository.js";
-import { userRepository } from "../repositories/user.repository.js";
 import { AppError } from "../utils/app-error.js";
 
 const parentRepositories = {
   route: routeRepository,
   host: hostRepository,
   category: categoryRepository,
-  location: locationRepository,
-  user: userRepository
+  location: locationRepository
 };
 
 async function ensureParent(kind, parentId) {

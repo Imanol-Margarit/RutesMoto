@@ -17,10 +17,17 @@ import { ProfileResponse, ProfileUser } from '../../../../core/models/profile.mo
           <p class="page-subtitle">Datos personales y de contacto.</p>
         </div>
 
-        <div class="card !px-4 !py-3">
-          <p class="text-sm font-semibold text-slate-900">{{ fullName() }}</p>
-          <p class="text-xs text-slate-500">{{ user()?.email ?? '' }}</p>
-          <p class="text-xs text-slate-400">Rol: {{ user()?.role ?? '' }}</p>
+        <div class="card flex items-center gap-4 !px-4 !py-3">
+          @if (avatarPreview()) {
+            <img [src]="avatarPreview()" alt="" class="h-12 w-12 rounded-full object-cover ring-2 ring-sage" />
+          } @else {
+            <span class="grid h-12 w-12 place-items-center rounded-full bg-teal-700 text-sm font-bold text-white">{{ initials() }}</span>
+          }
+          <div>
+            <p class="text-sm font-semibold text-slate-900">{{ fullName() }}</p>
+            <p class="text-xs text-slate-500">{{ user()?.email ?? '' }}</p>
+            <p class="text-xs text-slate-400">Rol: {{ user()?.role ?? '' }}</p>
+          </div>
         </div>
       </header>
 
@@ -105,7 +112,12 @@ import { ProfileResponse, ProfileUser } from '../../../../core/models/profile.mo
               </div>
               <div>
                 <span class="block text-xs uppercase tracking-wide text-slate-400">Avatar</span>
-                <p class="mt-1 break-all">{{ form.controls.avatarUrl.value || '-' }}</p>
+                @if (form.controls.avatarUrl.value) {
+                  <img [src]="form.controls.avatarUrl.value" alt="" class="mt-2 h-20 w-20 rounded-full object-cover ring-2 ring-sage" />
+                  <p class="mt-2 break-all text-xs text-slate-500">{{ form.controls.avatarUrl.value }}</p>
+                } @else {
+                  <p class="mt-1">-</p>
+                }
               </div>
               <div>
                 <span class="block text-xs uppercase tracking-wide text-slate-400">Biografía</span>
@@ -127,6 +139,20 @@ export class ProfilePage implements OnInit {
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly user = signal<ProfileUser | null>(null);
+  readonly savedAvatarUrl = signal<string | null>(null);
+  readonly avatarPreview = signal<string | null>(null);
+  readonly initials = computed(() => {
+    const u = this.user();
+    if (!u) return '';
+    return [u.firstName, u.lastName].filter(Boolean).map((part) => part.charAt(0).toUpperCase()).join('');
+  });
+
+  constructor() {
+    // La cabecera y la vista previa muestran la URL mientras se escribe, sin guardar.
+    this.form.controls.avatarUrl.valueChanges.subscribe((value) => {
+      this.avatarPreview.set(value.trim() || null);
+    });
+  }
   readonly fullName = computed(() => {
     const u = this.user();
     return u ? `${u.firstName} ${u.lastName}`.trim() : '';
@@ -177,7 +203,8 @@ export class ProfilePage implements OnInit {
       this.authStore.updateUser({
         firstName: response.data.user.firstName,
         lastName: response.data.user.lastName,
-        email: response.data.user.email
+        email: response.data.user.email,
+        avatarUrl: response.data.profile.avatarUrl ?? null
       });
       await this.alert.toast('Perfil actualizado');
     } catch {
@@ -189,6 +216,8 @@ export class ProfilePage implements OnInit {
 
   private applyResponse(data: ProfileResponse): void {
     this.user.set(data.user);
+    this.savedAvatarUrl.set(data.profile.avatarUrl ?? null);
+    this.avatarPreview.set(data.profile.avatarUrl ?? null);
     this.form.reset({
       firstName: data.user.firstName,
       lastName: data.user.lastName,

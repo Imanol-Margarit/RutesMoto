@@ -45,6 +45,8 @@ export const routes: Routes = [
       },
       {
         path: 'roles',
+        canActivate: [roleGuard],
+        data: { roles: WRITER_ROLES },
         loadChildren: () => import('./features/roles/roles.routes').then((m) => m.ROLES_ROUTES)
       }
     ]

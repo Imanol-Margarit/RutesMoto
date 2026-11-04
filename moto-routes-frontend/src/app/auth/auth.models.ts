@@ -10,6 +10,7 @@ export interface AuthUser {
   role: AuthRole;
   firstName?: string;
   lastName?: string;
+  avatarUrl?: string | null;
 }
 
 export interface AuthSession {

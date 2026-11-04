@@ -361,33 +361,8 @@ CREATE UNIQUE INDEX uq_locations_images_primary
     ON locations_images (location_id)
     WHERE is_primary AND deleted_at IS NULL;
 
-CREATE TABLE users_images (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-    user_id UUID NOT NULL,
 
-    image_url TEXT NOT NULL,
-    alt_text VARCHAR(255),
-
-    is_primary BOOLEAN NOT NULL DEFAULT FALSE,
-    sort_order INTEGER NOT NULL DEFAULT 0
-        CHECK (sort_order >= 0),
-
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL,
-
-    CONSTRAINT fk_users_images_users
-        FOREIGN KEY (user_id)
-        REFERENCES users(id)
-        ON DELETE CASCADE
-);
-
-CREATE INDEX idx_users_images_users ON users_images (user_id);
-
-CREATE UNIQUE INDEX uq_users_images_primary
-    ON users_images (user_id)
-    WHERE is_primary AND deleted_at IS NULL;
 
 -- Tokens JWT revocados en el logout (se borran cuando caducan).
 CREATE TABLE revoked_tokens (
@@ -412,7 +387,6 @@ CREATE TABLE profiles (
 
     phone VARCHAR(30),
     bio VARCHAR(2000),
-    avatar_url TEXT,
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

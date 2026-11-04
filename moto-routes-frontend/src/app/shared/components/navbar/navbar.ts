@@ -1,4 +1,4 @@
-import { Component, computed, inject, output } from '@angular/core';
+import { Component, computed, effect, inject, output, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../auth/auth.service';
 import { AuthStore } from '../../../auth/auth.store';
@@ -19,7 +19,11 @@ import { AuthStore } from '../../../auth/auth.store';
 
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-3 rounded-xl px-2 py-1.5">
-          <span class="grid h-9 w-9 place-items-center rounded-full bg-teal-700 text-xs font-bold text-white">{{ initials() }}</span>
+          @if (avatarUrl() && !avatarFailed()) {
+            <img [src]="avatarUrl()" (error)="avatarFailed.set(true)" alt="" class="h-9 w-9 rounded-full object-cover ring-2 ring-white" />
+          } @else {
+            <span class="grid h-9 w-9 place-items-center rounded-full bg-teal-700 text-xs font-bold text-white">{{ initials() }}</span>
+          }
           <span class="hidden text-left leading-tight sm:block">
             <span class="block text-sm font-semibold text-slate-900">{{ userLabel() }}</span>
             <span class="block text-[11px] uppercase tracking-wide text-slate-500">{{ roleLabel() }}</span>
@@ -46,6 +50,16 @@ export class Navbar {
     return fullName || user.email;
   });
   readonly roleLabel = computed(() => this.authStore.role() ?? '');
+  readonly avatarUrl = computed(() => this.authStore.user()?.avatarUrl ?? null);
+  readonly avatarFailed = signal(false);
+
+  constructor() {
+    // Si cambia la URL del avatar (al guardar el perfil), vuelve a intentar cargarla.
+    effect(() => {
+      this.avatarUrl();
+      this.avatarFailed.set(false);
+    });
+  }
   readonly initials = computed(() => {
     const user = this.authStore.user();
     if (!user) return '';

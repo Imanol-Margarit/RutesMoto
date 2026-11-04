@@ -8,12 +8,13 @@ import { UsersService } from '../../../../core/services/users.service';
 import { UsersStore } from '../../../../core/stores/users.store';
 import { ErrorState } from '../../../../shared/components/error-state/error-state';
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
-import { ImagesManager } from '../../../../shared/components/images-manager/images-manager';
 import { UserForm } from '../../components/user-form/user-form';
+import { AuthRole } from '../../../../auth/auth.models';
+import { AuthStore } from '../../../../auth/auth.store';
 
 @Component({
   selector: 'app-user-edit',
-  imports: [UserForm, RouterLink, SkeletonLoader, ErrorState, ImagesManager],
+  imports: [UserForm, RouterLink, SkeletonLoader, ErrorState],
   template: `
     <section class="page">
       <header class="page-header !justify-start">
@@ -29,14 +30,8 @@ import { UserForm } from '../../components/user-form/user-form';
       } @else if (error()) {
         <app-error-state [message]="error()!" (retry)="load()" />
       } @else if (user(); as current) {
-        <div class="grid items-start gap-6 xl:grid-cols-2">
-          <div class="card">
+        <div class="card">
           <app-user-form [user]="current" [roles]="roles()" [isSaving]="saving()" (submitted)="save($event)" (cancelled)="back()" />
-          </div>
-
-          <div class="card">
-          <app-images-manager [basePath]="'users/' + current._id + '/images'" />
-          </div>
         </div>
       }
     </section>
@@ -50,7 +45,8 @@ export class UserEdit implements OnInit {
   private readonly rolesService = inject(RolesService);
   private readonly alert = inject(AlertService);
   private readonly router = inject(Router);
-  private readonly store = inject(UsersStore);
+  private readonly store = inject(UsersStore); 
+  private readonly authStore = inject(AuthStore);
 
   readonly user = signal<User | null>(null);
   readonly roles = signal<Role[]>([]);
@@ -90,6 +86,16 @@ export class UserEdit implements OnInit {
     try {
       const response = await this.usersService.update(this.id(), payload);
       this.store.upsert(response.data);
+      if (response.data._id === this.authStore.user()?._id) {
+        const roleName = this.roles().find((role) => role._id === response.data.roleId)?.name;
+        this.authStore.updateUser({
+          firstName: response.data.firstName,
+          lastName: response.data.lastName,
+          email: response.data.email,
+          avatarUrl: response.data.avatarUrl,
+          ...(roleName ? { role: roleName as AuthRole } : {}),
+        });
+      }
       await this.alert.toast('Usuario actualizado', `${response.data.firstName} ${response.data.lastName}`);
       await this.router.navigate(['/users']);
     } catch {

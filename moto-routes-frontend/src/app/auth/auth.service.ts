@@ -9,32 +9,31 @@ export class AuthService {
   private readonly api = inject(ApiService);
   private readonly store = inject(AuthStore);
 
-  /** El servidor fija la cookie access_token. Aquí solo guardamos el usuario que devuelve. */
+  /** El servidor fija la cookie HttpOnly y devuelve el token, que se guarda en el store. */
   async login(credentials: LoginRequest): Promise<void> {
     const response = await this.api.post<ApiResponse<LoginResponseData>>('auth/login', credentials);
-    this.store.login(response.data.user);
-    await this.restoreSession();
+    this.store.setSession({ token: response.data.token, user: response.data.user });
   }
 
-  /** El servidor revoca el token y borra la cookie. Aunque falle la petición, se limpia la sesión local. */
+  /** El servidor revoca el token y borra la cookie. Aunque la petición falle, el store se limpia. */
   async logout(): Promise<void> {
     try {
       await this.api.post<ApiResponse<null>>('auth/logout', {});
     } catch {
-      // Si la sesión ya había caducado, no hay nada que revocar.
+      // Si el token ya había caducado, no hay nada que revocar.
     } finally {
       this.store.logout();
     }
   }
 
   /**
-   * Al arrancar la app no hay token que leer: preguntamos al servidor con la cookie.
-   * Si responde 401, no hay sesión.
+   * Al arrancar o recargar: el navegador envía la cookie sola y el servidor devuelve
+   * el token y el usuario. Si no hay sesión válida (401), el store queda en null.
    */
   async restoreSession(): Promise<void> {
     try {
-      const response = await this.api.get<ApiResponse<{ user: AuthUser }>>('auth/me');
-      this.store.login(response.data.user);
+      const response = await this.api.get<ApiResponse<{ token: string; user: AuthUser }>>('auth/session');
+      this.store.setSession({ token: response.data.token, user: response.data.user });
     } catch {
       this.store.logout();
     }

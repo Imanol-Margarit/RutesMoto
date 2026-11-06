@@ -9,8 +9,6 @@ import { UsersStore } from '../../../../core/stores/users.store';
 import { ErrorState } from '../../../../shared/components/error-state/error-state';
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { UserForm } from '../../components/user-form/user-form';
-import { AuthRole } from '../../../../auth/auth.models';
-import { AuthStore } from '../../../../auth/auth.store';
 
 @Component({
   selector: 'app-user-edit',
@@ -45,8 +43,7 @@ export class UserEdit implements OnInit {
   private readonly rolesService = inject(RolesService);
   private readonly alert = inject(AlertService);
   private readonly router = inject(Router);
-  private readonly store = inject(UsersStore); 
-  private readonly authStore = inject(AuthStore);
+  private readonly store = inject(UsersStore);
 
   readonly user = signal<User | null>(null);
   readonly roles = signal<Role[]>([]);
@@ -86,16 +83,6 @@ export class UserEdit implements OnInit {
     try {
       const response = await this.usersService.update(this.id(), payload);
       this.store.upsert(response.data);
-      if (response.data._id === this.authStore.user()?._id) {
-        const roleName = this.roles().find((role) => role._id === response.data.roleId)?.name;
-        this.authStore.updateUser({
-          firstName: response.data.firstName,
-          lastName: response.data.lastName,
-          email: response.data.email,
-          avatarUrl: response.data.avatarUrl,
-          ...(roleName ? { role: roleName as AuthRole } : {}),
-        });
-      }
       await this.alert.toast('Usuario actualizado', `${response.data.firstName} ${response.data.lastName}`);
       await this.router.navigate(['/users']);
     } catch {

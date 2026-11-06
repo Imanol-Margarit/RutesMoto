@@ -11,6 +11,7 @@ import { routes } from './app.routes';
 import { requestInterceptor } from './core/interceptors/request.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { authInterceptor } from './auth/auth.interceptor';
 import { AuthService } from './auth/auth.service';
 
 export const appConfig: ApplicationConfig = {
@@ -22,7 +23,7 @@ export const appConfig: ApplicationConfig = {
     // Los parámetros de ruta (:id) llegan como input() de cada página.
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(
-      withInterceptors([requestInterceptor, loadingInterceptor, errorInterceptor])
+      withInterceptors([requestInterceptor, authInterceptor, loadingInterceptor, errorInterceptor])
     )
   ]
 };

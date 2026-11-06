@@ -31,3 +31,11 @@ form routes
 
 
 falta tambe en algun que tinga async await ara ns quin es
+
+
+---------------------------------------------
+app.config gaste auth.interceptor
+pilla el token i el envia
+pero service o estore te que guardar el token y el borra el posa a null
+adminGuard a totes les rutes en app.routes
+separar la logica del negoci de les pages , de les components que son nomes Ui 

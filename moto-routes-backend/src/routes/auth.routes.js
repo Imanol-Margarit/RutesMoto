@@ -49,4 +49,20 @@ router.post("/login", validate(loginSchema), authController.login);
 router.post("/logout", authenticate, authController.logout);
 router.get("/me", authenticate, authController.me);
 
+/**
+ * @swagger
+ * /api/auth/session:
+ *   get:
+ *     summary: Recuperar la sesión activa (token y usuario) a partir de la cookie
+ *     tags: [Autenticación]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Token y datos del usuario
+ *       401:
+ *         description: Sin sesión válida
+ */
+router.get("/session", authenticate, authController.session);
+
 export default router;

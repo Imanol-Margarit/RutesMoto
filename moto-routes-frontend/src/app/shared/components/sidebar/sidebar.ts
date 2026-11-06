@@ -25,22 +25,21 @@ import { BrandLogo } from '../brand-logo/brand-logo';
       </a>
 
       <nav class="flex-1 space-y-7 overflow-y-auto px-3 py-6">
-        <div>
-          <p class="section-label">Gestión</p>
-          <ul class="space-y-1">
-            <li><a routerLink="/routes" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Rutas</a></li>
-            <li><a routerLink="/departures" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Salidas</a></li>
-            <li><a routerLink="/hosts" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Guías</a></li>
-            <li><a routerLink="/categories" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Categorías</a></li>
-            <li><a routerLink="/locations" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Localizaciones</a></li>
-            @if (canManageUsers()) {
+        <!-- Gestión: solo admin y host -->
+        @if (canManageUsers()) {
+          <div>
+            <p class="section-label">Gestión</p>
+            <ul class="space-y-1">
+              <li><a routerLink="/routes" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Rutas</a></li>
+              <li><a routerLink="/departures" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Salidas</a></li>
+              <li><a routerLink="/hosts" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Guías</a></li>
+              <li><a routerLink="/categories" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Categorías</a></li>
+              <li><a routerLink="/locations" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Localizaciones</a></li>
               <li><a routerLink="/users" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Usuarios</a></li>
-            }
-            @if (canManageUsers()) {
-            <li><a routerLink="/roles" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Roles</a></li>
-            }
-          </ul>
-        </div>
+              <li><a routerLink="/roles" routerLinkActive="nav-link-active" (click)="closed.emit()" class="nav-link block">Roles</a></li>
+            </ul>
+          </div>
+        }
 
         <div>
           <p class="section-label">Cuenta</p>

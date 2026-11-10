@@ -436,13 +436,20 @@ Errores de validación:
 **DELETE** `{{baseUrl}}/api/users/{{userId}}` → **200** o **409**
 **PATCH** `{{baseUrl}}/api/users/{{userId}}/restore` → **200**
 
-### 9.6 Imágenes de un usuario
-**GET** / **POST** `{{baseUrl}}/api/users/{{userId}}/images`
-**PATCH** / **DELETE** `{{baseUrl}}/api/users/{{userId}}/images/{{imageId}}`
+## 10. Tienda pública (sin sesión)
 
----
+- `GET {{baseUrl}}/api/shop/categories`, `/hosts`, `/locations` → **200**.
+- `GET {{baseUrl}}/api/shop/routes?search=curva&difficulty=facil,media&sort=distance_asc&limit=6&page=1` → **200** con `data.items` y `data.pagination`.
+- `GET {{baseUrl}}/api/shop/routes?difficulty=imposible` → **400**.
+- `GET {{baseUrl}}/api/shop/routes/{{slug}}` → **200** con imágenes y salidas.
+- `GET {{baseUrl}}/api/shop/routes/{{slug}}/departures` → **200** con salidas y `seatsLeft`.
 
-## 10. Flujo recomendado de prueba
+## 11. Sesión por cookie
+
+- `GET {{baseUrl}}/api/auth/session` (con la cookie del login) → **200** con `token` y `user`.
+- `GET {{baseUrl}}/api/auth/me` → **200** con `avatarUrl`.
+
+## 12. Flujo recomendado de prueba
 
 1. `GET /api/health`.
 2. Sembrar: `npm run seed`. Copia `routeId`, `hostId`, `categoryId`, `locationId`, `roleId`, `userId` y `departureId`.

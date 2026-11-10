@@ -3,7 +3,7 @@
  * columnMap: { camelCase: "snake_case" } definido en cada model.
  */
 export function toColumns(columnMap, data) {
-  const keys = Object.keys(data);
+  const keys = Object.keys(data).filter((key) => data[key] !== undefined && columnMap[key]);
   return {
     names: keys.map((key) => columnMap[key]),
     values: keys.map((key) => data[key])

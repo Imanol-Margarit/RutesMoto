@@ -34,7 +34,7 @@ const router = Router();
  *         $ref: '#/components/responses/ValidationError'
  */
 // Las rutas fijas van antes de "/:id": si no, Express tomaría "active" como id.
-router.get("/", departureController.list);
+router.get("/", authenticate, requireWriter, departureController.list);
 router.post("/", authenticate, requireWriter, validate(departureSchemas.create), departureController.create);
 
 /**
@@ -47,7 +47,7 @@ router.post("/", authenticate, requireWriter, validate(departureSchemas.create),
  *       200:
  *         description: Salidas con isActive = true
  */
-router.get("/active", departureController.listActive);
+router.get("/active", authenticate, requireWriter, departureController.listActive);
 
 /**
  * @swagger
@@ -59,7 +59,7 @@ router.get("/active", departureController.listActive);
  *       200:
  *         description: Salidas con isActive = false
  */
-router.get("/inactive", departureController.listInactive);
+router.get("/inactive", authenticate, requireWriter, departureController.listInactive);
 
 /**
  * @swagger
@@ -71,7 +71,7 @@ router.get("/inactive", departureController.listInactive);
  *       200:
  *         description: Salidas con deletedAt distinto de null
  */
-router.get("/deleted", departureController.listDeleted);
+router.get("/deleted", authenticate, requireWriter, departureController.listDeleted);
 
 /**
  * @swagger
@@ -87,8 +87,8 @@ router.get("/deleted", departureController.listDeleted);
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/slug/:slug", validate(slugParamsSchema, "params"), departureController.getBySlug);
-router.get("/sku/:sku", validate(departureSkuParamsSchema, "params"), departureController.getBySku);
+router.get("/slug/:slug", authenticate, requireWriter, validate(slugParamsSchema, "params"), departureController.getBySlug);
+router.get("/sku/:sku", authenticate, requireWriter, validate(departureSkuParamsSchema, "params"), departureController.getBySku);
 
 /**
  * @swagger
@@ -133,7 +133,7 @@ router.get("/sku/:sku", validate(departureSkuParamsSchema, "params"), departureC
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/:id", validate(uuidParamsSchema, "params"), departureController.getById);
+router.get("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), departureController.getById);
 router.patch("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), validate(departureSchemas.update), departureController.update);
 router.patch("/:id/status", authenticate, requireWriter, validate(uuidParamsSchema, "params"), validate(departureStatusSchema), departureController.setStatus);
 

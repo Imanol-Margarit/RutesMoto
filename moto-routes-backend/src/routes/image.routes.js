@@ -13,7 +13,7 @@ import { requireWriter } from "../middlewares/authorization.middleware.js";
 export function createImageRoutes(kind) {
   const router = Router({ mergeParams: true });
 
-  router.get("/", imageController.list(kind));
+  router.get("/", authenticate, requireWriter, imageController.list(kind));
   router.post("/", authenticate, requireWriter, validate(imageSchemas.create), imageController.add(kind));
   router.patch(
     "/:imageId", 

@@ -33,7 +33,7 @@ const router = Router();
  *         $ref: '#/components/responses/ValidationError'
  */
 // Las rutas fijas van antes de "/:id": si no, Express tomaría "active" como id.
-router.get("/", locationController.list);
+router.get("/", authenticate, requireWriter, locationController.list);
 router.post("/", authenticate, requireWriter, validate(locationSchemas.create), locationController.create);
 
 /**
@@ -46,7 +46,7 @@ router.post("/", authenticate, requireWriter, validate(locationSchemas.create), 
  *       200:
  *         description: Localizaciones con isActive = true
  */
-router.get("/active", locationController.listActive);
+router.get("/active", authenticate, requireWriter, locationController.listActive);
 
 /**
  * @swagger
@@ -58,7 +58,7 @@ router.get("/active", locationController.listActive);
  *       200:
  *         description: Localizaciones con isActive = false
  */
-router.get("/inactive", locationController.listInactive);
+router.get("/inactive", authenticate, requireWriter, locationController.listInactive);
 
 /**
  * @swagger
@@ -70,7 +70,7 @@ router.get("/inactive", locationController.listInactive);
  *       200:
  *         description: Localizaciones con deletedAt distinto de null
  */
-router.get("/deleted", locationController.listDeleted);
+router.get("/deleted", authenticate, requireWriter, locationController.listDeleted);
 
 /**
  * @swagger
@@ -89,7 +89,7 @@ router.get("/deleted", locationController.listDeleted);
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/slug/:slug", validate(slugParamsSchema, "params"), locationController.getBySlug);
+router.get("/slug/:slug", authenticate, requireWriter, validate(slugParamsSchema, "params"), locationController.getBySlug);
 
 /**
  * @swagger
@@ -141,7 +141,7 @@ router.get("/slug/:slug", validate(slugParamsSchema, "params"), locationControll
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/:id", validate(uuidParamsSchema, "params"), locationController.getById);
+router.get("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), locationController.getById);
 router.patch("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), validate(locationSchemas.update), locationController.update);
 router.delete("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), locationController.remove);
 

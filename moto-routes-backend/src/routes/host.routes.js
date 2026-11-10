@@ -33,7 +33,7 @@ const router = Router();
  *         $ref: '#/components/responses/ValidationError'
  */
 // Las rutas fijas van antes de "/:id": si no, Express tomaría "active" como id.
-router.get("/", hostController.list);
+router.get("/", authenticate, requireWriter, hostController.list);
 router.post("/", authenticate, requireWriter, validate(hostSchemas.create), hostController.create);
 
 /**
@@ -46,7 +46,7 @@ router.post("/", authenticate, requireWriter, validate(hostSchemas.create), host
  *       200:
  *         description: Guías con isActive = true
  */
-router.get("/active", hostController.listActive);
+router.get("/active", authenticate, requireWriter, hostController.listActive);
 
 /**
  * @swagger
@@ -58,7 +58,7 @@ router.get("/active", hostController.listActive);
  *       200:
  *         description: Guías con isActive = false
  */
-router.get("/inactive", hostController.listInactive);
+router.get("/inactive", authenticate, requireWriter, hostController.listInactive);
 
 /**
  * @swagger
@@ -70,7 +70,7 @@ router.get("/inactive", hostController.listInactive);
  *       200:
  *         description: Guías con deletedAt distinto de null
  */
-router.get("/deleted", hostController.listDeleted);
+router.get("/deleted", authenticate, requireWriter, hostController.listDeleted);
 
 /**
  * @swagger
@@ -89,7 +89,7 @@ router.get("/deleted", hostController.listDeleted);
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/slug/:slug", validate(slugParamsSchema, "params"), hostController.getBySlug);
+router.get("/slug/:slug", authenticate, requireWriter, validate(slugParamsSchema, "params"), hostController.getBySlug);
 
 /**
  * @swagger
@@ -141,7 +141,7 @@ router.get("/slug/:slug", validate(slugParamsSchema, "params"), hostController.g
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/:id", validate(uuidParamsSchema, "params"), hostController.getById);
+router.get("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), hostController.getById);
 router.patch("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), validate(hostSchemas.update), hostController.update);
 router.delete("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), hostController.remove);
 

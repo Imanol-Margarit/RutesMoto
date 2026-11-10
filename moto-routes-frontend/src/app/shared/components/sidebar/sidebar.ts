@@ -16,7 +16,7 @@ import { BrandLogo } from '../brand-logo/brand-logo';
       [class.-translate-x-full]="!open()"
       [class.translate-x-0]="open()"
     >
-      <a routerLink="/routes" (click)="closed.emit()" class="flex h-16 items-center gap-3 border-b border-sage/60 px-5">
+      <a routerLink="/shop" (click)="closed.emit()" class="flex h-16 items-center gap-3 border-b border-sage/60 px-5">
         <app-brand-logo />
         <div class="leading-tight">
           <p class="text-base font-bold tracking-tight text-slate-900">Motoruta</p>

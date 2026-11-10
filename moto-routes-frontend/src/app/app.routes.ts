@@ -1,23 +1,29 @@
 import { Routes } from '@angular/router';
 import { MainLayout } from './layouts/main-layout/main-layout';
+import { ShopLayout } from './layouts/shop-layout/shop-layout';
 import { LoginPage } from './auth/login.page';
 import { authGuard } from './auth/auth.guard';
 import { adminGuard } from './auth/admin.guard';
 
 export const routes: Routes = [
+  { path: '', redirectTo: 'shop', pathMatch: 'full' },
   { path: 'login', component: LoginPage },
+  // ── Tienda pública: sin sesión ────────────────────────────────────────────
+  {
+    path: 'shop',
+    component: ShopLayout,
+    loadChildren: () => import('./features/shop/shop.routes').then((m) => m.SHOP_ROUTES)
+  },
+  // ── Panel: requiere sesión ────────────────────────────────────────────────
   {
     path: '',
     component: MainLayout,
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'routes', pathMatch: 'full' },
       {
-        // Perfil: lo ve cualquier usuario con sesión.
         path: 'profile',
         loadChildren: () => import('./features/profile/profile.routes').then((m) => m.PROFILE_ROUTES)
       },
-      // Panel: solo admin y host.
       {
         path: 'routes',
         canActivate: [adminGuard],
@@ -55,5 +61,5 @@ export const routes: Routes = [
       }
     ]
   },
-  { path: '**', redirectTo: 'routes' }
+  { path: '**', redirectTo: 'shop' }
 ];

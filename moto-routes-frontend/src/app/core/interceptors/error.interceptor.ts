@@ -7,9 +7,9 @@ import { ApiErrorBody } from '../models/api.model';
 import { AuthStore } from '../../auth/auth.store';
 
 /**
- * 401: sesión inválida o caducada -> se cierra sesión y se va a /login.
- * 403: sin permiso para esa acción -> aviso.
- * Los demás errores muestran un aviso con el mensaje de la API.
+ * 401: sesión inválida o caducada. Se borra la sesión y, solo en páginas protegidas, se lleva a /login.
+ * La comprobación de sesión al arrancar y las páginas públicas no redirigen.
+ * 403: sin permiso. Los demás errores muestran un aviso con el mensaje de la API.
  */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const alert = inject(AlertService);
@@ -21,11 +21,16 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       const body = error.error as Partial<ApiErrorBody> | null;
       const details = (body?.errors ?? []).map((item) => item.message).filter(Boolean);
       const isLoginRequest = req.url.endsWith('/auth/login');
+      const isSessionCheck = req.url.endsWith('/auth/session') || req.url.endsWith('/auth/me');
 
       if (error.status === 401 && !isLoginRequest) {
         authStore.logout();
-        void router.navigate(['/login'], { queryParams: { returnUrl: router.url } });
-        void alert.error('Sesión caducada', 'Vuelve a iniciar sesión para continuar.');
+        
+        const isPublicPage = router.url.startsWith('/shop') || router.url.startsWith('/login');
+        if (!isSessionCheck && !isPublicPage) {
+          void router.navigate(['/login'], { queryParams: { returnUrl: router.url } });
+          void alert.error('Sesión caducada', 'Vuelve a iniciar sesión para continuar.');
+        }
         return throwError(() => error);
       }
 

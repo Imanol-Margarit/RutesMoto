@@ -398,3 +398,12 @@ CREATE TABLE profiles (
         ON DELETE CASCADE
 );
 
+-- Índices de la tienda pública: filtros del catálogo, búsqueda por slug y salidas próximas.
+CREATE INDEX IF NOT EXISTS idx_rutas_catalogue ON rutas (status, is_active) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_rutas_slug ON rutas (slug);
+CREATE INDEX IF NOT EXISTS idx_rutas_distance ON rutas (distance_km) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_categories_slug ON categories (slug);
+CREATE INDEX IF NOT EXISTS idx_hosts_slug ON hosts (slug);
+CREATE INDEX IF NOT EXISTS idx_locations_slug ON locations (slug);
+CREATE INDEX IF NOT EXISTS idx_departures_ruta_start ON departures (ruta_id, start_datetime) WHERE deleted_at IS NULL;
+

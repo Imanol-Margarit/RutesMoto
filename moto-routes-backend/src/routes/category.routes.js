@@ -33,7 +33,7 @@ const router = Router();
  *         $ref: '#/components/responses/ValidationError'
  */
 // Las rutas fijas van antes de "/:id": si no, Express tomaría "active" como id.
-router.get("/", categoryController.list);
+router.get("/", authenticate, requireWriter, categoryController.list);
 router.post("/", authenticate, requireWriter, validate(categorySchemas.create), categoryController.create);
 
 /**
@@ -46,7 +46,7 @@ router.post("/", authenticate, requireWriter, validate(categorySchemas.create), 
  *       200:
  *         description: Categorías con isActive = true
  */
-router.get("/active", categoryController.listActive);
+router.get("/active", authenticate, requireWriter, categoryController.listActive);
 
 /**
  * @swagger
@@ -58,7 +58,7 @@ router.get("/active", categoryController.listActive);
  *       200:
  *         description: Categorías con isActive = false
  */
-router.get("/inactive", categoryController.listInactive);
+router.get("/inactive", authenticate, requireWriter, categoryController.listInactive);
 
 /**
  * @swagger
@@ -70,7 +70,7 @@ router.get("/inactive", categoryController.listInactive);
  *       200:
  *         description: Categorías con deletedAt distinto de null
  */
-router.get("/deleted", categoryController.listDeleted);
+router.get("/deleted", authenticate, requireWriter, categoryController.listDeleted);
 
 /**
  * @swagger
@@ -89,7 +89,7 @@ router.get("/deleted", categoryController.listDeleted);
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/slug/:slug", validate(slugParamsSchema, "params"), categoryController.getBySlug);
+router.get("/slug/:slug", authenticate, requireWriter, validate(slugParamsSchema, "params"), categoryController.getBySlug);
 
 /**
  * @swagger
@@ -141,7 +141,7 @@ router.get("/slug/:slug", validate(slugParamsSchema, "params"), categoryControll
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/:id", validate(uuidParamsSchema, "params"), categoryController.getById);
+router.get("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), categoryController.getById);
 router.patch("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), validate(categorySchemas.update), categoryController.update);
 router.delete("/:id", authenticate, requireWriter, validate(uuidParamsSchema, "params"), categoryController.remove);
 

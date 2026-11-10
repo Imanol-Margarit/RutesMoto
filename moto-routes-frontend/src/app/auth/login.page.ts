@@ -62,7 +62,9 @@ export class LoginPage {
 
   constructor() {
     // Si ya hay sesión válida, no hace falta volver a entrar.
-    if (this.authStore.isAuthenticated()) void this.router.navigate(['/routes']);
+    if (this.authStore.isAuthenticated()) {
+      void this.router.navigate([this.authStore.canWrite() ? '/routes' : '/shop']);
+    }
   }
 
   async submit(): Promise<void> {
@@ -76,7 +78,8 @@ export class LoginPage {
       const raw = this.form.getRawValue();
       await this.authService.login({ email: raw.email.trim(), password: raw.password });
 
-      const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/routes';
+      const defaultUrl = this.authStore.canWrite() ? '/routes' : '/shop';
+      const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || defaultUrl;
       await this.router.navigateByUrl(returnUrl);
     } catch {
       // El interceptor de errores ya muestra el motivo (credenciales incorrectas, etc.).

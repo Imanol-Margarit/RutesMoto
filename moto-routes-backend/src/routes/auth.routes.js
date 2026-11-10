@@ -47,6 +47,20 @@ router.post("/login", validate(loginSchema), authController.login);
  *         description: Token ausente, inválido, caducado o ya revocado
  */
 router.post("/logout", authenticate, authController.logout);
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Usuario de la sesión actual (incluye avatarUrl)
+ *     tags: [Autenticación]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Datos del usuario
+ *       401:
+ *         description: Sin sesión válida
+ */
 router.get("/me", authenticate, authController.me);
 
 /**

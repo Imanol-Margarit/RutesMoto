@@ -32,14 +32,20 @@ const CATEGORIES = [
   { name: "Curvas", description: "Carreteras con muchas curvas y horquillas", is_active: true },
   { name: "Paisaje", description: "Rutas con vistas y paisajes destacados", is_active: true },
   { name: "Off-road", description: "Tramos de tierra o pista", is_active: true },
-  { name: "Costa", description: "Recorridos junto al mar", is_active: true }
+  { name: "Costa", description: "Recorridos junto al mar", is_active: true },
+  { name: "Aventura", description: "Pistas, tierra y tramos exigentes", is_active: true },
+  { name: "Histórica", description: "Pueblos con murallas, castillos y patrimonio", is_active: true },
+  { name: "Nocturna", description: "Recorridos para salir al atardecer", is_active: true },
+  { name: "Familiar", description: "Carreteras tranquilas y paradas cortas", is_active: true }
 ];
 
 // user_id se rellena después: solo Lucía tiene cuenta de usuario con rol host.
 const HOSTS = [
   { key: "lucia", name: "Lucía Ruta Norte", biography: "Guía especializada en puertos de montaña del norte peninsular. Organiza salidas de fin de semana desde Asturias.", status: "active", is_active: true },
   { key: "javier", name: "Javier Motoviaje", biography: "Organiza salidas de fin de semana por el Mediterráneo y el interior, con paradas para comer.", status: "active", is_active: true },
-  { key: "carmen", name: "Carmen Sierra Tours", biography: "Rutas tranquilas para principiantes con paradas gastronómicas. Temporalmente sin salidas.", status: "suspended", is_active: true }
+  { key: "carmen", name: "Carmen Sierra Tours", biography: "Rutas tranquilas para principiantes con paradas gastronómicas. Temporalmente sin salidas.", status: "suspended", is_active: true },
+  { key: "ana", name: "Ana Motoviaje", biography: "Salidas de fin de semana por la sierra y los pueblos del interior, con paradas para comer.", status: "active", is_active: true },
+  { key: "pablo", name: "Pablo Costa Ruta", biography: "Rutas junto al mar y nocturnas, pensadas para grupos pequeños.", status: "active", is_active: true }
 ];
 
 const LOCATIONS = [
@@ -52,7 +58,10 @@ const LOCATIONS = [
   { key: "laguardia", city: "Laguardia", region: "País Vasco", country: "España", address: "Plaza de la Paz, 4", postal_code: "01300", latitude: 42.541200, longitude: -2.565900 },
   { key: "hecho", city: "Hecho", region: "Aragón", country: "España", address: "Plaza de Hecho, s/n", postal_code: "22760", latitude: 42.765500, longitude: -0.749000 },
   { key: "orgiva", city: "Órgiva", region: "Andalucía", country: "España", address: "Plaza de la Iglesia, s/n", postal_code: "18400", latitude: 36.898500, longitude: -3.422400 },
-  { key: "soller", city: "Sóller", region: "Islas Baleares", country: "España", address: "Puerto de Sóller, s/n", postal_code: "07100", latitude: 39.798700, longitude: 2.715000, status: "inactive" }
+  { key: "soller", city: "Sóller", region: "Islas Baleares", country: "España", address: "Puerto de Sóller, s/n", postal_code: "07100", latitude: 39.798700, longitude: 2.715000, status: "inactive" },
+  { key: "segovia", city: "Segovia", region: "Castilla y León", country: "España", address: "Plaza Mayor, 1", postal_code: "40001", latitude: 40.948000, longitude: -4.118000 },
+  { key: "cuenca", city: "Cuenca", region: "Castilla-La Mancha", country: "España", address: "Plaza Mayor, 2", postal_code: "16001", latitude: 40.070400, longitude: -2.137400 },
+  { key: "teruel", city: "Teruel", region: "Aragón", country: "España", address: "Plaza del Torico, 1", postal_code: "44001", latitude: 40.345600, longitude: -1.106500 }
 ];
 
 const ROUTES = [
@@ -65,7 +74,15 @@ const ROUTES = [
   { title: "Ruta del vino por la Rioja Alavesa", description: "Circuito entre viñedos, bodegas y pueblos medievales con carreteras secundarias en muy buen estado. Perfecto para ir sin prisa y hacer varias paradas.", difficulty: "facil", distance_km: 58.9, surface: "asfalto", start_point: "Plaza de la Paz, Laguardia", estimated_minutes: 75, status: "publicada", is_active: true, host: "javier", category: "Paisaje", location: "laguardia" },
   { title: "Valles de Hecho y Ansó", description: "Recorrido por los valles del Pirineo aragonés con carreteras estrechas, tramos sin quitamiedos y mucha curva cerrada. Requiere experiencia y atención al tráfico de ganado.", difficulty: "dificil", distance_km: 105.5, surface: "mixto", start_point: "Plaza de Hecho", estimated_minutes: 180, status: "archivada", is_active: false, host: "lucia", category: "Off-road", location: "hecho" },
   { title: "La Alpujarra granadina", description: "Pueblos colgados de la ladera sur de Sierra Nevada, con curvas continuas y desniveles marcados. Buena opción para dos jornadas con noche en la zona.", difficulty: "media", distance_km: 96.7, surface: "asfalto", start_point: "Plaza de la Iglesia, Órgiva", estimated_minutes: 170, status: "borrador", is_active: true, host: "carmen", category: "Curvas", location: "orgiva" },
-  { title: "Sa Calobra y la Serra de Tramuntana", description: "Clásico para motoristas: carretera de montaña con horquillas muy cerradas y paisaje espectacular. Mucha afluencia en temporada alta, mejor ir temprano.", difficulty: "dificil", distance_km: 62.4, surface: "asfalto", start_point: "Puerto de Sóller", estimated_minutes: 120, status: "publicada", is_active: true, host: "javier", category: "Curvas", location: "soller" }
+  { title: "Sa Calobra y la Serra de Tramuntana", description: "Clásico para motoristas: carretera de montaña con horquillas muy cerradas y paisaje espectacular. Mucha afluencia en temporada alta, mejor ir temprano.", difficulty: "dificil", distance_km: 62.4, surface: "asfalto", start_point: "Puerto de Sóller", estimated_minutes: 120, status: "publicada", is_active: true, host: "javier", category: "Curvas", location: "soller" },
+  { title: "Segovia y el puerto de Navacerrada", description: "Ruta por la sierra de Guadarrama con curvas amplias, pinares y miradores. Salida desde el acueducto.", difficulty: "media", distance_km: 95.0, surface: "asfalto", start_point: "Acueducto de Segovia", estimated_minutes: 140, status: "publicada", is_active: true, host: "ana", category: "Paisaje", location: "segovia" },
+  { title: "Hoces del Júcar en moto", description: "Carretera estrecha entre hoces y puentes de piedra. Muy bonita, con paradas cortas para fotos.", difficulty: "facil", distance_km: 54.3, surface: "asfalto", start_point: "Plaza Mayor de Cuenca", estimated_minutes: 90, status: "publicada", is_active: true, host: "pablo", category: "Histórica", location: "cuenca" },
+  { title: "Maestrazgo: pueblos de piedra", description: "Pistas y tramos de tierra entre pueblos amurallados del Maestrazgo. Para motos con buena suspensión.", difficulty: "dificil", distance_km: 120.0, surface: "mixto", start_point: "Plaza del Torico", estimated_minutes: 200, status: "publicada", is_active: true, host: "javier", category: "Off-road", location: "teruel" },
+  { title: "Ruta nocturna por Níjar", description: "Salida al atardecer por la costa de Almería. Carretera abierta y poco tráfico.", difficulty: "facil", distance_km: 40.0, surface: "asfalto", start_point: "Calle Real, Níjar", estimated_minutes: 75, status: "publicada", is_active: true, host: "pablo", category: "Nocturna", location: "nijar" },
+  { title: "Valle de Ansó en familia", description: "Recorrido suave por el valle, apto para principiantes y con paradas en pueblos de montaña.", difficulty: "facil", distance_km: 45.0, surface: "asfalto", start_point: "Plaza de Hecho", estimated_minutes: 80, status: "publicada", is_active: true, host: "ana", category: "Familiar", location: "hecho" },
+  { title: "Sierra de Gata: aventura de tierra", description: "Tramos de pista entre castaños y pueblos serranos. Requiere experiencia en tierra.", difficulty: "media", distance_km: 88.0, surface: "tierra", start_point: "Plaza Mayor de Plasencia", estimated_minutes: 160, status: "publicada", is_active: true, host: "lucia", category: "Aventura", location: "plasencia" },
+  { title: "Murallas de Ávila en moto", description: "Ruta histórica alrededor de la ciudad amurallada, con vistas desde la carretera de la sierra.", difficulty: "facil", distance_km: 60.0, surface: "asfalto", start_point: "Plaza Mayor de Ávila", estimated_minutes: 95, status: "publicada", is_active: true, host: "ana", category: "Histórica", location: "avila" },
+  { title: "Mallorca interior: Sóller y Deià", description: "Curvas continuas entre olivos y pueblos de la Tramuntana. Muy concurrida en verano.", difficulty: "media", distance_km: 70.0, surface: "asfalto", start_point: "Puerto de Sóller", estimated_minutes: 110, status: "publicada", is_active: true, host: "javier", category: "Costa", location: "olot" }
 ];
 
 async function seed() {
@@ -136,7 +153,7 @@ async function seed() {
     routeIds[slug] = routeId;
 
     // Las tres primeras rutas tienen varias imágenes; el resto, una principal.
-    const imageCount = index < 3 ? 3 : 1;
+    const imageCount = 3;
     for (let position = 0; position < imageCount; position += 1) {
       await insert("rutas_images", {
         ruta_id: routeId,
@@ -149,14 +166,15 @@ async function seed() {
   }
 
   // SALIDAS: cubren todos los estados y casos (programada, completa, cancelada, finalizada, inactiva)
-  const departures = [
-    { route: 0, date: "2026-11-14", start: "09:00", end: "18:00", capacity: 12, booked: 3, price: 45.0, status: "scheduled", is_active: true },
-    { route: 0, date: "2026-12-05", start: "08:30", end: "17:30", capacity: 10, booked: 10, price: 45.0, status: "full", is_active: true },
-    { route: 1, date: "2026-11-21", start: "09:00", end: "15:00", capacity: 8, booked: 0, price: 35.5, status: "cancelled", is_active: true },
-    { route: 2, date: "2026-06-20", start: "10:00", end: "19:00", capacity: 15, booked: 15, price: 60.0, status: "completed", is_active: true },
-    { route: 3, date: "2026-11-28", start: "09:30", end: "16:00", capacity: 12, booked: 5, price: 40.0, status: "scheduled", is_active: false },
-    { route: 4, date: "2026-12-12", start: "08:00", end: "20:00", capacity: 6, booked: 2, price: 120.0, status: "scheduled", is_active: true }
-  ];
+  // Salidas: varias futuras por ruta (disponibilidad y precios), una llena, una cancelada, una pasada y una inactiva.
+  const departures = [];
+  ROUTES.forEach((_, index) => {
+    departures.push({ route: index, date: `2027-03-${String(8 + (index % 18)).padStart(2, "0")}`, start: "09:00", end: "18:00", capacity: 12, booked: index % 5, price: 30 + (index % 6) * 8, status: "scheduled", is_active: true });
+    departures.push({ route: index, date: `2027-04-${String(4 + (index % 20)).padStart(2, "0")}`, start: "08:30", end: "17:30", capacity: 8, booked: 8, price: 40 + index, status: "full", is_active: true });
+  });
+  departures.push({ route: 1, date: "2027-02-14", start: "10:00", end: "16:00", capacity: 8, booked: 0, price: 35.5, status: "cancelled", is_active: true });
+  departures.push({ route: 2, date: "2026-06-20", start: "10:00", end: "19:00", capacity: 15, booked: 15, price: 60.0, status: "completed", is_active: true });
+  departures.push({ route: 3, date: "2027-05-01", start: "09:30", end: "16:00", capacity: 12, booked: 5, price: 40.0, status: "scheduled", is_active: false });
   for (const departure of departures) {
     const route = ROUTES[departure.route];
     const slug = generateSlug(route.title);

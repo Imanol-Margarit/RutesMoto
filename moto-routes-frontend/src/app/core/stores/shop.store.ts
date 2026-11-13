@@ -22,7 +22,7 @@ export class ShopStore {
   readonly filters = this._filters.asReadonly();
   readonly hasActiveFilters = computed(() => {
     const f = this._filters();
-    return Boolean(f.search || f.category || f.host || f.location || f.difficulty || f.surface);
+    return Boolean(f.search || f.category || f.host || f.location || f.difficulty || f.surface || f.priceMin || f.priceMax);
   });
 
   get loaded(): boolean {

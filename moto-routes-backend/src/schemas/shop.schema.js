@@ -14,6 +14,8 @@ export const shopRouteQuerySchema = z.object({
   surface: z.string().trim().max(100).optional(),
   distanceMin: z.coerce.number().min(0, "distanceMin debe ser >= 0").optional(),
   distanceMax: z.coerce.number().min(0, "distanceMax debe ser >= 0").optional(),
+  priceMin: z.coerce.number().min(0, "priceMin debe ser >= 0").optional(),
+  priceMax: z.coerce.number().min(0, "priceMax debe ser >= 0").optional(),
   sort: z.enum(SORTS, { errorMap: () => ({ message: `sort debe ser: ${SORTS.join(", ")}` }) }).optional(),
   page: z.coerce.number().int("page debe ser entero").min(1, "page debe ser >= 1").optional(),
   limit: z.coerce.number().int("limit debe ser entero").min(1).max(50, "limit no puede superar 50").optional(),

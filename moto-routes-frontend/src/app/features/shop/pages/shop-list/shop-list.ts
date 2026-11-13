@@ -14,6 +14,7 @@ import { SearchBar } from '../../../../shared/components/search-bar/search-bar';
 import { FilterBar } from '../../../../shared/components/filter-bar/filter-bar';
 import { Pagination } from '../../../../shared/components/pagination/pagination';
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
+import { PriceRange } from '../../../../shared/components/price-range/price-range';
 import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
 import { ErrorState } from '../../../../shared/components/error-state/error-state';
 import { RouteShopCard } from '../../components/route-shop-card/route-shop-card';
@@ -35,13 +36,15 @@ function filtersFromParams(params: ParamMap): ShopFilters {
     surface: params.get('surface') ?? '',
     sort: sort && SORTS.includes(sort) ? sort : DEFAULT_SHOP_FILTERS.sort,
     page: Number.isFinite(page) && page > 0 ? page : 1,
-    limit: Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : DEFAULT_SHOP_FILTERS.limit
+    limit: Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : DEFAULT_SHOP_FILTERS.limit,
+    priceMin: params.get('priceMin') ?? '',
+    priceMax: params.get('priceMax') ?? ''
   };
 }
 
 @Component({
   selector: 'app-shop-list',
-  imports: [SearchBar, FilterBar, Pagination, SkeletonLoader, EmptyState, ErrorState, RouteShopCard],
+  imports: [SearchBar, FilterBar, PriceRange, Pagination, SkeletonLoader, EmptyState, ErrorState, RouteShopCard],
   template: `
     <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
@@ -57,8 +60,11 @@ function filtersFromParams(params: ParamMap): ShopFilters {
         }
       </header>
 
-      <div class="mb-4 max-w-xl">
-        <app-search-bar [value]="store.filters().search" (searchChange)="onSearch($event)" />
+      <div class="mb-8 grid items-center gap-4 lg:grid-cols-2">
+        <div class="flex h-24 items-end">
+          <app-search-bar class="block w-full" [value]="store.filters().search" (searchChange)="onSearch($event)" />
+        </div>
+        <app-price-range [priceMin]="store.filters().priceMin" [priceMax]="store.filters().priceMax" (rangeChange)="onFilterChange($event)" />
       </div>
 
       <app-filter-bar class="mb-8 block"

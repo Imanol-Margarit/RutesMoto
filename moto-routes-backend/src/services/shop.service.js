@@ -61,6 +61,9 @@ export const shopService = {
     if (query.distanceMin !== undefined && query.distanceMax !== undefined && query.distanceMin > query.distanceMax) {
       throw new AppError("distanceMin no puede ser mayor que distanceMax", 400);
     }
+    if (query.priceMin !== undefined && query.priceMax !== undefined && query.priceMin > query.priceMax) {
+      throw new AppError("priceMin no puede ser mayor que priceMax", 400);
+    }
 
     const filters = {
       search: query.search ?? "",
@@ -71,6 +74,8 @@ export const shopService = {
       surfaces: parseList(query.surface, SURFACES, "surface"),
       distanceMin: query.distanceMin,
       distanceMax: query.distanceMax,
+      priceMin: query.priceMin,
+      priceMax: query.priceMax,
       sort: query.sort ?? "recent",
       page,
       limit,

@@ -54,6 +54,8 @@ export interface ShopFilters {
   sort: ShopSort;
   page: number;
   limit: number;
+  priceMin: string;
+  priceMax: string;
 }
 
 export const DEFAULT_SHOP_FILTERS: ShopFilters = {
@@ -65,5 +67,7 @@ export const DEFAULT_SHOP_FILTERS: ShopFilters = {
   surface: '',
   sort: 'recent',
   page: 1,
-  limit: 9
+  limit: 9,
+  priceMin: '',
+  priceMax: ''
 };

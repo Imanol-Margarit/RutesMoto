@@ -76,10 +76,12 @@ export const shopRepository = {
     if (filters.surfaces.length) where.push(`r.surface = ANY(${add(filters.surfaces)})`);
     if (filters.distanceMin !== undefined) where.push(`r.distance_km >= ${add(filters.distanceMin)}`);
     if (filters.distanceMax !== undefined) where.push(`r.distance_km <= ${add(filters.distanceMax)}`);
+    if (filters.priceMin !== undefined) where.push(`dep.min_price >= ${add(filters.priceMin)}`);
+    if (filters.priceMax !== undefined) where.push(`dep.min_price <= ${add(filters.priceMax)}`);
 
     const whereSql = `WHERE ${where.join(" AND ")}`;
 
-    const { rows: countRows } = await pool.query(`SELECT COUNT(*)::int AS total ${BASE_FROM} ${whereSql}`, params);
+    const { rows: countRows } = await pool.query(`SELECT COUNT(*)::int AS total ${BASE_FROM} ${JOIN_CARD_DATA} ${whereSql}`, params);
 
     const listParams = [...params, filters.limit, (filters.page - 1) * filters.limit];
     const { rows } = await pool.query(

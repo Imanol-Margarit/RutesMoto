@@ -2,9 +2,9 @@ import { departureService } from "../services/departure.service.js";
 import { respond } from "../utils/response.util.js";
 
 export const departureController = {
-  async list(_req, res, next) {
+  async list(req, res, next) {
     try {
-      const data = await departureService.list();
+      const data = await departureService.list(req.query);
       return respond(res, 200, "Listado de salidas obtenido correctamente", data);
     } catch (error) {
       return next(error);

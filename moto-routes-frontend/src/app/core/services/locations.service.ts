@@ -7,8 +7,8 @@ import { Location, LocationPayload, LocationStatus } from '../models/location.mo
 export class LocationsService {
   private readonly api = inject(ApiService);
 
-  getAll(): Promise<ApiResponse<Location[]>> {
-    return this.api.get<ApiResponse<Location[]>>('locations');
+  getAll(params: Record<string, string> = {}): Promise<ApiResponse<Location[]>> {
+    return this.api.get<ApiResponse<Location[]>>('locations', params);
   }
 
   getById(id: string): Promise<ApiResponse<Location>> {

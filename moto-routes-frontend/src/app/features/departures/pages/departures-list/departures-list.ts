@@ -1,7 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { AdminFilterBar, AdminFilterField, AdminFilterOption } from '../../../../shared/components/admin-filter-bar/admin-filter-bar';
+import { compactParams, readParams } from '../../../../core/utils/list-query';
+import { RoutesService } from '../../../../core/services/routes.service';
 import { AuthStore } from '../../../../auth/auth.store';
 import { DecimalPipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Departure, DEPARTURE_STATUS_LABELS } from '../../../../core/models/departure.model';
 import { AlertService } from '../../../../core/services/alert.service';
 import { DeparturesService } from '../../../../core/services/departures.service';
@@ -10,9 +14,11 @@ import { EmptyState } from '../../../../shared/components/empty-state/empty-stat
 import { ErrorState } from '../../../../shared/components/error-state/error-state';
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 
+const FILTER_KEYS = ['search', 'isActive', 'status', 'routeId', 'priceMin', 'priceMax'];
+
 @Component({
   selector: 'app-departures-list',
-  imports: [DecimalPipe, RouterLink, SkeletonLoader, ErrorState, EmptyState],
+  imports: [DecimalPipe, RouterLink, SkeletonLoader, ErrorState, EmptyState, AdminFilterBar],
   template: `
     <section class="page">
       <header class="page-header">
@@ -24,6 +30,8 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
           <a routerLink="/departures/create" class="btn-primary">Nueva salida</a>
         }
       </header>
+
+      <app-admin-filter-bar [fields]="filterFields()" [values]="filters()" (valuesChange)="onFiltersChange($event)" />
 
       @if (store.loading()) {
         <app-skeleton-loader [rows]="6" />
@@ -95,7 +103,20 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
     </section>
   `
 })
-export class DeparturesList {
+export class DeparturesList implements OnDestroy {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private querySub?: Subscription;
+  private readonly routesService = inject(RoutesService);
+  readonly filters = signal<Record<string, string>>({});
+  readonly routeOptions = signal<AdminFilterOption[]>([]);
+  readonly filterFields = computed<AdminFilterField[]>(() => [
+    { key: 'status', label: 'Estado', type: 'select', options: [{ value: 'scheduled', label: 'Programada' }, { value: 'full', label: 'Completa' }, { value: 'cancelled', label: 'Cancelada' }, { value: 'completed', label: 'Finalizada' }] },
+    { key: 'routeId', label: 'Ruta', type: 'select', options: this.routeOptions() },
+    { key: 'priceMin', label: 'Precio', type: 'range' },
+    { key: 'priceMax', label: 'Precio máx.', type: 'range' },
+    { key: 'isActive', label: 'Activo', type: 'select', options: [{ value: 'true', label: 'Sí' }, { value: 'false', label: 'No' }] }
+  ]);
   readonly canWrite = inject(AuthStore).canWrite;
   readonly store = inject(DeparturesStore);
   private readonly departuresService = inject(DeparturesService);
@@ -105,14 +126,35 @@ export class DeparturesList {
   readonly busyId = signal<string | null>(null);
 
   constructor() {
-    void this.load();
+    this.querySub = this.route.queryParamMap.subscribe((params) => {
+      this.filters.set(readParams(params, FILTER_KEYS));
+      void this.load();
+    });
+    void this.loadOptions();
+  }
+
+  ngOnDestroy(): void {
+    this.querySub?.unsubscribe();
+  }
+
+  onFiltersChange(values: Record<string, string>): void {
+    void this.router.navigate([], { relativeTo: this.route, queryParams: compactParams(values) });
+  }
+
+  private async loadOptions(): Promise<void> {
+    try {
+      const routes = await this.routesService.getAll();
+      this.routeOptions.set(routes.data.map((r) => ({ value: r._id, label: r.title })));
+    } catch {
+      // Sin opciones, el filtro queda en Todas.
+    }
   }
 
   async load(): Promise<void> {
     this.store.setLoading(true);
     this.store.setError(null);
     try {
-      const response = await this.departuresService.getAll();
+      const response = await this.departuresService.getAll(compactParams(this.filters()));
       this.store.setItems(response.data);
     } catch {
       this.store.setError('No se pudieron cargar las salidas. Inténtalo de nuevo.');

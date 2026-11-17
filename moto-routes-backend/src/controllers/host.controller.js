@@ -2,9 +2,9 @@ import { hostService } from "../services/host.service.js";
 import { respond } from "../utils/response.util.js";
 
 export const hostController = {
-  async list(_req, res, next) {
+  async list(req, res, next) {
     try {
-      const data = await hostService.list();
+      const data = await hostService.list(req.query);
       return respond(res, 200, "Listado de guías obtenido correctamente", data);
     } catch (error) {
       return next(error);

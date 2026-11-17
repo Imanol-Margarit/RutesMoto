@@ -1,3 +1,4 @@
+import { escapeLike } from "../utils/list-filters.js";
 import { pool } from "../config/db.js";
 import { roleModel } from "../models/role.model.js";
 import { toColumns } from "../utils/sql.util.js";
@@ -9,14 +10,19 @@ const SELECT_CATEGORY = `
   FROM ${roleModel.table} AS t`;
 
 export const roleRepository = {
-  async findAll({ isActive } = {}) {
+  async findAll(filters = {}) {
     const params = [];
-    let where = "t.deleted_at IS NULL";
-    if (typeof isActive === "boolean") {
-      params.push(isActive);
-      where += " AND t.is_active = $1";
+    const add = (value) => {
+      params.push(value);
+      return `$${params.length}`;
+    };
+    const where = ["t.deleted_at IS NULL"];
+    if (typeof filters.isActive === "boolean") where.push(`t.is_active = ${add(filters.isActive)}`);
+    if (filters.search) {
+      const pattern = add(`%${escapeLike(filters.search)}%`);
+      where.push(`(t.name ILIKE ${pattern} OR t.description ILIKE ${pattern})`);
     }
-    const { rows } = await pool.query(`${SELECT_CATEGORY} WHERE ${where} ORDER BY t.name ASC`, params);
+    const { rows } = await pool.query(`${SELECT_CATEGORY} WHERE ${where.join(" AND ")} ORDER BY t.name ASC`, params);
     return rows;
   },
 

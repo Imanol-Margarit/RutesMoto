@@ -1,3 +1,4 @@
+import { escapeLike } from "../utils/list-filters.js";
 import { pool } from "../config/db.js";
 import { departureModel } from "../models/departure.model.js";
 import { toColumns } from "../utils/sql.util.js";
@@ -16,14 +17,23 @@ const SELECT_DEPARTURE = `
 const toDeparture = (row) => (row ? { ...row, price: Number(row.price) } : null);
 
 export const departureRepository = {
-  async findAll({ isActive } = {}) {
+  async findAll(filters = {}) {
     const params = [];
-    let where = "t.deleted_at IS NULL";
-    if (typeof isActive === "boolean") {
-      params.push(isActive);
-      where += " AND t.is_active = $1";
+    const add = (value) => {
+      params.push(value);
+      return `$${params.length}`;
+    };
+    const where = ["t.deleted_at IS NULL"];
+    if (typeof filters.isActive === "boolean") where.push(`t.is_active = ${add(filters.isActive)}`);
+    if (filters.search) {
+      const pattern = add(`%${escapeLike(filters.search)}%`);
+      where.push(`(t.sku ILIKE ${pattern} OR t.slug ILIKE ${pattern})`);
     }
-    const { rows } = await pool.query(`${SELECT_DEPARTURE} WHERE ${where} ORDER BY t.start_datetime ASC`, params);
+    if (filters.status !== undefined) where.push(`t.status = ${add(filters.status)}`);
+    if (filters.routeId !== undefined) where.push(`t.ruta_id = ${add(filters.routeId)}`);
+    if (filters.priceMin !== undefined) where.push(`t.price >= ${add(filters.priceMin)}`);
+    if (filters.priceMax !== undefined) where.push(`t.price <= ${add(filters.priceMax)}`);
+    const { rows } = await pool.query(`${SELECT_DEPARTURE} WHERE ${where.join(" AND ")} ORDER BY t.start_datetime ASC`, params);
     return rows.map(toDeparture);
   },
 

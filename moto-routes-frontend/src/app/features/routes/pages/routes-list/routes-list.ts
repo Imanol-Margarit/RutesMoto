@@ -1,6 +1,12 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { AdminFilterBar, AdminFilterField, AdminFilterOption } from '../../../../shared/components/admin-filter-bar/admin-filter-bar';
+import { compactParams, readParams } from '../../../../core/utils/list-query';
+import { HostsService } from '../../../../core/services/hosts.service';
+import { CategoriesService } from '../../../../core/services/categories.service';
+import { LocationsService } from '../../../../core/services/locations.service';
 import { AuthStore } from '../../../../auth/auth.store';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MotoRoute, DIFFICULTY_LABELS, STATUS_LABELS, SURFACE_LABELS } from '../../../../core/models/route.model';
 import { AlertService } from '../../../../core/services/alert.service';
 import { RoutesService } from '../../../../core/services/routes.service';
@@ -9,9 +15,11 @@ import { EmptyState } from '../../../../shared/components/empty-state/empty-stat
 import { ErrorState } from '../../../../shared/components/error-state/error-state';
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 
+const FILTER_KEYS = ['search', 'isActive', 'status', 'difficulty', 'surface', 'hostId', 'categoryId', 'locationId'];
+
 @Component({
   selector: 'app-routes-list',
-  imports: [RouterLink, SkeletonLoader, ErrorState, EmptyState],
+  imports: [RouterLink, SkeletonLoader, ErrorState, EmptyState, AdminFilterBar],
   template: `
     <section class="page">
       <header class="page-header">
@@ -23,6 +31,8 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
           <a routerLink="/routes/create" class="btn-primary">Nueva ruta</a>
         }
       </header>
+
+      <app-admin-filter-bar [fields]="filterFields()" [values]="filters()" (valuesChange)="onFiltersChange($event)" />
 
       @if (store.loading()) {
         <app-skeleton-loader [rows]="6" />
@@ -101,7 +111,26 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
     </section>
   `
 })
-export class RoutesList {
+export class RoutesList implements OnDestroy {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private querySub?: Subscription;
+  private readonly hostsService = inject(HostsService);
+  private readonly categoriesService = inject(CategoriesService);
+  private readonly locationsService = inject(LocationsService);
+  readonly filters = signal<Record<string, string>>({});
+  readonly hostOptions = signal<AdminFilterOption[]>([]);
+  readonly categoryOptions = signal<AdminFilterOption[]>([]);
+  readonly locationOptions = signal<AdminFilterOption[]>([]);
+  readonly filterFields = computed<AdminFilterField[]>(() => [
+    { key: 'status', label: 'Estado', type: 'select', options: [{ value: 'borrador', label: 'Borrador' }, { value: 'publicada', label: 'Publicada' }, { value: 'archivada', label: 'Archivada' }] },
+    { key: 'difficulty', label: 'Dificultad', type: 'select', options: [{ value: 'facil', label: 'Fácil' }, { value: 'media', label: 'Media' }, { value: 'dificil', label: 'Difícil' }] },
+    { key: 'surface', label: 'Firme', type: 'select', options: [{ value: 'asfalto', label: 'Asfalto' }, { value: 'mixto', label: 'Mixto' }, { value: 'tierra', label: 'Tierra' }] },
+    { key: 'hostId', label: 'Guía', type: 'select', options: this.hostOptions() },
+    { key: 'categoryId', label: 'Categoría', type: 'select', options: this.categoryOptions() },
+    { key: 'locationId', label: 'Localización', type: 'select', options: this.locationOptions() },
+    { key: 'isActive', label: 'Activo', type: 'select', options: [{ value: 'true', label: 'Sí' }, { value: 'false', label: 'No' }] }
+  ]);
   readonly canWrite = inject(AuthStore).canWrite;
   readonly store = inject(RoutesStore);
   private readonly routesService = inject(RoutesService);
@@ -113,14 +142,37 @@ export class RoutesList {
   readonly busyId = signal<string | null>(null);
 
   constructor() {
-    void this.load();
+    this.querySub = this.route.queryParamMap.subscribe((params) => {
+      this.filters.set(readParams(params, FILTER_KEYS));
+      void this.load();
+    });
+    void this.loadOptions();
+  }
+
+  ngOnDestroy(): void {
+    this.querySub?.unsubscribe();
+  }
+
+  onFiltersChange(values: Record<string, string>): void {
+    void this.router.navigate([], { relativeTo: this.route, queryParams: compactParams(values) });
+  }
+
+  private async loadOptions(): Promise<void> {
+    try {
+      const [hosts, categories, locations] = await Promise.all([this.hostsService.getAll(), this.categoriesService.getAll(), this.locationsService.getAll()]);
+      this.hostOptions.set(hosts.data.map((h) => ({ value: h._id, label: h.name })));
+      this.categoryOptions.set(categories.data.map((c) => ({ value: c._id, label: c.name })));
+      this.locationOptions.set(locations.data.map((l) => ({ value: l._id, label: l.city })));
+    } catch {
+      // Sin opciones, los filtros quedan en Todos.
+    }
   }
 
   async load(): Promise<void> {
     this.store.setLoading(true);
     this.store.setError(null);
     try {
-      const response = await this.routesService.getAll();
+      const response = await this.routesService.getAll(compactParams(this.filters()));
       this.store.setItems(response.data);
     } catch {
       this.store.setError('No se pudieron cargar las rutas. Inténtalo de nuevo.');

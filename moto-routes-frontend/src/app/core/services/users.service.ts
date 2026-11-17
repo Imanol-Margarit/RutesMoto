@@ -7,8 +7,8 @@ import { User, UserPayload } from '../models/user.model';
 export class UsersService {
   private readonly api = inject(ApiService);
 
-  getAll(): Promise<ApiResponse<User[]>> {
-    return this.api.get<ApiResponse<User[]>>('users');
+  getAll(params: Record<string, string> = {}): Promise<ApiResponse<User[]>> {
+    return this.api.get<ApiResponse<User[]>>('users', params);
   }
 
   getById(id: string): Promise<ApiResponse<User>> {

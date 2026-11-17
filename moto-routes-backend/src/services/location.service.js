@@ -1,3 +1,4 @@
+import { parseListQuery, LOCATION_FILTERS } from "../utils/list-filters.js";
 import { locationRepository } from "../repositories/location.repository.js";
 import { routeRepository } from "../repositories/route.repository.js";
 import { AppError } from "../utils/app-error.js";
@@ -26,8 +27,8 @@ async function validateCanDeactivateLocation(locationId) {
 }
 
 export const locationService = {
-  async list() {
-    return locationRepository.findAll();
+  async list(query = {}) {
+    return locationRepository.findAll(parseListQuery(query, LOCATION_FILTERS));
   },
 
   async listActive() {

@@ -2,9 +2,9 @@ import { userService } from "../services/user.service.js";
 import { respond } from "../utils/response.util.js";
 
 export const userController = {
-  async list(_req, res, next) {
+  async list(req, res, next) {
     try {
-      const data = await userService.list();
+      const data = await userService.list(req.query);
       return respond(res, 200, "Listado de usuarios obtenido correctamente", data);
     } catch (error) {
       return next(error);

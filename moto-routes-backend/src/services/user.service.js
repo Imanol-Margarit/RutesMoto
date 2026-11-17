@@ -1,3 +1,4 @@
+import { parseListQuery, USER_FILTERS } from "../utils/list-filters.js";
 import { userRepository } from "../repositories/user.repository.js";
 import { profileRepository } from "../repositories/profile.repository.js";
 import { roleRepository } from "../repositories/role.repository.js";
@@ -28,8 +29,8 @@ async function validateCanDeactivateUser(userId) {
 }
 
 export const userService = {
-  async list() {
-    return userRepository.findAll();
+  async list(query = {}) {
+    return userRepository.findAll(parseListQuery(query, USER_FILTERS));
   },
 
   async listActive() {

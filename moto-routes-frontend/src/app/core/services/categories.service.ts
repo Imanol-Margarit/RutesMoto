@@ -7,8 +7,8 @@ import { Category, CategoryPayload } from '../models/category.model';
 export class CategoriesService {
   private readonly api = inject(ApiService);
 
-  getAll(): Promise<ApiResponse<Category[]>> {
-    return this.api.get<ApiResponse<Category[]>>('categories');
+  getAll(params: Record<string, string> = {}): Promise<ApiResponse<Category[]>> {
+    return this.api.get<ApiResponse<Category[]>>('categories', params);
   }
 
   getById(id: string): Promise<ApiResponse<Category>> {

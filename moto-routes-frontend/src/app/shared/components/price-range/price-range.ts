@@ -4,32 +4,48 @@ import { Component, effect, input, output, signal } from '@angular/core';
 @Component({
   selector: 'app-price-range',
   template: `
-    <div class="card grid gap-6 md:grid-cols-2">
-      <div>
-        <div class="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-slate-500">
-          <span>Precio mínimo</span>
-          <span class="text-sm normal-case text-slate-900">{{ low() }} €</span>
-        </div>
-        <input type="range" class="w-full accent-teal-700" min="0" [max]="max" step="5"
-               [value]="low()" (input)="low.set(numberOf($event))" (change)="emit()"
-               aria-label="Precio mínimo" />
+    @if (compact()) {
+      <!-- Versión compacta para el panel: una sola línea -->
+      <div class="flex h-9 items-center gap-3 rounded-xl border border-slate-300 bg-white px-3">
+        <span class="whitespace-nowrap text-[10px] font-semibold uppercase tracking-wide text-slate-500">Precio</span>
+        <span class="w-10 text-right text-xs text-slate-900">{{ low() }} €</span>
+        <input type="range" class="min-w-0 flex-1 accent-teal-700" min="0" [max]="max" step="5"
+               [value]="low()" (input)="low.set(numberOf($event))" (change)="emit()" aria-label="Precio mínimo" />
+        <span class="text-xs text-slate-400">–</span>
+        <input type="range" class="min-w-0 flex-1 accent-teal-700" min="0" [max]="max" step="5"
+               [value]="high()" (input)="high.set(numberOf($event))" (change)="emit()" aria-label="Precio máximo" />
+        <span class="w-16 whitespace-nowrap text-right text-xs text-slate-900">{{ high() >= max ? 'Sin límite' : high() + ' €' }}</span>
       </div>
+    } @else {
+      <div class="card grid h-24 grid-cols-2 content-center gap-6 !p-3">
+        <div>
+          <div class="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+            <span>Precio mínimo</span>
+            <span class="normal-case text-slate-900">{{ low() }} €</span>
+          </div>
+          <input type="range" class="w-full accent-teal-700" min="0" [max]="max" step="5"
+                 [value]="low()" (input)="low.set(numberOf($event))" (change)="emit()"
+                 aria-label="Precio mínimo" />
+        </div>
 
-      <div>
-        <div class="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-slate-500">
-          <span>Precio máximo</span>
-          <span class="text-sm normal-case text-slate-900">{{ high() >= max ? 'Sin límite' : high() + ' €' }}</span>
+        <div>
+          <div class="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+            <span>Precio máximo</span>
+            <span class="normal-case text-slate-900">{{ high() >= max ? 'Sin límite' : high() + ' €' }}</span>
+          </div>
+          <input type="range" class="w-full accent-teal-700" min="0" [max]="max" step="5"
+                 [value]="high()" (input)="high.set(numberOf($event))" (change)="emit()"
+                 aria-label="Precio máximo" />
         </div>
-        <input type="range" class="w-full accent-teal-700" min="0" [max]="max" step="5"
-               [value]="high()" (input)="high.set(numberOf($event))" (change)="emit()"
-               aria-label="Precio máximo" />
       </div>
-    </div>
+    }
   `
 })
 export class PriceRange {
   priceMin = input<string>('');
   priceMax = input<string>('');
+  /** true en el panel: una sola línea que ocupa el espacio disponible. */
+  compact = input(false);
   readonly max = 300;
 
   rangeChange = output<{ priceMin: string; priceMax: string }>();

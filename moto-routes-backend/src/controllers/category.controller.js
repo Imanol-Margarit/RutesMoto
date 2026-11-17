@@ -2,9 +2,9 @@ import { categoryService } from "../services/category.service.js";
 import { respond } from "../utils/response.util.js";
 
 export const categoryController = {
-  async list(_req, res, next) {
+  async list(req, res, next) {
     try {
-      const data = await categoryService.list();
+      const data = await categoryService.list(req.query);
       return respond(res, 200, "Listado de categorías obtenido correctamente", data);
     } catch (error) {
       return next(error);

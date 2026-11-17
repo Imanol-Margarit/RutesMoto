@@ -1,3 +1,4 @@
+import { parseListQuery, DEPARTURE_FILTERS } from "../utils/list-filters.js";
 import { randomUUID } from "node:crypto";
 import { departureRepository } from "../repositories/departure.repository.js";
 import { buildSku } from "../utils/sku.util.js";
@@ -24,8 +25,8 @@ async function buildSlug(routeId, startDatetime, excludeId = null) {
 const notFound = () => new AppError("Salida no encontrada", 404);
 
 export const departureService = {
-  async list() {
-    return departureRepository.findAll();
+  async list(query = {}) {
+    return departureRepository.findAll(parseListQuery(query, DEPARTURE_FILTERS));
   },
 
   async listActive() {

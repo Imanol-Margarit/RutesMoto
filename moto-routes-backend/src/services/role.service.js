@@ -1,3 +1,4 @@
+import { parseListQuery, ROLE_FILTERS } from "../utils/list-filters.js";
 import { roleRepository } from "../repositories/role.repository.js";
 import { userRepository } from "../repositories/user.repository.js";
 import { AppError } from "../utils/app-error.js";
@@ -24,8 +25,8 @@ async function validateCanDeactivateRole(roleId) {
 }
 
 export const roleService = {
-  async list() {
-    return roleRepository.findAll();
+  async list(query = {}) {
+    return roleRepository.findAll(parseListQuery(query, ROLE_FILTERS));
   },
 
   async listActive() {

@@ -1,3 +1,4 @@
+import { escapeLike } from "../utils/list-filters.js";
 import { pool } from "../config/db.js";
 import { locationModel } from "../models/location.model.js";
 import { toColumns } from "../utils/sql.util.js";
@@ -20,14 +21,20 @@ const toLocation = (row) => {
 };
 
 export const locationRepository = {
-  async findAll({ isActive } = {}) {
+  async findAll(filters = {}) {
     const params = [];
-    let where = "t.deleted_at IS NULL";
-    if (typeof isActive === "boolean") {
-      params.push(isActive);
-      where += " AND t.is_active = $1";
+    const add = (value) => {
+      params.push(value);
+      return `$${params.length}`;
+    };
+    const where = ["t.deleted_at IS NULL"];
+    if (typeof filters.isActive === "boolean") where.push(`t.is_active = ${add(filters.isActive)}`);
+    if (filters.search) {
+      const pattern = add(`%${escapeLike(filters.search)}%`);
+      where.push(`(t.city ILIKE ${pattern} OR t.region ILIKE ${pattern} OR t.country ILIKE ${pattern})`);
     }
-    const { rows } = await pool.query(`${SELECT_LOCATION} WHERE ${where} ORDER BY t.city ASC`, params);
+    if (filters.status !== undefined) where.push(`t.status = ${add(filters.status)}`);
+    const { rows } = await pool.query(`${SELECT_LOCATION} WHERE ${where.join(" AND ")} ORDER BY t.city ASC`, params);
     return rows.map(toLocation);
   },
 

@@ -1,6 +1,9 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { AdminFilterBar, AdminFilterField, AdminFilterOption } from '../../../../shared/components/admin-filter-bar/admin-filter-bar';
+import { compactParams, readParams } from '../../../../core/utils/list-query';
 import { AuthStore } from '../../../../auth/auth.store';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { User } from '../../../../core/models/user.model';
 import { AlertService } from '../../../../core/services/alert.service';
 import { RolesService } from '../../../../core/services/roles.service';
@@ -11,9 +14,11 @@ import { ErrorState } from '../../../../shared/components/error-state/error-stat
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { Role } from '../../../../core/models/role.model';
 
+const FILTER_KEYS = ['search', 'isActive', 'roleId'];
+
 @Component({
   selector: 'app-users-list',
-  imports: [RouterLink, SkeletonLoader, ErrorState, EmptyState],
+  imports: [RouterLink, SkeletonLoader, ErrorState, EmptyState, AdminFilterBar],
   template: `
     <section class="page">
       <header class="page-header">
@@ -25,6 +30,8 @@ import { Role } from '../../../../core/models/role.model';
           <a routerLink="/users/create" class="btn-primary">Nuevo usuario</a>
         }
       </header>
+
+      <app-admin-filter-bar [fields]="filterFields()" [values]="filters()" (valuesChange)="onFiltersChange($event)" />
 
       @if (store.loading()) {
         <app-skeleton-loader [rows]="6" />
@@ -87,7 +94,16 @@ import { Role } from '../../../../core/models/role.model';
     </section>
   `
 })
-export class UsersList {
+export class UsersList implements OnDestroy {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private querySub?: Subscription;
+  readonly filters = signal<Record<string, string>>({});
+  readonly roleOptions = computed<AdminFilterOption[]>(() => this.roles().map((r) => ({ value: r._id, label: r.name })));
+  readonly filterFields = computed<AdminFilterField[]>(() => [
+    { key: 'roleId', label: 'Rol', type: 'select', options: this.roleOptions() },
+    { key: 'isActive', label: 'Activo', type: 'select', options: [{ value: 'true', label: 'Sí' }, { value: 'false', label: 'No' }] }
+  ]);
   readonly canWrite = inject(AuthStore).canWrite;
   readonly store = inject(UsersStore);
   private readonly usersService = inject(UsersService);
@@ -98,14 +114,25 @@ export class UsersList {
   readonly busyId = signal<string | null>(null);
 
   constructor() {
-    void this.load();
+    this.querySub = this.route.queryParamMap.subscribe((params) => {
+      this.filters.set(readParams(params, FILTER_KEYS));
+      void this.load();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.querySub?.unsubscribe();
+  }
+
+  onFiltersChange(values: Record<string, string>): void {
+    void this.router.navigate([], { relativeTo: this.route, queryParams: compactParams(values) });
   }
 
   async load(): Promise<void> {
     this.store.setLoading(true);
     this.store.setError(null);
     try {
-      const [users, roles] = await Promise.all([this.usersService.getAll(), this.rolesService.getActive()]);
+      const [users, roles] = await Promise.all([this.usersService.getAll(compactParams(this.filters())), this.rolesService.getActive()]);
       this.store.setItems(users.data);
       this.roles.set(roles.data);
     } catch {

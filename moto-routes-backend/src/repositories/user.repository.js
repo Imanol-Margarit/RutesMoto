@@ -1,3 +1,4 @@
+import { escapeLike } from "../utils/list-filters.js";
 import { pool } from "../config/db.js";
 import { userModel } from "../models/user.model.js";
 import { toColumns } from "../utils/sql.util.js";
@@ -10,14 +11,20 @@ const SELECT_USER = `
   FROM ${userModel.table} AS t`;
 
 export const userRepository = {
-  async findAll({ isActive } = {}) {
+  async findAll(filters = {}) {
     const params = [];
-    let where = "t.deleted_at IS NULL";
-    if (typeof isActive === "boolean") {
-      params.push(isActive);
-      where += " AND t.is_active = $1";
+    const add = (value) => {
+      params.push(value);
+      return `$${params.length}`;
+    };
+    const where = ["t.deleted_at IS NULL"];
+    if (typeof filters.isActive === "boolean") where.push(`t.is_active = ${add(filters.isActive)}`);
+    if (filters.search) {
+      const pattern = add(`%${escapeLike(filters.search)}%`);
+      where.push(`(t.first_name ILIKE ${pattern} OR t.last_name ILIKE ${pattern} OR t.email ILIKE ${pattern})`);
     }
-    const { rows } = await pool.query(`${SELECT_USER} WHERE ${where} ORDER BY t.last_name ASC`, params);
+    if (filters.roleId !== undefined) where.push(`t.role_id = ${add(filters.roleId)}`);
+    const { rows } = await pool.query(`${SELECT_USER} WHERE ${where.join(" AND ")} ORDER BY t.last_name ASC`, params);
     return rows;
   },
 

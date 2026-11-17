@@ -2,9 +2,9 @@ import { roleService } from "../services/role.service.js";
 import { respond } from "../utils/response.util.js";
 
 export const roleController = {
-  async list(_req, res, next) {
+  async list(req, res, next) {
     try {
-      const data = await roleService.list();
+      const data = await roleService.list(req.query);
       return respond(res, 200, "Listado de roles obtenido correctamente", data);
     } catch (error) {
       return next(error);

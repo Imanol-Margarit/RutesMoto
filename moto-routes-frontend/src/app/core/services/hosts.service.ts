@@ -7,8 +7,8 @@ import { Host, HostPayload, HostStatus } from '../models/host.model';
 export class HostsService {
   private readonly api = inject(ApiService);
 
-  getAll(): Promise<ApiResponse<Host[]>> {
-    return this.api.get<ApiResponse<Host[]>>('hosts');
+  getAll(params: Record<string, string> = {}): Promise<ApiResponse<Host[]>> {
+    return this.api.get<ApiResponse<Host[]>>('hosts', params);
   }
 
   getById(id: string): Promise<ApiResponse<Host>> {

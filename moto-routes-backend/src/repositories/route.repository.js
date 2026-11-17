@@ -1,3 +1,4 @@
+import { escapeLike } from "../utils/list-filters.js";
 import { pool } from "../config/db.js";
 import { routeModel } from "../models/route.model.js";
 import { toColumns } from "../utils/sql.util.js";
@@ -15,14 +16,25 @@ const SELECT_ROUTE = `
 const toRoute = (row) => (row ? { ...row, distanceKm: Number(row.distanceKm) } : null);
 
 export const routeRepository = {
-  async findAll({ isActive } = {}) {
+  async findAll(filters = {}) {
     const params = [];
-    let where = "t.deleted_at IS NULL";
-    if (typeof isActive === "boolean") {
-      params.push(isActive);
-      where += " AND t.is_active = $1";
+    const add = (value) => {
+      params.push(value);
+      return `$${params.length}`;
+    };
+    const where = ["t.deleted_at IS NULL"];
+    if (typeof filters.isActive === "boolean") where.push(`t.is_active = ${add(filters.isActive)}`);
+    if (filters.search) {
+      const pattern = add(`%${escapeLike(filters.search)}%`);
+      where.push(`(t.title ILIKE ${pattern} OR t.description ILIKE ${pattern})`);
     }
-    const { rows } = await pool.query(`${SELECT_ROUTE} WHERE ${where} ORDER BY t.created_at DESC`, params);
+    if (filters.status !== undefined) where.push(`t.status = ${add(filters.status)}`);
+    if (filters.difficulty !== undefined) where.push(`t.difficulty = ${add(filters.difficulty)}`);
+    if (filters.surface !== undefined) where.push(`t.surface = ${add(filters.surface)}`);
+    if (filters.hostId !== undefined) where.push(`t.host_id = ${add(filters.hostId)}`);
+    if (filters.categoryId !== undefined) where.push(`t.category_id = ${add(filters.categoryId)}`);
+    if (filters.locationId !== undefined) where.push(`t.location_id = ${add(filters.locationId)}`);
+    const { rows } = await pool.query(`${SELECT_ROUTE} WHERE ${where.join(" AND ")} ORDER BY t.created_at DESC`, params);
     return rows.map(toRoute);
   },
 

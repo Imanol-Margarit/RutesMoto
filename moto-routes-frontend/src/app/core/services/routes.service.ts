@@ -7,8 +7,8 @@ import { MotoRoute, RoutePayload, RouteStatus } from '../models/route.model';
 export class RoutesService {
   private readonly api = inject(ApiService);
 
-  getAll(): Promise<ApiResponse<MotoRoute[]>> {
-    return this.api.get<ApiResponse<MotoRoute[]>>('routes');
+  getAll(params: Record<string, string> = {}): Promise<ApiResponse<MotoRoute[]>> {
+    return this.api.get<ApiResponse<MotoRoute[]>>('routes', params);
   }
 
   getById(id: string): Promise<ApiResponse<MotoRoute>> {

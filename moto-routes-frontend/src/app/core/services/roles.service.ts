@@ -11,8 +11,8 @@ export class RolesService {
     return this.api.get<ApiResponse<Role[]>>('roles/active');
   }
 
-  getAll(): Promise<ApiResponse<Role[]>> {
-    return this.api.get<ApiResponse<Role[]>>('roles');
+  getAll(params: Record<string, string> = {}): Promise<ApiResponse<Role[]>> {
+    return this.api.get<ApiResponse<Role[]>>('roles', params);
   }
 
   getById(id: string): Promise<ApiResponse<Role>> {

@@ -1,3 +1,4 @@
+import { parseListQuery, ROUTE_FILTERS } from "../utils/list-filters.js";
 import { routeRepository } from "../repositories/route.repository.js";
 import { AppError } from "../utils/app-error.js";
 import { generateSlug } from "../utils/slug.util.js";
@@ -39,8 +40,8 @@ async function validateCanDeactivateRoute(routeId) {
 }
 
 export const routeService = {
-  async list() {
-    return routeRepository.findAll();
+  async list(query = {}) {
+    return routeRepository.findAll(parseListQuery(query, ROUTE_FILTERS));
   },
 
   async listActive() {

@@ -1,6 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { AdminFilterBar, AdminFilterField, AdminFilterOption } from '../../../../shared/components/admin-filter-bar/admin-filter-bar';
+import { compactParams, readParams } from '../../../../core/utils/list-query';
 import { AuthStore } from '../../../../auth/auth.store';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Host, HOST_STATUS_LABELS } from '../../../../core/models/host.model';
 import { AlertService } from '../../../../core/services/alert.service';
 import { HostsService } from '../../../../core/services/hosts.service';
@@ -9,9 +12,11 @@ import { EmptyState } from '../../../../shared/components/empty-state/empty-stat
 import { ErrorState } from '../../../../shared/components/error-state/error-state';
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 
+const FILTER_KEYS = ['search', 'isActive', 'status'];
+
 @Component({
   selector: 'app-hosts-list',
-  imports: [RouterLink, SkeletonLoader, ErrorState, EmptyState],
+  imports: [RouterLink, SkeletonLoader, ErrorState, EmptyState, AdminFilterBar],
   template: `
     <section class="page">
       <header class="page-header">
@@ -23,6 +28,8 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
           <a routerLink="/hosts/create" class="btn-primary">Nuevo guía</a>
         }
       </header>
+
+      <app-admin-filter-bar [fields]="filterFields()" [values]="filters()" (valuesChange)="onFiltersChange($event)" />
 
       @if (store.loading()) {
         <app-skeleton-loader [rows]="6" />
@@ -91,7 +98,15 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
     </section>
   `
 })
-export class HostsList {
+export class HostsList implements OnDestroy {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private querySub?: Subscription;
+  readonly filters = signal<Record<string, string>>({});
+  readonly filterFields = computed<AdminFilterField[]>(() => [
+    { key: 'status', label: 'Estado', type: 'select', options: [{ value: 'active', label: 'Activo' }, { value: 'inactive', label: 'Inactivo' }, { value: 'suspended', label: 'Suspendido' }] },
+    { key: 'isActive', label: 'Activo', type: 'select', options: [{ value: 'true', label: 'Sí' }, { value: 'false', label: 'No' }] }
+  ]);
   readonly canWrite = inject(AuthStore).canWrite;
   readonly store = inject(HostsStore);
   private readonly hostsService = inject(HostsService);
@@ -101,14 +116,25 @@ export class HostsList {
   readonly busyId = signal<string | null>(null);
 
   constructor() {
-    void this.load();
+    this.querySub = this.route.queryParamMap.subscribe((params) => {
+      this.filters.set(readParams(params, FILTER_KEYS));
+      void this.load();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.querySub?.unsubscribe();
+  }
+
+  onFiltersChange(values: Record<string, string>): void {
+    void this.router.navigate([], { relativeTo: this.route, queryParams: compactParams(values) });
   }
 
   async load(): Promise<void> {
     this.store.setLoading(true);
     this.store.setError(null);
     try {
-      const response = await this.hostsService.getAll();
+      const response = await this.hostsService.getAll(compactParams(this.filters()));
       this.store.setItems(response.data);
     } catch {
       this.store.setError('No se pudieron cargar los guías. Inténtalo de nuevo.');

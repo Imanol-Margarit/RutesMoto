@@ -2,9 +2,9 @@ import { routeService } from "../services/route.service.js";
 import { respond } from "../utils/response.util.js";
 
 export const routeController = {
-  async list(_req, res, next) {
+  async list(req, res, next) {
     try {
-      const data = await routeService.list();
+      const data = await routeService.list(req.query);
       return respond(res, 200, "Listado de rutas obtenido correctamente", data);
     } catch (error) {
       return next(error);

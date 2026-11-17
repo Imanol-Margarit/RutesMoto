@@ -2,9 +2,9 @@ import { locationService } from "../services/location.service.js";
 import { respond } from "../utils/response.util.js";
 
 export const locationController = {
-  async list(_req, res, next) {
+  async list(req, res, next) {
     try {
-      const data = await locationService.list();
+      const data = await locationService.list(req.query);
       return respond(res, 200, "Listado de localizaciones obtenido correctamente", data);
     } catch (error) {
       return next(error);

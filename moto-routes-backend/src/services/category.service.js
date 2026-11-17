@@ -1,3 +1,4 @@
+import { parseListQuery, CATEGORY_FILTERS } from "../utils/list-filters.js";
 import { categoryRepository } from "../repositories/category.repository.js";
 import { routeRepository } from "../repositories/route.repository.js";
 import { AppError } from "../utils/app-error.js";
@@ -24,8 +25,8 @@ async function validateCanDeactivateCategory(categoryId) {
 }
 
 export const categoryService = {
-  async list() {
-    return categoryRepository.findAll();
+  async list(query = {}) {
+    return categoryRepository.findAll(parseListQuery(query, CATEGORY_FILTERS));
   },
 
   async listActive() {

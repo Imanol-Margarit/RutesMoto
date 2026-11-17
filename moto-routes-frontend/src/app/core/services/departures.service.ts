@@ -7,8 +7,8 @@ import { Departure, DeparturePayload, DepartureStatus } from '../models/departur
 export class DeparturesService {
   private readonly api = inject(ApiService);
 
-  getAll(): Promise<ApiResponse<Departure[]>> {
-    return this.api.get<ApiResponse<Departure[]>>('departures');
+  getAll(params: Record<string, string> = {}): Promise<ApiResponse<Departure[]>> {
+    return this.api.get<ApiResponse<Departure[]>>('departures', params);
   }
 
   getById(id: string): Promise<ApiResponse<Departure>> {

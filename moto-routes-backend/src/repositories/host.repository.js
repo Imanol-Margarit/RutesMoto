@@ -1,3 +1,4 @@
+import { escapeLike } from "../utils/list-filters.js";
 import { pool } from "../config/db.js";
 import { hostModel } from "../models/host.model.js";
 import { toColumns } from "../utils/sql.util.js";
@@ -10,14 +11,20 @@ const SELECT_HOST = `
   FROM ${hostModel.table} AS t`;
 
 export const hostRepository = {
-  async findAll({ isActive } = {}) {
+  async findAll(filters = {}) {
     const params = [];
-    let where = "t.deleted_at IS NULL";
-    if (typeof isActive === "boolean") {
-      params.push(isActive);
-      where += " AND t.is_active = $1";
+    const add = (value) => {
+      params.push(value);
+      return `$${params.length}`;
+    };
+    const where = ["t.deleted_at IS NULL"];
+    if (typeof filters.isActive === "boolean") where.push(`t.is_active = ${add(filters.isActive)}`);
+    if (filters.search) {
+      const pattern = add(`%${escapeLike(filters.search)}%`);
+      where.push(`(t.name ILIKE ${pattern} OR t.biography ILIKE ${pattern})`);
     }
-    const { rows } = await pool.query(`${SELECT_HOST} WHERE ${where} ORDER BY t.created_at DESC`, params);
+    if (filters.status !== undefined) where.push(`t.status = ${add(filters.status)}`);
+    const { rows } = await pool.query(`${SELECT_HOST} WHERE ${where.join(" AND ")} ORDER BY t.created_at DESC`, params);
     return rows;
   },
 

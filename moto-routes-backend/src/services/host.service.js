@@ -1,3 +1,4 @@
+import { parseListQuery, HOST_FILTERS } from "../utils/list-filters.js";
 import { hostRepository } from "../repositories/host.repository.js";
 import { userRepository } from "../repositories/user.repository.js";
 import { routeRepository } from "../repositories/route.repository.js";
@@ -31,8 +32,8 @@ async function validateCanDeactivateHost(hostId) {
 }
 
 export const hostService = {
-  async list() {
-    return hostRepository.findAll();
+  async list(query = {}) {
+    return hostRepository.findAll(parseListQuery(query, HOST_FILTERS));
   },
 
   async listActive() {

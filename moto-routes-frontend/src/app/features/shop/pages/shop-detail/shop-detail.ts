@@ -5,13 +5,14 @@ import { ShopService } from '../../../../core/services/shop.service';
 import { ShopDeparture, ShopRouteDetail } from '../../../../core/models/shop.model';
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { ErrorState } from '../../../../shared/components/error-state/error-state';
+import { RouteMap } from '../../../../shared/components/route-map/route-map';
 
 const DIFFICULTY_LABEL: Record<string, string> = { facil: 'Fácil', media: 'Media', dificil: 'Difícil' };
 const SURFACE_LABEL: Record<string, string> = { asfalto: 'Asfalto', mixto: 'Mixto', tierra: 'Tierra' };
 
 @Component({
   selector: 'app-shop-detail',
-  imports: [RouterLink, DatePipe, DecimalPipe, SkeletonLoader, ErrorState],
+  imports: [RouterLink, DatePipe, DecimalPipe, SkeletonLoader, ErrorState, RouteMap],
   template: `
     <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <a routerLink="/shop/rutas" class="text-sm font-semibold text-teal-700 hover:text-teal-800">← Volver al catálogo</a>
@@ -87,6 +88,14 @@ const SURFACE_LABEL: Record<string, string> = { asfalto: 'Asfalto', mixto: 'Mixt
 
             @if (r.description) {
               <p class="whitespace-pre-line text-slate-700">{{ r.description }}</p>
+            }
+
+            @if (r.location?.latitude != null && r.location?.longitude != null) {
+              <div>
+                <p class="mb-2 text-[11px] uppercase tracking-wide text-slate-400">Zona de la ruta</p>
+                <app-route-map [latitude]="r.location!.latitude!" [longitude]="r.location!.longitude!"
+                               [label]="r.location!.city + ', ' + r.location!.country" />
+              </div>
             }
           </aside>
         </div>

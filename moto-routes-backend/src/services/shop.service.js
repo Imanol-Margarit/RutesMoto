@@ -35,7 +35,13 @@ const toRouteCard = (row) => ({
   host: row.hostSlug ? { name: row.hostName, slug: row.hostSlug } : null,
   category: row.categorySlug ? { name: row.categoryName, slug: row.categorySlug } : null,
   location: row.locationSlug
-    ? { city: row.locationCity, country: row.locationCountry, slug: row.locationSlug }
+    ? {
+        city: row.locationCity,
+        country: row.locationCountry,
+        slug: row.locationSlug,
+        latitude: row.locationLatitude === null ? null : Number(row.locationLatitude),
+        longitude: row.locationLongitude === null ? null : Number(row.locationLongitude),
+      }
     : null,
   image: row.imageUrl ? { url: row.imageUrl, alt: row.imageAlt } : null,
   minPrice: row.minPrice === null ? null : Number(row.minPrice),

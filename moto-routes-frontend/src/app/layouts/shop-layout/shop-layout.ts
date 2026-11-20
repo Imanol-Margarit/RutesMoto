@@ -3,10 +3,11 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { AuthService } from '../../auth/auth.service';
 import { AuthStore } from '../../auth/auth.store';
 import { BrandLogo } from '../../shared/components/brand-logo/brand-logo';
+import { ChatWidget } from '../../shared/components/chat-widget/chat-widget';
 
 @Component({
   selector: 'app-shop-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, BrandLogo],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, BrandLogo, ChatWidget],
   template: `
     <div class="flex min-h-screen flex-col bg-frost">
       <header class="sticky top-0 z-30 border-b border-sage/70 bg-mint/90 backdrop-blur">
@@ -50,6 +51,7 @@ import { BrandLogo } from '../../shared/components/brand-logo/brand-logo';
           <span>Las salidas se reservan desde la ficha de cada ruta</span>
         </div>
       </footer>
+      <app-chat-widget />
     </div>
   `
 })

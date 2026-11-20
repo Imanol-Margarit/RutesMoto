@@ -39,3 +39,7 @@ pilla el token i el envia
 pero service o estore te que guardar el token y el borra el posa a null
 adminGuard a totes les rutes en app.routes
 separar la logica del negoci de les pages , de les components que son nomes Ui 
+
+------------------------------------------------
+preguntar a la ia com implementar una api_gateway pel port 4000 amb el microservici Express pel port 3000/api y 
+el microservici AgentIA pel port 3001/api/ia y angular solo ve el 4000

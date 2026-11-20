@@ -19,7 +19,7 @@ export interface ShopRoute {
   startPoint: string | null;
   host: { name: string; slug: string } | null;
   category: { name: string; slug: string } | null;
-  location: { city: string; country: string; slug: string } | null;
+  location: {city: string; country: string; slug: string; latitude: number | null; longitude: number | null; } | null;
   image: { url: string; alt: string | null } | null;
   minPrice: number | null;
 }

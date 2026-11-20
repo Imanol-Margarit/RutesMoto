@@ -38,6 +38,7 @@ const SELECT_CARD = `
          h.name AS "hostName", h.slug AS "hostSlug",
          c.name AS "categoryName", c.slug AS "categorySlug",
          l.city AS "locationCity", l.country AS "locationCountry", l.slug AS "locationSlug",
+         l.latitude AS "locationLatitude", l.longitude AS "locationLongitude",
          img.image_url AS "imageUrl", img.alt_text AS "imageAlt", dep.min_price AS "minPrice"
 `;
 

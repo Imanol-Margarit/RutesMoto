@@ -1,6 +1,11 @@
 import { z } from "zod";
 
 export const MAX_MESSAGES = 20;
+
+/** Params de GET /api/agent/comments/:slug/summary. */
+export const slugParamsSchema = z.object({
+  slug: z.string().trim().min(1, "El slug es obligatorio").max(160, "El slug es demasiado largo"),
+});
 export const MAX_MESSAGE_LENGTH = 2000;
 
 const messageSchema = z

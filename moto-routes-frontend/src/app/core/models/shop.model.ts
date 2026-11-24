@@ -41,6 +41,8 @@ export interface ShopDeparture {
 export interface ShopRouteDetail extends ShopRoute {
   images: { url: string; alt: string | null }[];
   departures: ShopDeparture[];
+  /** Media de valoraciones de los comentarios (average es null si no hay ninguno). */
+  rating: { count: number; average: number | null };
 }
 
 /** Filtros del listado. Son los mismos nombres que la query de la URL. */

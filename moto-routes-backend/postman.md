@@ -470,3 +470,16 @@ Los tokens solo viajan en cookies HttpOnly: `access_token` (1 h, path `/api`) y 
 5. **Imágenes**: añade dos imágenes a una ruta, marca la segunda como principal y comprueba que la primera deja de serlo.
 6. **Usuarios**: crea uno con contraseña de 8 caracteres o más y comprueba que la respuesta no incluye `passwordHash`.
 7. **Papelera**: borra una categoría sin rutas, consulta `/api/categories/deleted` y restáurala.
+
+## 13. Comentarios
+
+Leer es público; escribir exige sesión (cookie `access_token`). El autor sale de la sesión, nunca del body.
+
+- `GET {{baseUrl}}/api/comments/route/{{slug}}` → **200** con `{ route, stats: { count, average }, items }` (cada item con `author`).
+- `GET {{baseUrl}}/api/shop/routes/{{slug}}` → el detalle incluye `rating: { count, average }`.
+- Sin sesión, `POST {{baseUrl}}/api/comments/route/{{slug}}` → **401**.
+- Logueado como `marcos@`, `POST .../comments/route/{{slug}}` con `{ "rating": 5, "content": "Muy buena" }` → **201**. Repetir → **409** (un comentario por usuario y ruta).
+- `rating: 7` o un campo extra (`userId`) → **400**.
+- `PATCH {{baseUrl}}/api/comments/{{commentId}}` con `{ "rating": 4 }` → **200** si eres el autor; con otro usuario `user` → **403**.
+- `DELETE {{baseUrl}}/api/comments/{{commentId}}` → **200** para el autor, `admin` o `host`; para otro `user` → **403**.
+- Resumen IA (vía gateway): `GET http://localhost:4000/api/ia/agent/comments/{{slug}}/summary` → **200** con `{ summary, count, average }`.

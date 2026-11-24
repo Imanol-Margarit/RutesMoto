@@ -194,9 +194,26 @@ async function seed() {
     });
   }
 
+  // COMENTARIOS: Marcos y Lucía opinan sobre las primeras rutas (uno por usuario y ruta).
+  const COMMENTS = [
+    { route: 0, user: "marcos", rating: 5, content: "Curvas espectaculares y el guía muy atento. Repetiría sin dudarlo." },
+    { route: 0, user: "lucia", rating: 4, content: "Muy bonita, aunque hay tramos con gravilla después de llover." },
+    { route: 1, user: "marcos", rating: 3, content: "El paisaje vale la pena, pero se hizo algo larga para el ritmo del grupo." },
+    { route: 2, user: "marcos", rating: 4, content: "Buena organización y paradas bien elegidas. El asfalto en buen estado." }
+  ];
+  for (const comment of COMMENTS) {
+    const slug = generateSlug(ROUTES[comment.route].title);
+    await insert("comments", {
+      ruta_id: routeIds[slug],
+      user_id: userIds[comment.user],
+      rating: comment.rating,
+      content: comment.content
+    });
+  }
+
   console.log(
     `Datos cargados: ${ROLES.length} roles, ${Object.keys(users).length} usuarios, ${CATEGORIES.length} categorías, ` +
-      `${HOSTS.length} guías, ${LOCATIONS.length} localizaciones, ${ROUTES.length} rutas y ${departures.length} salidas.`
+      `${HOSTS.length} guías, ${LOCATIONS.length} localizaciones, ${ROUTES.length} rutas, ${departures.length} salidas y ${COMMENTS.length} comentarios.`
   );
 }
 

@@ -6,13 +6,15 @@ import { ShopDeparture, ShopRouteDetail } from '../../../../core/models/shop.mod
 import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { ErrorState } from '../../../../shared/components/error-state/error-state';
 import { RouteMap } from '../../../../shared/components/route-map/route-map';
+import { RouteComments } from '../../components/route-comments/route-comments';
+import { CommentStats } from '../../../../core/models/comment.model';
 
 const DIFFICULTY_LABEL: Record<string, string> = { facil: 'Fácil', media: 'Media', dificil: 'Difícil' };
 const SURFACE_LABEL: Record<string, string> = { asfalto: 'Asfalto', mixto: 'Mixto', tierra: 'Tierra' };
 
 @Component({
   selector: 'app-shop-detail',
-  imports: [RouterLink, DatePipe, DecimalPipe, SkeletonLoader, ErrorState, RouteMap],
+  imports: [RouterLink, DatePipe, DecimalPipe, SkeletonLoader, ErrorState, RouteMap, RouteComments],
   template: `
     <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <a routerLink="/shop/rutas" class="text-sm font-semibold text-teal-700 hover:text-teal-800">← Volver al catálogo</a>
@@ -50,6 +52,15 @@ const SURFACE_LABEL: Record<string, string> = { asfalto: 'Asfalto', mixto: 'Mixt
               <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900">{{ r.title }}</h1>
               @if (r.location) {
                 <p class="mt-2 text-sm text-slate-500">{{ r.location.city }}, {{ r.location.country }}</p>
+              }
+              @if (r.rating.count > 0) {
+                <button type="button" (click)="scrollToComments()" class="mt-2 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-teal-700">
+                  <span class="text-amber-500" aria-hidden="true">★</span>
+                  <span class="font-semibold text-slate-900">{{ r.rating.average | number: '1.1-1' }}</span>
+                  <span>({{ r.rating.count }} {{ r.rating.count === 1 ? 'opinión' : 'opiniones' }})</span>
+                </button>
+              } @else {
+                <p class="mt-2 text-sm text-slate-400">Sin opiniones todavía</p>
               }
             </div>
 
@@ -130,6 +141,11 @@ const SURFACE_LABEL: Record<string, string> = { asfalto: 'Asfalto', mixto: 'Mixt
             </div>
           }
         </section>
+
+        <!-- Comentarios (componente propio) -->
+        <div id="opiniones">
+          <app-route-comments [slug]="r.slug" (statsChange)="onStatsChange($event)" />
+        </div>
       }
     </section>
   `
@@ -171,6 +187,15 @@ export class ShopDetail implements OnInit, OnDestroy {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  /** El componente de comentarios avisa al publicar/borrar: se actualiza la media del resumen. */
+  onStatsChange(rating: CommentStats): void {
+    this.route.update((current) => (current ? { ...current, rating } : current));
+  }
+
+  scrollToComments(): void {
+    document.getElementById('opiniones')?.scrollIntoView({ behavior: 'smooth' });
   }
 
   difficultyLabel(value: string): string {

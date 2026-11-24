@@ -9,7 +9,7 @@
 --   id UUID, created_at, updated_at, deleted_at (soft delete),
 --   is_active (on/off), status (estado propio), slug (URL amigable).
 -- Tablas: roles, users, hosts, categories, locations,
---         rutas, rutas_images, departures
+--         rutas, rutas_images, departures, comments
 -- =====================================================
 
 -- EXTENSION PARA UUID
@@ -434,6 +434,45 @@ CREATE TABLE profiles (
         REFERENCES users(id)
         ON DELETE CASCADE
 );
+
+-- =====================================================
+-- COMMENTS (opiniones de los usuarios sobre una ruta)
+-- Relaciones: N comentarios -> 1 ruta, N comentarios -> 1 usuario.
+-- Un usuario solo puede tener un comentario vivo por ruta.
+-- =====================================================
+CREATE TABLE comments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    ruta_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+
+    rating SMALLINT NOT NULL
+        CHECK (rating BETWEEN 1 AND 5),
+    content VARCHAR(1000) NOT NULL,
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+
+    CONSTRAINT fk_comments_ruta
+        FOREIGN KEY (ruta_id)
+        REFERENCES rutas(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_comments_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_comments_ruta ON comments (ruta_id, created_at DESC) WHERE deleted_at IS NULL;
+CREATE INDEX idx_comments_user ON comments (user_id);
+
+CREATE UNIQUE INDEX uq_comments_ruta_user
+    ON comments (ruta_id, user_id)
+    WHERE deleted_at IS NULL;
 
 -- Índices de la tienda pública: filtros del catálogo, búsqueda por slug y salidas próximas.
 CREATE INDEX IF NOT EXISTS idx_rutas_catalogue ON rutas (status, is_active) WHERE deleted_at IS NULL;

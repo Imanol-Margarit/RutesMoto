@@ -38,4 +38,9 @@ export const motoRoutesClient = {
   getHosts() {
     return get("/shop/hosts");
   },
+
+  /** Comentarios públicos de una ruta: { route, stats, items }. */
+  getComments(slug) {
+    return get(`/comments/route/${encodeURIComponent(slug)}`);
+  },
 };

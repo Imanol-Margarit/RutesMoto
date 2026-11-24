@@ -11,7 +11,9 @@ const CONSTRAINT_MESSAGES = {
   departures_slug_key: "Ya existe una salida con esos datos",
   departures_sku_key: "Ya existe una salida con ese SKU",
   departures_dates_check: "La fecha de fin debe ser posterior a la de inicio",
-  departures_booked_check: "Las plazas reservadas no pueden superar la capacidad"
+  departures_booked_check: "Las plazas reservadas no pueden superar la capacidad",
+  uq_comments_ruta_user: "Ya has comentado esta ruta: edita tu comentario",
+  comments_rating_check: "La valoración debe estar entre 1 y 5"
 };
 
 /** Traduce los errores de PostgreSQL a respuestas HTTP en español. */

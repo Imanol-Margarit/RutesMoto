@@ -7,7 +7,7 @@ import { AppError } from "../utils/app-error.js";
  * así que no hace falta ningún SDK: basta con fetch.
  * Devuelve el mensaje del asistente: { role, content, tool_calls? }.
  */
-export async function createChatCompletion({ messages, tools }) {
+export async function createChatCompletion({ messages, tools, maxTokens = 1024 }) {
   if (!env.groqApiKey) {
     throw new AppError("El agente no está configurado: falta GROQ_API_KEY", 500);
   }
@@ -16,7 +16,7 @@ export async function createChatCompletion({ messages, tools }) {
     model: env.groqModel,
     messages,
     temperature: 0.3,
-    max_completion_tokens: 1024,
+    max_completion_tokens: maxTokens,
   };
   if (tools?.length) {
     body.tools = tools;

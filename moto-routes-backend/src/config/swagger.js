@@ -17,13 +17,22 @@ const definition = {
     { name: "Categorías", description: "Tipos de ruta: curvas, paisaje, off-road..." },
     { name: "Localizaciones", description: "Ciudad, región y país de cada ruta" },
     { name: "Usuarios", description: "Cuentas de usuario, con rol y contraseña" },
-    { name: "Roles", description: "Roles de usuario" }
+    { name: "Roles", description: "Roles de usuario" },
+    { name: "Comentarios", description: "Opiniones y valoraciones de los usuarios sobre una ruta" }
   ],
   components: {
     securitySchemes: {
       cookieAuth: { type: "apiKey", in: "cookie", name: "access_token" }
     },
     schemas: {
+      CommentInput: {
+        type: "object",
+        required: ["rating", "content"],
+        properties: {
+          rating: { type: "integer", minimum: 1, maximum: 5, example: 5 },
+          content: { type: "string", maxLength: 1000, example: "Curvas espectaculares y buen ritmo de grupo." }
+        }
+      },
       Route: {
         type: "object",
         properties: {

@@ -15,6 +15,7 @@ import roleRoutes from "./routes/role.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
 import shopRoutes from "./routes/shop.routes.js";
+import commentRoutes from "./routes/comment.routes.js";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware.js";
 
 const app = express();
@@ -57,6 +58,7 @@ app.use("/api/roles", roleRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/shop", shopRoutes);
+app.use("/api/comments", commentRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

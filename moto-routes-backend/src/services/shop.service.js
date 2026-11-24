@@ -1,4 +1,5 @@
 import { shopRepository } from "../repositories/shop.repository.js";
+import { commentRepository } from "../repositories/comment.repository.js";
 import { AppError } from "../utils/app-error.js";
 import { DIFFICULTIES, SURFACES } from "../schemas/shop.schema.js";
 
@@ -111,14 +112,16 @@ export const shopService = {
     const row = await shopRepository.findRouteBySlug(slug);
     if (!row) throw new AppError("Ruta no encontrada", 404);
 
-    const [images, departures] = await Promise.all([
+    const [images, departures, rating] = await Promise.all([
       shopRepository.findRouteImages(row._id),
       shopRepository.findAvailableDepartures(row._id),
+      commentRepository.statsByRoute(row._id),
     ]);
 
     return {
       ...toRouteCard(row),
       images,
+      rating,
       departures: departures.map((departure) => ({
         ...departure,
         price: Number(departure.price),

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
+import { CommentsSummary } from '../models/comment.model';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -44,6 +45,25 @@ export class AgentService {
     }
 
     const body: ChatResponse = await response.json().catch(() => ({ success: false, message: '' }));
+    if (!response.ok || !body.data) {
+      throw new Error(body.message || 'El asistente no está disponible');
+    }
+    return body.data;
+  }
+
+  /** Pide al agente un resumen de los comentarios de una ruta (con fetch: Groq puede tardar más que apiTimeoutMs). */
+  async summarizeComments(slug: string): Promise<CommentsSummary> {
+    let response: Response;
+    try {
+      response = await fetch(`${environment.aiUrl}/agent/comments/${encodeURIComponent(slug)}/summary`, {
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(60000)
+      });
+    } catch {
+      throw new Error('No se pudo conectar con el asistente');
+    }
+
+    const body: { message?: string; data?: CommentsSummary } = await response.json().catch(() => ({}));
     if (!response.ok || !body.data) {
       throw new Error(body.message || 'El asistente no está disponible');
     }

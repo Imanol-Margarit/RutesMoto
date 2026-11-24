@@ -10,6 +10,14 @@ const SELECT_USER = `
          t.created_at AS "createdAt", t.updated_at AS "updatedAt", t.deleted_at AS "deletedAt"
   FROM ${userModel.table} AS t`;
 
+// Usuario + nombre de su rol (JOIN): solo roles activos y no borrados.
+const SELECT_AUTH = `
+  SELECT t.id AS "_id", t.email, t.first_name AS "firstName", t.last_name AS "lastName",
+         t.avatar_url AS "avatarUrl", t.is_active AS "isActive", r.name AS "role"`;
+const FROM_AUTH = `
+  FROM ${userModel.table} AS t
+  JOIN roles AS r ON r.id = t.role_id AND r.deleted_at IS NULL AND r.is_active`;
+
 export const userRepository = {
   async findAll(filters = {}) {
     const params = [];
@@ -38,12 +46,22 @@ export const userRepository = {
     return rowCount > 0;
   },
 
-  // Solo para el login: devuelve el hash. Nunca se usa en las respuestas de la API.
+  /**
+   * Solo para el login: incluye el hash (nunca se envía al cliente).
+   * Si el rol no existe, está borrado o desactivado, no devuelve nada: no se asume "user".
+   */
   async findAuthByEmail(email) {
     const { rows } = await pool.query(
-      `SELECT t.id AS "_id", t.email, t.first_name AS "firstName", t.last_name AS "lastName",
-      t.password_hash AS "passwordHash", t.role_id AS "roleId", t.is_active AS "isActive"
-      FROM users AS t WHERE LOWER(t.email) = LOWER($1) AND t.deleted_at IS NULL`, [email]);
+      `${SELECT_AUTH}, t.password_hash AS "passwordHash" ${FROM_AUTH}
+       WHERE LOWER(t.email) = LOWER($1) AND t.deleted_at IS NULL`,
+      [email]
+    );
+    return rows[0] ?? null;
+  },
+
+  // Para /me y el middleware de autenticación: usuario + nombre del rol en una sola consulta.
+  async findAuthById(id) {
+    const { rows } = await pool.query(`${SELECT_AUTH} ${FROM_AUTH} WHERE t.id = $1 AND t.deleted_at IS NULL`, [id]);
     return rows[0] ?? null;
   },
 
@@ -52,18 +70,19 @@ export const userRepository = {
     return rows[0] ?? null;
   },
 
-  async findAnyById(id) {
-    const { rows } = await pool.query(`${SELECT_USER} WHERE t.id = $1`, [id]);
+  async findAnyById(id, client = pool) {
+    const { rows } = await client.query(`${SELECT_USER} WHERE t.id = $1`, [id]);
     return rows[0] ?? null;
   },
 
-  async create(data) {
+  // client: dentro de una transacción hay que usar la misma conexión (si no, el usuario nuevo aún no se ve).
+  async create(data, client = pool) {
     const { names, values } = toColumns(userModel.columns, data);
-    const { rows } = await pool.query(
+    const { rows } = await client.query(
       `INSERT INTO users (${names.join(", ")}) VALUES (${names.map((_, i) => `$${i + 1}`).join(", ")}) RETURNING id`,
       values
     );
-    return userRepository.findAnyById(rows[0].id);
+    return userRepository.findAnyById(rows[0].id, client);
   },
 
   async update(id, data, client = pool) {

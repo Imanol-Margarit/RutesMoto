@@ -364,20 +364,57 @@ CREATE UNIQUE INDEX uq_locations_images_primary
 
 
 
--- Tokens JWT revocados en el logout (se borran cuando caducan).
-CREATE TABLE revoked_tokens (
-    jti UUID PRIMARY KEY,
+-- Refresh tokens (7 días). Solo se guarda el hash SHA-256, nunca el token en claro.
+-- status: active (se puede usar) o revoked (logout, rotación o reutilización detectada).
+CREATE TABLE refresh_tokens (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
+    token_hash CHAR(64) NOT NULL UNIQUE,
+    status VARCHAR(10) NOT NULL DEFAULT 'active',
     expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    revoked_at TIMESTAMP NULL,
 
-    CONSTRAINT fk_revoked_tokens_user
+    CONSTRAINT refresh_tokens_status_check
+        CHECK (status IN ('active', 'revoked')),
+
+    CONSTRAINT fk_refresh_tokens_user
         FOREIGN KEY (user_id)
         REFERENCES users(id)
         ON DELETE CASCADE
 );
 
-CREATE INDEX idx_revoked_tokens_expires ON revoked_tokens (expires_at);
+CREATE INDEX idx_refresh_tokens_user ON refresh_tokens (user_id);
+CREATE INDEX idx_refresh_tokens_expires ON refresh_tokens (expires_at);
+
+-- Access tokens (1 h). Lista blanca: se guardan todos al emitirlos, solo el hash SHA-256.
+-- Cada access está enlazado al refresh que lo generó: al revocar el refresh se revoca también su access.
+CREATE TABLE access_tokens (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    refresh_token_id UUID NOT NULL,
+    token_hash CHAR(64) NOT NULL UNIQUE,
+    status VARCHAR(10) NOT NULL DEFAULT 'active',
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    revoked_at TIMESTAMP NULL,
+
+    CONSTRAINT access_tokens_status_check
+        CHECK (status IN ('active', 'revoked')),
+
+    CONSTRAINT fk_access_tokens_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_access_tokens_refresh
+        FOREIGN KEY (refresh_token_id)
+        REFERENCES refresh_tokens(id)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_access_tokens_user ON access_tokens (user_id);
+CREATE INDEX idx_access_tokens_refresh ON access_tokens (refresh_token_id);
 
 -- Perfil de cada usuario (tabla propia, como en la referencia).
 CREATE TABLE profiles (

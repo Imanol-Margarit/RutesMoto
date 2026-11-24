@@ -16,7 +16,7 @@ export const adminGuard: CanActivateFn = (_, state) => {
     return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
   }
 
-  if (store.canWrite()) return true;
+  if (store.isAdmin()) return true;
 
   void alert.error('Acceso denegado', 'Esta sección es solo para administradores.');
   return router.createUrlTree(['/profile']);

@@ -35,6 +35,7 @@ import { ChatWidget } from '../../shared/components/chat-widget/chat-widget';
               <a routerLink="/profile" class="btn-secondary !py-1.5 text-sm">Mi perfil</a>
               <button type="button" (click)="logout()" class="btn-primary !py-1.5 text-sm">Cerrar sesión</button>
             } @else {
+              <a routerLink="/register" class="btn-secondary !py-2 text-sm">Registrarse</a>
               <a routerLink="/login" class="btn-primary !py-2 text-sm">Iniciar sesión</a>
             }
           </div>
@@ -61,7 +62,7 @@ export class ShopLayout {
   private readonly router = inject(Router);
 
   readonly isAuthenticated = computed(() => this.authStore.isAuthenticated());
-  readonly canWrite = computed(() => this.authStore.canWrite());
+  readonly canWrite = computed(() => this.authStore.isAdmin());
 
   async logout(): Promise<void> {
     await this.authService.logout();

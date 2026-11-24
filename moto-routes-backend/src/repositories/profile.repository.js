@@ -8,17 +8,17 @@ const SELECT_PROFILE = `
   FROM ${profileModel.table} AS t`;
 
 export const profileRepository = {
-  async findByUserId(userId) {
-    const { rows } = await pool.query(`${SELECT_PROFILE} WHERE t.user_id = $1 AND t.deleted_at IS NULL`, [userId]);
+  async findByUserId(userId, client = pool) {
+    const { rows } = await client.query(`${SELECT_PROFILE} WHERE t.user_id = $1 AND t.deleted_at IS NULL`, [userId]);
     return rows[0] ?? null;
   },
 
-  async create(userId, data = {}) {
-    await pool.query(
+  async create(userId, data = {}, client = pool) {
+    await client.query(
       "INSERT INTO profiles (user_id, phone, bio) VALUES ($1, $2, $3)",
       [userId, data.phone ?? null, data.bio ?? null]
     );
-    return profileRepository.findByUserId(userId);
+    return profileRepository.findByUserId(userId, client);
   },
 
   async update(userId, data, client = pool) {

@@ -1,4 +1,5 @@
 import { parseListQuery, USER_FILTERS } from "../utils/list-filters.js";
+import { withTransaction } from "../config/db.js";
 import { userRepository } from "../repositories/user.repository.js";
 import { profileRepository } from "../repositories/profile.repository.js";
 import { roleRepository } from "../repositories/role.repository.js";
@@ -54,9 +55,12 @@ export const userService = {
   async create(payload) {
     await validateRoleExists(payload.roleId);
     const data = await withPasswordHash(payload);
-    const user = await userRepository.create(data);
-    await profileRepository.create(user._id);
-    return user;
+    // Usuario y perfil en una transacción: o se crean los dos o ninguno.
+    return withTransaction(async (client) => {
+      const user = await userRepository.create(data, client);
+      await profileRepository.create(user._id, {}, client);
+      return user;
+    });
   },
 
   async update(id, payload) { //await profileRepository.update(user._id);

@@ -1,20 +1,20 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BrandLogo } from '../shared/components/brand-logo/brand-logo';
 import { AuthService } from './auth.service';
 import { AuthStore } from './auth.store';
 
 @Component({
   selector: 'app-login-page',
-  imports: [ReactiveFormsModule, BrandLogo],
+  imports: [ReactiveFormsModule, RouterLink, BrandLogo],
   template: `
     <main class="flex min-h-screen items-center justify-center bg-frost px-4 py-12">
       <div class="w-full max-w-md">
         <div class="mb-6 flex flex-col items-center text-center">
           <app-brand-logo size="lg" />
           <h1 class="mt-4 text-3xl font-bold tracking-tight text-slate-900">Motoruta</h1>
-          <p class="page-eyebrow mt-2">Panel de administración</p>
+          <p class="page-eyebrow mt-2">Accede a tu cuenta</p>
         </div>
 
         <section class="card !p-7">
@@ -41,6 +41,11 @@ import { AuthStore } from './auth.store';
               {{ submitting() ? 'Entrando...' : 'Entrar' }}
             </button>
           </form>
+
+          <p class="mt-5 text-center text-sm text-slate-600">
+            ¿No tienes cuenta?
+            <a routerLink="/register" [queryParams]="returnUrlParams()" class="font-semibold text-teal-800 hover:underline">Regístrate</a>
+          </p>
         </section>
       </div>
     </main>
@@ -55,6 +60,12 @@ export class LoginPage {
 
   readonly submitting = signal(false);
 
+  /** Mantiene el returnUrl al pasar de login a registro. */
+  returnUrlParams(): Record<string, string> {
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    return returnUrl ? { returnUrl } : {};
+  }
+
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required]
@@ -63,7 +74,7 @@ export class LoginPage {
   constructor() {
     // Si ya hay sesión válida, no hace falta volver a entrar.
     if (this.authStore.isAuthenticated()) {
-      void this.router.navigate([this.authStore.canWrite() ? '/routes' : '/shop']);
+      void this.router.navigate([this.authStore.isAdmin() ? '/routes' : '/shop']);
     }
   }
 
@@ -78,7 +89,7 @@ export class LoginPage {
       const raw = this.form.getRawValue();
       await this.authService.login({ email: raw.email.trim(), password: raw.password });
 
-      const defaultUrl = this.authStore.canWrite() ? '/routes' : '/shop';
+      const defaultUrl = this.authStore.isAdmin() ? '/routes' : '/shop';
       const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || defaultUrl;
       await this.router.navigateByUrl(returnUrl);
     } catch {

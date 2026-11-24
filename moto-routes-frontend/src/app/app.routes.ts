@@ -2,12 +2,14 @@ import { Routes } from '@angular/router';
 import { MainLayout } from './layouts/main-layout/main-layout';
 import { ShopLayout } from './layouts/shop-layout/shop-layout';
 import { LoginPage } from './auth/login.page';
+import { RegisterPage } from './auth/register.page';
 import { authGuard } from './auth/auth.guard';
 import { adminGuard } from './auth/admin.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'shop', pathMatch: 'full' },
   { path: 'login', component: LoginPage },
+  { path: 'register', component: RegisterPage },
   // ── Tienda pública: sin sesión ────────────────────────────────────────────
   {
     path: 'shop',

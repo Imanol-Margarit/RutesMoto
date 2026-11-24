@@ -21,5 +21,6 @@ export const roleGuard: CanActivateFn = (route) => {
   if (allowed.length === 0 || (role !== null && allowed.includes(role))) return true;
 
   void alert.error('Acceso denegado', 'No tienes permiso para realizar esta acción.');
-  return router.createUrlTree(['/routes']);
+  // Cada uno vuelve a "su" zona: el panel para admin/host, la tienda para clientes.
+  return router.createUrlTree([store.isAdmin() ? '/routes' : '/shop']);
 };

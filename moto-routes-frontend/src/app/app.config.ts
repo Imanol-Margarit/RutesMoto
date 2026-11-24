@@ -18,12 +18,14 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    // Restaura la sesión guardada y valida el token antes de arrancar la app.
-    provideAppInitializer(() => inject(AuthService).restoreSession()),
+    // Antes de arrancar: /auth/me con la cookie. Si el access caducó, el interceptor hace /refresh.
+    provideAppInitializer(() => inject(AuthService).me()),
     // Los parámetros de ruta (:id) llegan como input() de cada página.
     provideRouter(routes, withComponentInputBinding()),
+    // El primero es el más externo. errorInterceptor va por fuera de authInterceptor
+    // para avisar solo del error final (después del intento de /refresh).
     provideHttpClient(
-      withInterceptors([requestInterceptor, authInterceptor, loadingInterceptor, errorInterceptor])
+      withInterceptors([requestInterceptor, loadingInterceptor, errorInterceptor, authInterceptor])
     )
   ]
 };

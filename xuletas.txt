@@ -43,3 +43,11 @@ separar la logica del negoci de les pages , de les components que son nomes Ui
 ------------------------------------------------
 preguntar a la ia com implementar una api_gateway pel port 4000 amb el microservici Express pel port 3000/api y 
 el microservici AgentIA pel port 3001/api/ia y angular solo ve el 4000
+---------------------------------------------------
+implementar comentaris genera taula, relatioships, fluje del servidor, logeat con auth, impactaria en details, y generar component propi
+con agente IA que resuma los comentarios 
+
+like genera taula, relatioships, segint el flutje de servidor y client, impactaria en el details y shop, componetizar
+
+dashboard admin, categoria sentiment dels productes,  metrica con agenteIA lee todos los comentarios del producto y hace una valoracion de ese,
+que puede ser positivo negativo o neutral, categoria sentiment dels productes

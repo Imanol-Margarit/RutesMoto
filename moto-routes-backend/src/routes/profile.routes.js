@@ -13,7 +13,7 @@ const router = Router();
  *     summary: Obtener el perfil del usuario autenticado
  *     tags: [Autenticación]
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     responses:
  *       200:
  *         description: Perfil del usuario (phone, bio y avatarUrl)
@@ -23,7 +23,7 @@ const router = Router();
  *     summary: Actualizar el perfil del usuario autenticado (solo los campos enviados)
  *     tags: [Autenticación]
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:

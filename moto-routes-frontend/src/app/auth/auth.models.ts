@@ -1,7 +1,7 @@
 /** Roles del backend. host se comporta como admin en las escrituras. */
 export type AuthRole = 'admin' | 'host' | 'user';
 
-/** Roles que pueden crear, editar y gestionar usuarios. */
+/** Roles que pueden entrar al panel: crear, editar y gestionar usuarios. */
 export const WRITER_ROLES: AuthRole[] = ['admin', 'host'];
 
 export interface AuthUser {
@@ -13,20 +13,22 @@ export interface AuthUser {
   avatarUrl?: string | null;
 }
 
-export interface AuthSession {
-  token: string;
-  user: AuthUser;
-}
-
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
-/** Datos que devuelve POST /api/auth/login. */
-export interface LoginResponseData {
-  token: string;
-  tokenType: 'Bearer';
-  expiresIn: string;
+export interface RegisterRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}
+
+/**
+ * Lo que devuelven login, register, refresh y me.
+ * Los tokens nunca llegan al frontend: viajan solo en cookies HttpOnly.
+ */
+export interface AuthUserResponse {
   user: AuthUser;
 }

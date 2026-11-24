@@ -2,15 +2,45 @@ import { Router } from "express";
 import { authController } from "../controllers/auth.controller.js";
 import { authenticate } from "../middlewares/authentication.middleware.js";
 import { validate } from "../middlewares/validation.middleware.js";
-import { loginSchema } from "../schemas/auth.schema.js";
+import { loginSchema, registerSchema } from "../schemas/auth.schema.js";
 
 const router = Router();
 
 /**
  * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Crear una cuenta de cliente (rol user) e iniciar sesión
+ *     description: Fija las cookies HttpOnly access_token (1 h) y refresh_token (7 días). El cuerpo solo devuelve el usuario.
+ *     tags: [Autenticación]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [firstName, lastName, email, password]
+ *             properties:
+ *               firstName: { type: string, maxLength: 100, example: Ana }
+ *               lastName: { type: string, maxLength: 150, example: Motera }
+ *               email: { type: string, format: email, example: ana@motoroutes.local }
+ *               password: { type: string, minLength: 8, example: Motoroutes123 }
+ *     responses:
+ *       201:
+ *         description: Cuenta creada y sesión iniciada
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       409:
+ *         description: Ya existe un usuario con ese email
+ */
+router.post("/register", validate(registerSchema), authController.register);
+
+/**
+ * @swagger
  * /api/auth/login:
  *   post:
- *     summary: Iniciar sesión y obtener un token JWT
+ *     summary: Iniciar sesión (clientes y administradores)
+ *     description: Fija las cookies HttpOnly access_token (1 h) y refresh_token (7 días). El cuerpo solo devuelve el usuario.
  *     tags: [Autenticación]
  *     requestBody:
  *       required: true
@@ -24,7 +54,7 @@ const router = Router();
  *               password: { type: string, example: Motoroutes123 }
  *     responses:
  *       200:
- *         description: "Token JWT. Enviarlo en la cabecera Authorization: Bearer <token>"
+ *         description: Sesión iniciada
  *       400:
  *         $ref: '#/components/responses/ValidationError'
  *       401:
@@ -34,49 +64,46 @@ router.post("/login", validate(loginSchema), authController.login);
 
 /**
  * @swagger
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Renovar la sesión con la cookie refresh_token (rotación)
+ *     description: Revoca el refresh token usado y fija un access_token y un refresh_token nuevos. Reutilizar un refresh ya usado cierra todas las sesiones del usuario.
+ *     tags: [Autenticación]
+ *     responses:
+ *       200:
+ *         description: Sesión renovada
+ *       401:
+ *         description: Refresh token ausente, caducado, revocado o reutilizado
+ */
+router.post("/refresh", authController.refresh);
+
+/**
+ * @swagger
  * /api/auth/logout:
  *   post:
- *     summary: Cerrar sesión (revoca el token actual en el servidor)
+ *     summary: Cerrar sesión (revoca el refresh token y borra las cookies)
+ *     description: No exige access token, así funciona aunque haya caducado.
  *     tags: [Autenticación]
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Sesión cerrada
- *       401:
- *         description: Token ausente, inválido, caducado o ya revocado
  */
-router.post("/logout", authenticate, authController.logout);
+router.post("/logout", authController.logout);
+
 /**
  * @swagger
  * /api/auth/me:
  *   get:
- *     summary: Usuario de la sesión actual (incluye avatarUrl)
+ *     summary: Usuario de la sesión actual (con rol y avatarUrl)
  *     tags: [Autenticación]
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     responses:
  *       200:
  *         description: Datos del usuario
  *       401:
- *         description: Sin sesión válida
+ *         description: Sin sesión válida (access token ausente o caducado)
  */
 router.get("/me", authenticate, authController.me);
-
-/**
- * @swagger
- * /api/auth/session:
- *   get:
- *     summary: Recuperar la sesión activa (token y usuario) a partir de la cookie
- *     tags: [Autenticación]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Token y datos del usuario
- *       401:
- *         description: Sin sesión válida
- */
-router.get("/session", authenticate, authController.session);
 
 export default router;

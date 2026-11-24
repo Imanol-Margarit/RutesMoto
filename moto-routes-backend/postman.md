@@ -444,10 +444,19 @@ Errores de validación:
 - `GET {{baseUrl}}/api/shop/routes/{{slug}}` → **200** con imágenes y salidas.
 - `GET {{baseUrl}}/api/shop/routes/{{slug}}/departures` → **200** con salidas y `seatsLeft`.
 
-## 11. Sesión por cookie
+## 11. Sesión por cookie (access + refresh)
 
-- `GET {{baseUrl}}/api/auth/session` (con la cookie del login) → **200** con `token` y `user`.
-- `GET {{baseUrl}}/api/auth/me` → **200** con `avatarUrl`.
+Los tokens solo viajan en cookies HttpOnly: `access_token` (1 h, path `/api`) y `refresh_token` (7 días, path `/api/auth`). Postman guarda las cookies solo.
+
+- `POST {{baseUrl}}/api/auth/register` con `{ firstName, lastName, email, password }` → **201** con `user` (rol `user`) y las dos cookies.
+- Repetir el mismo email → **409**. Enviar `roleId` → **400** (campo no permitido).
+- `POST {{baseUrl}}/api/auth/login` → **200** con `user` (sin token en el cuerpo) y las dos cookies.
+- `GET {{baseUrl}}/api/auth/me` → **200** con `role` y `avatarUrl`.
+- Borra la cookie `access_token` y repite `/me` → **401**.
+- `POST {{baseUrl}}/api/auth/refresh` → **200** y cookies nuevas (el refresh anterior queda revocado).
+- Volver a enviar el refresh **anterior** → **401** y se revocan todas las sesiones del usuario.
+- `POST {{baseUrl}}/api/auth/logout` → **200** y borra las cookies (funciona aunque el access haya caducado).
+- Tras el logout, `/me` con la cookie `access_token` antigua → **401** (el access se revoca en la tabla `access_tokens`).
 
 ## 12. Flujo recomendado de prueba
 

@@ -1,36 +1,25 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AlertService } from '../services/alert.service';
 import { ApiErrorBody } from '../models/api.model';
-import { AuthStore } from '../../auth/auth.store';
 
 /**
- * 401: sesión inválida o caducada. Se borra la sesión y, solo en páginas protegidas, se lleva a /login.
- * La comprobación de sesión al arrancar y las páginas públicas no redirigen.
- * 403: sin permiso. Los demás errores muestran un aviso con el mensaje de la API.
+ * Muestra un aviso con el mensaje de la API.
+ * Va POR FUERA de authInterceptor: solo ve el error final, después del intento de /refresh.
+ * Los 401 de sesión los gestiona authInterceptor (refresh, limpiar store, ir a /login), así que aquí
+ * solo se avisa del 401 de login/register (credenciales incorrectas).
  */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const alert = inject(AlertService);
-  const authStore = inject(AuthStore);
-  const router = inject(Router);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       const body = error.error as Partial<ApiErrorBody> | null;
       const details = (body?.errors ?? []).map((item) => item.message).filter(Boolean);
-      const isLoginRequest = req.url.endsWith('/auth/login');
-      const isSessionCheck = req.url.endsWith('/auth/session') || req.url.endsWith('/auth/me');
+      const isCredentialsRequest = /\/auth\/(login|register)$/.test(req.url);
 
-      if (error.status === 401 && !isLoginRequest) {
-        authStore.logout();
-        
-        const isPublicPage = router.url.startsWith('/shop') || router.url.startsWith('/login');
-        if (!isSessionCheck && !isPublicPage) {
-          void router.navigate(['/login'], { queryParams: { returnUrl: router.url } });
-          void alert.error('Sesión caducada', 'Vuelve a iniciar sesión para continuar.');
-        }
+      if (error.status === 401 && !isCredentialsRequest) {
         return throwError(() => error);
       }
 

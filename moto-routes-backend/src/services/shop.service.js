@@ -1,5 +1,6 @@
 import { shopRepository } from "../repositories/shop.repository.js";
 import { commentRepository } from "../repositories/comment.repository.js";
+import { wishlistRepository } from "../repositories/wishlist.repository.js";
 import { AppError } from "../utils/app-error.js";
 import { DIFFICULTIES, SURFACES } from "../schemas/shop.schema.js";
 
@@ -23,7 +24,7 @@ function parseSlugList(raw) {
   return [...new Set(raw.split(",").map((value) => value.trim().toLowerCase()).filter(Boolean))];
 }
 
-const toRouteCard = (row) => ({
+export const toRouteCard = (row) => ({
   _id: row._id,
   title: row.title,
   slug: row.slug,
@@ -112,16 +113,18 @@ export const shopService = {
     const row = await shopRepository.findRouteBySlug(slug);
     if (!row) throw new AppError("Ruta no encontrada", 404);
 
-    const [images, departures, rating] = await Promise.all([
+    const [images, departures, rating, wishlistCount] = await Promise.all([
       shopRepository.findRouteImages(row._id),
       shopRepository.findAvailableDepartures(row._id),
       commentRepository.statsByRoute(row._id),
+      wishlistRepository.countByRoute(row._id),
     ]);
 
     return {
       ...toRouteCard(row),
       images,
       rating,
+      wishlistCount,
       departures: departures.map((departure) => ({
         ...departure,
         price: Number(departure.price),

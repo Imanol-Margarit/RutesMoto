@@ -7,6 +7,7 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
 import { ErrorState } from '../../../../shared/components/error-state/error-state';
 import { RouteMap } from '../../../../shared/components/route-map/route-map';
 import { RouteComments } from '../../components/route-comments/route-comments';
+import { WishlistButton } from '../../../../shared/components/wishlist-button/wishlist-button';
 import { CommentStats } from '../../../../core/models/comment.model';
 
 const DIFFICULTY_LABEL: Record<string, string> = { facil: 'Fácil', media: 'Media', dificil: 'Difícil' };
@@ -14,7 +15,7 @@ const SURFACE_LABEL: Record<string, string> = { asfalto: 'Asfalto', mixto: 'Mixt
 
 @Component({
   selector: 'app-shop-detail',
-  imports: [RouterLink, DatePipe, DecimalPipe, SkeletonLoader, ErrorState, RouteMap, RouteComments],
+  imports: [RouterLink, DatePipe, DecimalPipe, SkeletonLoader, ErrorState, RouteMap, RouteComments, WishlistButton],
   template: `
     <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <a routerLink="/shop/rutas" class="text-sm font-semibold text-teal-700 hover:text-teal-800">← Volver al catálogo</a>
@@ -49,7 +50,15 @@ const SURFACE_LABEL: Record<string, string> = { asfalto: 'Asfalto', mixto: 'Mixt
               @if (r.category) {
                 <p class="page-eyebrow">{{ r.category.name }}</p>
               }
-              <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900">{{ r.title }}</h1>
+              <div class="mt-2 flex items-start justify-between gap-4">
+                <h1 class="text-3xl font-bold tracking-tight text-slate-900">{{ r.title }}</h1>
+                <app-wishlist-button class="shrink-0" [slug]="r.slug" (changed)="onWishlistChange($event)" />
+              </div>
+              @if (r.wishlistCount > 0) {
+                <p class="mt-1 text-xs text-slate-500">
+                  ♥ {{ r.wishlistCount }} {{ r.wishlistCount === 1 ? 'motero la ha guardado' : 'moteros la han guardado' }}
+                </p>
+              }
               @if (r.location) {
                 <p class="mt-2 text-sm text-slate-500">{{ r.location.city }}, {{ r.location.country }}</p>
               }
@@ -192,6 +201,13 @@ export class ShopDetail implements OnInit, OnDestroy {
   /** El componente de comentarios avisa al publicar/borrar: se actualiza la media del resumen. */
   onStatsChange(rating: CommentStats): void {
     this.route.update((current) => (current ? { ...current, rating } : current));
+  }
+
+  /** Al guardar o quitar la ruta se actualiza el contador sin recargar el detalle. */
+  onWishlistChange(saved: boolean): void {
+    this.route.update((current) =>
+      current ? { ...current, wishlistCount: Math.max(0, current.wishlistCount + (saved ? 1 : -1)) } : current
+    );
   }
 
   scrollToComments(): void {

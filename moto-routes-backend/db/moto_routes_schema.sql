@@ -9,7 +9,7 @@
 --   id UUID, created_at, updated_at, deleted_at (soft delete),
 --   is_active (on/off), status (estado propio), slug (URL amigable).
 -- Tablas: roles, users, hosts, categories, locations,
---         rutas, rutas_images, departures, comments
+--         rutas, rutas_images, departures, comments, wishlists
 -- =====================================================
 
 -- EXTENSION PARA UUID
@@ -472,6 +472,39 @@ CREATE INDEX idx_comments_user ON comments (user_id);
 
 CREATE UNIQUE INDEX uq_comments_ruta_user
     ON comments (ruta_id, user_id)
+    WHERE deleted_at IS NULL;
+
+-- =====================================================
+-- WISHLISTS (rutas guardadas como favoritas por un usuario)
+-- Tabla intermedia N:M entre users y rutas.
+-- Una ruta solo puede estar una vez (viva) en la lista de cada usuario.
+-- =====================================================
+CREATE TABLE wishlists (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    user_id UUID NOT NULL,
+    ruta_id UUID NOT NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+
+    CONSTRAINT fk_wishlists_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_wishlists_ruta
+        FOREIGN KEY (ruta_id)
+        REFERENCES rutas(id)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_wishlists_user ON wishlists (user_id, created_at DESC) WHERE deleted_at IS NULL;
+CREATE INDEX idx_wishlists_ruta ON wishlists (ruta_id);
+
+CREATE UNIQUE INDEX uq_wishlists_user_ruta
+    ON wishlists (user_id, ruta_id)
     WHERE deleted_at IS NULL;
 
 -- Índices de la tienda pública: filtros del catálogo, búsqueda por slug y salidas próximas.

@@ -4,10 +4,11 @@ import { AuthService } from '../../auth/auth.service';
 import { AuthStore } from '../../auth/auth.store';
 import { BrandLogo } from '../../shared/components/brand-logo/brand-logo';
 import { ChatWidget } from '../../shared/components/chat-widget/chat-widget';
+import { WishlistLink } from '../../shared/components/wishlist-link/wishlist-link';
 
 @Component({
   selector: 'app-shop-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, BrandLogo, ChatWidget],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, BrandLogo, ChatWidget, WishlistLink],
   template: `
     <div class="flex min-h-screen flex-col bg-frost">
       <header class="sticky top-0 z-30 border-b border-sage/70 bg-mint/90 backdrop-blur">
@@ -29,6 +30,7 @@ import { ChatWidget } from '../../shared/components/chat-widget/chat-widget';
 
           <div class="flex items-center gap-2 justify-self-end">
             @if (isAuthenticated()) {
+              <app-wishlist-link />
               @if (canWrite()) {
                 <a routerLink="/routes" class="btn-secondary !py-1.5 text-sm">Panel</a>
               }

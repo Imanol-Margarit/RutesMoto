@@ -1,14 +1,14 @@
 import { pool } from "../config/db.js";
 
 // Solo se muestran rutas publicadas, activas y no borradas, con guía, categoría y localización activos si existen.
-const BASE_FROM = `
+export const BASE_FROM = `
   FROM rutas AS r
   LEFT JOIN hosts AS h ON h.id = r.host_id
   LEFT JOIN categories AS c ON c.id = r.category_id
   LEFT JOIN locations AS l ON l.id = r.location_id
 `;
 
-const BASE_CONDITIONS = [
+export const BASE_CONDITIONS = [
   "r.deleted_at IS NULL",
   "r.is_active = TRUE",
   "r.status = 'publicada'",
@@ -18,7 +18,7 @@ const BASE_CONDITIONS = [
 ];
 
 // Imagen principal y precio mínimo de las próximas salidas disponibles, en una sola consulta.
-const JOIN_CARD_DATA = `
+export const JOIN_CARD_DATA = `
   LEFT JOIN LATERAL (
     SELECT i.image_url, i.alt_text FROM rutas_images AS i
     WHERE i.ruta_id = r.id AND i.deleted_at IS NULL
@@ -32,7 +32,7 @@ const JOIN_CARD_DATA = `
   ) AS dep ON TRUE
 `;
 
-const SELECT_CARD = `
+export const SELECT_CARD = `
   SELECT r.id AS "_id", r.title, r.slug, r.description, r.difficulty, r.surface,
          r.distance_km AS "distanceKm", r.estimated_minutes AS "estimatedMinutes", r.start_point AS "startPoint",
          h.name AS "hostName", h.slug AS "hostSlug",

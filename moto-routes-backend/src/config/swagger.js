@@ -18,7 +18,8 @@ const definition = {
     { name: "Localizaciones", description: "Ciudad, región y país de cada ruta" },
     { name: "Usuarios", description: "Cuentas de usuario, con rol y contraseña" },
     { name: "Roles", description: "Roles de usuario" },
-    { name: "Comentarios", description: "Opiniones y valoraciones de los usuarios sobre una ruta" }
+    { name: "Comentarios", description: "Opiniones y valoraciones de los usuarios sobre una ruta" },
+    { name: "Lista de deseos", description: "Rutas guardadas por el usuario logueado" }
   ],
   components: {
     securitySchemes: {

@@ -13,7 +13,8 @@ const CONSTRAINT_MESSAGES = {
   departures_dates_check: "La fecha de fin debe ser posterior a la de inicio",
   departures_booked_check: "Las plazas reservadas no pueden superar la capacidad",
   uq_comments_ruta_user: "Ya has comentado esta ruta: edita tu comentario",
-  comments_rating_check: "La valoración debe estar entre 1 y 5"
+  comments_rating_check: "La valoración debe estar entre 1 y 5",
+  uq_wishlists_user_ruta: "Esa ruta ya está en tu lista de deseos"
 };
 
 /** Traduce los errores de PostgreSQL a respuestas HTTP en español. */

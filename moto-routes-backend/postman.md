@@ -483,3 +483,14 @@ Leer es público; escribir exige sesión (cookie `access_token`). El autor sale 
 - `PATCH {{baseUrl}}/api/comments/{{commentId}}` con `{ "rating": 4 }` → **200** si eres el autor; con otro usuario `user` → **403**.
 - `DELETE {{baseUrl}}/api/comments/{{commentId}}` → **200** para el autor, `admin` o `host`; para otro `user` → **403**.
 - Resumen IA (vía gateway): `GET http://localhost:4000/api/ia/agent/comments/{{slug}}/summary` → **200** con `{ summary, count, average }`.
+
+## 14. Lista de deseos (wishlist)
+
+Todo exige sesión (cookie `access_token`). El usuario sale de la sesión.
+
+- Sin sesión, `GET {{baseUrl}}/api/wishlist` → **401**.
+- Logueado como `marcos@`: `GET {{baseUrl}}/api/wishlist` → **200** con `{ count, items }` (tarjetas de ruta + `addedAt`; el seed le guarda 2).
+- `POST {{baseUrl}}/api/wishlist/{{slug}}` → **201**. Repetir → **200** ("ya estaba", no duplica).
+- `POST .../wishlist/no-existe` → **404**.
+- `DELETE {{baseUrl}}/api/wishlist/{{slug}}` → **200**. Repetir → **404**.
+- `GET {{baseUrl}}/api/shop/routes/{{slug}}` → el detalle incluye `wishlistCount` (cuántos usuarios la tienen guardada).

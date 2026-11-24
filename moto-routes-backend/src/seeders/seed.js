@@ -211,9 +211,16 @@ async function seed() {
     });
   }
 
+  // WISHLIST: Marcos tiene guardadas las dos primeras rutas.
+  const WISHLIST = [{ route: 0, user: "marcos" }, { route: 1, user: "marcos" }];
+  for (const item of WISHLIST) {
+    const slug = generateSlug(ROUTES[item.route].title);
+    await insert("wishlists", { user_id: userIds[item.user], ruta_id: routeIds[slug] });
+  }
+
   console.log(
     `Datos cargados: ${ROLES.length} roles, ${Object.keys(users).length} usuarios, ${CATEGORIES.length} categorías, ` +
-      `${HOSTS.length} guías, ${LOCATIONS.length} localizaciones, ${ROUTES.length} rutas, ${departures.length} salidas y ${COMMENTS.length} comentarios.`
+      `${HOSTS.length} guías, ${LOCATIONS.length} localizaciones, ${ROUTES.length} rutas, ${departures.length} salidas , ${COMMENTS.length} comentarios y ${WISHLIST.length} favoritos.`
   );
 }
 

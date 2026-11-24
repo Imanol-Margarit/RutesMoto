@@ -2,10 +2,11 @@ import { Component, computed, effect, inject, output, signal } from '@angular/co
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../auth/auth.service';
 import { AuthStore } from '../../../auth/auth.store';
+import { WishlistLink } from '../wishlist-link/wishlist-link';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, WishlistLink],
   template: `
     <header class="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-sage/70 bg-white/85 px-4 backdrop-blur sm:px-6 lg:px-8">
       <!-- Izquierda: menú móvil y título -->
@@ -27,6 +28,7 @@ import { AuthStore } from '../../../auth/auth.store';
 
       <!-- Derecha: usuario y cerrar sesión -->
       <div class="flex flex-1 items-center justify-end gap-3">
+        <app-wishlist-link />
         <div class="flex items-center gap-3 rounded-xl px-2 py-1.5">
           @if (avatarUrl() && !avatarFailed()) {
             <img [src]="avatarUrl()" (error)="avatarFailed.set(true)" alt="" class="h-9 w-9 rounded-full object-cover ring-2 ring-white" />
